@@ -117,8 +117,30 @@
             #conteudo-principal {
                 padding-top: 60px; padding-left: 10px; padding-right: 10px; width: 100%; box-sizing: border-box;
             }
-            .jogo-linha { flex-direction: column; gap: 8px; }
-            .equipe-nome { justify-content: center !important; text-align: center !important; width: 100%; }
+
+            /* Ajustes Finos para os Cards de Palpite não vazarem da tela */
+            .jogo-linha { padding: 15px 5px; }
+            .jogo-linha > div {
+                flex-wrap: wrap !important; /* Permite que o botão caia para a linha de baixo */
+                gap: 5px !important;
+                width: 100%;
+            }
+            .equipe-nome {
+                width: auto !important;
+                flex: 1; /* Faz os nomes das seleções dividirem o espaço igualmente */
+                font-size: 13px; /* Reduz a fonte levemente para caber os nomes grandes */
+            }
+            .equipe-mandante { justify-content: flex-end !important; text-align: right !important; }
+            .equipe-visitante { justify-content: flex-start !important; text-align: left !important; }
+            .jogo-linha input { width: 35px; padding: 5px 2px; }
+
+            /* Joga o botão Salvar para a parte de baixo ocupando toda a largura */
+            .jogo-linha > div > button {
+                width: 100%;
+                margin-top: 10px;
+                padding: 10px;
+                font-size: 16px;
+            }
         }
 
     </style>
