@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão Copa 2026 - Híbrido</title>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --verde-copa: #006b3f;
+            --fundo-app: #f4f6f9;
+        }
+        body {
+            margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--fundo-app); overflow-x: hidden;
+        }
+
+        #tela-login {
+            height: 100vh; width: 100vw;
+            background: url('https://cdn.jornaldaparaiba.com.br/img/inline/210000/Copa-do-Mundo-2026-conheca-a-Trionda-bola-oficial-0021348700202510040824.webp?xid=1170998') no-repeat center center;
+            background-size: cover;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center;
+        }
+        .login-box h2 { margin-top: 0; color: var(--verde-copa); }
+        .login-box input {
+            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box;
+        }
+        .btn-entrar {
+            width: 100%; padding: 12px; background: var(--verde-copa); color: white; border: none; border-radius: 6px;
+            font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+
+        #tela-app {
+            display: none;
+            height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Truque para a imagem ficar com 70% de opacidade sem deixar o texto transparente */
+        #tela-app::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: url('https://cdn.jornaldaparaiba.com.br/img/inline/210000/Copa-do-Mundo-2026-conheca-a-Trionda-bola-oficial-0021348700202510040824.webp?xid=1170998') no-repeat center center;
+            background-size: cover;
+            opacity: 0.7; /* Aqui estão os 70% */
+            z-index: -1;
+        }
+
+        #menu-lateral {
+            width: 250px; background: var(--verde-copa); color: white; padding: 20px 0; display: flex; flex-direction: column;
+        }
+        #menu-lateral h3 { text-align: center; margin-bottom: 30px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px;}
+        #menu-lateral button {
+            background: none; color: white; border: none; padding: 15px 20px; text-align: left; font-size: 16px; cursor: pointer; width: 100%; transition: 0.2s;
+        }
+        #menu-lateral button:hover, .btn-ativo { background: rgba(0,0,0,0.2) !important; }
+
+        #conteudo-principal { flex: 1; padding: 30px; overflow-y: auto; }
+        .aba { display: none; }
+        .aba.ativa { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;}
+        .jogo-linha { display: flex; align-items: center; justify-content: center; gap: 15px; margin: 15px 0; padding: 15px; background: #f9f9f9; border-radius: 8px; position: relative;}
+        .jogo-linha input { width: 50px; text-align: center; font-size: 18px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;}
+
+        .equipe-nome { width: 130px; font-weight: bold; display: flex; align-items: center; gap: 10px; }
+        .equipe-mandante { justify-content: flex-end; text-align: right; }
+        .equipe-visitante { justify-content: flex-start; text-align: left; }
+        .bandeira { width: 28px; height: 20px; border-radius: 3px; border: 1px solid #ddd; object-fit: cover;}
+        .bandeira-min { width: 20px; height: 15px; vertical-align: middle; margin-right: 8px; border-radius: 2px; border: 1px solid #ccc; }
+        .tv-info { position: absolute; top: 10px; right: 15px; font-size: 11px; color: #666; font-weight: bold; background: #eee; padding: 3px 8px; border-radius: 4px;}
+        .id-info { position: absolute; top: 10px; left: 15px; font-size: 11px; color: #fff; font-weight: bold; background: #333; padding: 3px 8px; border-radius: 4px;}
+
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #333; color: white; }
+        .tabela-grupos th { background: var(--verde-copa); }
+        .tabela-grupos tr:nth-child(1), .tabela-grupos tr:nth-child(2) { border-left: 3px solid #2ecc71; }
+
+        /* Estilos do Painel ADM */
+        .admin-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+        .admin-form input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .admin-form button { padding: 10px 20px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-danger { background: #dc3545 !important; }
+    </style>
+</head>
+<body>
+
+    <div id="tela-login">
+        <div class="login-box">
+            <h2>Copa do Mundo 2026</h2>
+            <p>Acesse seu bolão</p>
+            <input type="text" id="tokenGrupo" placeholder="Token da Liga (Ex: FAMILIA26)">
+            <input type="text" id="idUsuario" placeholder="Seu ID (Ex: rafaelbatista)">
+            <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
+        </div>
+    </div>
+
+    <div id="tela-app" style="display: none;">
+        <aside id="menu-lateral">
+            <h3>Bolão <span id="lbl-grupo"></span></h3>
+            <button onclick="mudarAba('palpites')" class="btn-ativo" id="btn-palpites">Meus Palpites</button>
+            <button onclick="mudarAba('grupos')" id="btn-grupos">Grupos e Mata-Mata</button>
+            <button onclick="mudarAba('ranking')" id="btn-ranking">Ranking Geral</button>
+
+            <!-- Botão ADM oculto por padrão -->
+            <button onclick="mudarAba('adm')" id="btn-adm" style="display: none; background: #ffce00; color: #333; font-weight: bold; margin-top: 20px;">Painel ADM</button>
+
+            <div style="flex-grow: 1;"></div>
+            <button onclick="sair()" style="background: #dc3545; text-align: center;">Sair</button>
+        </aside>
+
+        <main id="conteudo-principal">
+
+            <!-- ABA PALPITES -->
+            <section id="aba-palpites" class="aba ativa">
+                <h2>Palpites - Fase de Grupos</h2>
+                <div class="card" id="lista-jogos"><p>Carregando tabela oficial...</p></div>
+            </section>
+
+            <!-- ABA GRUPOS -->
+            <section id="aba-grupos" class="aba">
+                <h2>Classificação dos Grupos</h2>
+                <div id="container-grupos"></div>
+            </section>
+
+            <!-- ABA RANKING -->
+            <section id="aba-ranking" class="aba">
+                <h2>Ranking Geral</h2>
+                <div class="card">
+                    <table>
+                        <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
+                        <tbody id="tabela-ranking"><tr><td colspan="3">Carregando...</td></tr></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="aba-adm" class="aba">
+                <h2>Painel do Administrador</h2>
+
+                <div class="card">
+                    <h3>1. Forçar Resultado de Jogo</h3>
+                    <p style="font-size: 13px; color: #666;">Use o ID que aparece no canto esquerdo de cada jogo.</p>
+                    <div class="admin-form">
+                        <input type="number" id="adm-id-jogo" placeholder="ID do Jogo (Ex: 1)">
+                        <input type="number" id="adm-gol-m" placeholder="Gols Mandante">
+                        <input type="number" id="adm-gol-v" placeholder="Gols Visitante">
+                        <button onclick="forcarResultado()">Salvar Oficial</button>
+                        <button class="btn-danger" onclick="removerResultado()">Desfazer</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>2. Criar Liga & Usuários em Massa</h3>
+                    <p style="font-size: 13px; color: #666;">Crie a liga e cole a lista de usuários no formato <b>idlogin:Nome Completo</b>, um por linha.</p>
+                    <div class="admin-form">
+                        <input type="text" id="adm-massa-token" placeholder="Token da Liga (Ex: DAFITI26)">
+                        <input type="text" id="adm-massa-nome" placeholder="Nome Completo (Ex: Empresa Dafiti)">
+                        <textarea id="adm-massa-users" placeholder="exemplo1:Rafael Batista&#10;exemplo2:Ygor Nayron" style="width: 100%; height: 80px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; resize: vertical; margin-bottom: 10px;"></textarea>
+                        <button onclick="criarLigaEmMassa()" style="width: 100%;">Criar Liga e Adicionar Todos</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>3. Gerenciar Ligas e Usuários Atuais</h3>
+                    <button onclick="carregarLigasADM()" style="margin-bottom: 15px; padding: 8px 15px; background: var(--verde-copa); color: white; border: none; border-radius: 4px; cursor: pointer;">🔄 Atualizar / Ver Ligas</button>
+                    <div id="lista-ligas-admin">
+                        <p style="color: #666; font-size: 14px;">Clique em atualizar para carregar as ligas.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>4. Definir Times do Mata-Mata (ID 73+)</h3>
+                    <p style="font-size: 13px; color: #666;">Troque os "A Definir" pelos nomes reais. A bandeira muda sozinha!</p>
+                    <div class="admin-form">
+                        <input type="number" id="adm-mata-id" placeholder="ID (Ex: 73)">
+                        <input type="text" id="adm-mata-m" placeholder="Mandante (Ex: Argentina)">
+                        <input type="text" id="adm-mata-v" placeholder="Visitante (Ex: Brasil)">
+                        <button onclick="definirMataMata()">Atualizar Times</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>5. Ver Ranking Geral das Ligas</h3>
+                    <div class="admin-form">
+                        <input type="text" id="adm-ranking-token" placeholder="Digite o Token (Ex: FAMILIA26)">
+                        <button onclick="verRankingAdmin()">Buscar Ranking</button>
+                    </div>
+                    <table style="margin-top: 15px;">
+                        <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
+                        <tbody id="tabela-ranking-adm"><tr><td colspan="3">Aguardando busca...</td></tr></tbody>
+                    </table>
+                </div>
+
+            </section>
+        </main>
+    </div>
+
+    <script>
+    const firebaseConfig = { databaseURL: "https://copa2026-d5982-default-rtdb.firebaseio.com/" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let usuarioAtual = ""; let grupoAtual = ""; let nomeUsuarioAtual = "";
+        let resultadosGlobais = {}; // Adicione esta linha no topo
+
+        // =========================================================
+        // BASE DE JOGOS OFICIAL - COPA DO MUNDO 2026 (104 Jogos)
+        // =========================================================
+        const baseDeJogosOficial = [
+            // --- 1ª RODADA ---
+            { id: 1, date: "2026-06-11T16:00:00Z", tv: "Cazé TV", home: { name: "México", logo: "https://flagcdn.com/w40/mx.png"}, away: { name: "África do Sul", logo: "https://flagcdn.com/w40/za.png"} },
+            { id: 2, date: "2026-06-11T23:00:00Z", tv: "Cazé TV", home: { name: "Rep. da Coreia", logo: "https://flagcdn.com/w40/kr.png"}, away: { name: "Rep. Tcheca", logo: "https://flagcdn.com/w40/cz.png"} },
+            { id: 3, date: "2026-06-12T16:00:00Z", tv: "Cazé TV", home: { name: "Canadá", logo: "https://flagcdn.com/w40/ca.png"}, away: { name: "Bósnia", logo: "https://flagcdn.com/w40/ba.png"} },
+            { id: 4, date: "2026-06-12T22:00:00Z", tv: "Cazé TV", home: { name: "EUA", logo: "https://flagcdn.com/w40/us.png"}, away: { name: "Paraguai", logo: "https://flagcdn.com/w40/py.png"} },
+            { id: 5, date: "2026-06-13T16:00:00Z", tv: "Cazé TV", home: { name: "Catar", logo: "https://flagcdn.com/w40/qa.png"}, away: { name: "Suíça", logo: "https://flagcdn.com/w40/ch.png"} },
+            { id: 6, date: "2026-06-13T19:00:00Z", tv: "Cazé TV", home: { name: "Brasil", logo: "https://flagcdn.com/w40/br.png"}, away: { name: "Marrocos", logo: "https://flagcdn.com/w40/ma.png"} },
+            { id: 7, date: "2026-06-13T22:00:00Z", tv: "Cazé TV", home: { name: "Haiti", logo: "https://flagcdn.com/w40/ht.png"}, away: { name: "Escócia", logo: "https://flagcdn.com/w40/gb-sct.png"} },
+            { id: 8, date: "2026-06-14T01:00:00Z", tv: "Cazé TV", home: { name: "Austrália", logo: "https://flagcdn.com/w40/au.png"}, away: { name: "Turquia", logo: "https://flagcdn.com/w40/tr.png"} },
+            { id: 9, date: "2026-06-14T14:00:00Z", tv: "Cazé TV", home: { name: "Alemanha", logo: "https://flagcdn.com/w40/de.png"}, away: { name: "Curaçau", logo: "https://flagcdn.com/w40/cw.png"} },
+            { id: 10, date: "2026-06-14T20:00:00Z", tv: "Cazé TV", home: { name: "C. do Marfim", logo: "https://flagcdn.com/w40/ci.png"}, away: { name: "Equador", logo: "https://flagcdn.com/w40/ec.png"} },
+            { id: 11, date: "2026-06-14T17:00:00Z", tv: "Cazé TV", home: { name: "Holanda", logo: "https://flagcdn.com/w40/nl.png"}, away: { name: "Japão", logo: "https://flagcdn.com/w40/jp.png"} },
+            { id: 12, date: "2026-06-14T23:00:00Z", tv: "Cazé TV", home: { name: "Suécia", logo: "https://flagcdn.com/w40/se.png"}, away: { name: "Tunísia", logo: "https://flagcdn.com/w40/tn.png"} },
+            { id: 13, date: "2026-06-15T13:00:00Z", tv: "Cazé TV", home: { name: "Espanha", logo: "https://flagcdn.com/w40/es.png"}, away: { name: "Cabo Verde", logo: "https://flagcdn.com/w40/cv.png"} },
+            { id: 14, date: "2026-06-15T19:00:00Z", tv: "Cazé TV", home: { name: "Arábia Saudita", logo: "https://flagcdn.com/w40/sa.png"}, away: { name: "Uruguai", logo: "https://flagcdn.com/w40/uy.png"} },
+            { id: 15, date: "2026-06-15T16:00:00Z", tv: "Cazé TV", home: { name: "Bélgica", logo: "https://flagcdn.com/w40/be.png"}, away: { name: "Egito", logo: "https://flagcdn.com/w40/eg.png"} },
+            { id: 16, date: "2026-06-15T22:00:00Z", tv: "Cazé TV", home: { name: "Irã", logo: "https://flagcdn.com/w40/ir.png"}, away: { name: "Nova Zelândia", logo: "https://flagcdn.com/w40/nz.png"} },
+            { id: 17, date: "2026-06-17T01:00:00Z", tv: "Cazé TV", home: { name: "Áustria", logo: "https://flagcdn.com/w40/at.png"}, away: { name: "Jordânia", logo: "https://flagcdn.com/w40/jo.png"} },
+            { id: 18, date: "2026-06-16T16:00:00Z", tv: "Cazé TV", home: { name: "França", logo: "https://flagcdn.com/w40/fr.png"}, away: { name: "Senegal", logo: "https://flagcdn.com/w40/sn.png"} },
+            { id: 19, date: "2026-06-16T19:00:00Z", tv: "Cazé TV", home: { name: "Iraque", logo: "https://flagcdn.com/w40/iq.png"}, away: { name: "Noruega", logo: "https://flagcdn.com/w40/no.png"} },
+            { id: 20, date: "2026-06-16T22:00:00Z", tv: "Cazé TV", home: { name: "Argentina", logo: "https://flagcdn.com/w40/ar.png"}, away: { name: "Argélia", logo: "https://flagcdn.com/w40/dz.png"} },
+            { id: 21, date: "2026-06-17T14:00:00Z", tv: "Cazé TV", home: { name: "Portugal", logo: "https://flagcdn.com/w40/pt.png"}, away: { name: "RD Congo", logo: "https://flagcdn.com/w40/cd.png"} },
+            { id: 22, date: "2026-06-17T17:00:00Z", tv: "Cazé TV", home: { name: "Inglaterra", logo: "https://flagcdn.com/w40/gb-eng.png"}, away: { name: "Croácia", logo: "https://flagcdn.com/w40/hr.png"} },
+            { id: 23, date: "2026-06-17T20:00:00Z", tv: "Cazé TV", home: { name: "Gana", logo: "https://flagcdn.com/w40/gh.png"}, away: { name: "Panamá", logo: "https://flagcdn.com/w40/pa.png"} },
+            { id: 24, date: "2026-06-17T21:00:00Z", tv: "Cazé TV", home: { name: "Uzbequistão", logo: "https://flagcdn.com/w40/uz.png"}, away: { name: "Colômbia", logo: "https://flagcdn.com/w40/co.png"} },
+
+            // --- 2ª RODADA ---
+            { id: 25, date: "2026-06-18T13:00:00Z", tv: "Cazé TV", home: { name: "Rep. Tcheca", logo: "https://flagcdn.com/w40/cz.png"}, away: { name: "África do Sul", logo: "https://flagcdn.com/w40/za.png"} },
+            { id: 26, date: "2026-06-18T16:00:00Z", tv: "Cazé TV", home: { name: "Suíça", logo: "https://flagcdn.com/w40/ch.png"}, away: { name: "Bósnia", logo: "https://flagcdn.com/w40/ba.png"} },
+            { id: 27, date: "2026-06-18T19:00:00Z", tv: "Cazé TV", home: { name: "Canadá", logo: "https://flagcdn.com/w40/ca.png"}, away: { name: "Catar", logo: "https://flagcdn.com/w40/qa.png"} },
+            { id: 28, date: "2026-06-18T22:00:00Z", tv: "Cazé TV", home: { name: "México", logo: "https://flagcdn.com/w40/mx.png"}, away: { name: "Rep. da Coreia", logo: "https://flagcdn.com/w40/kr.png"} },
+            { id: 29, date: "2026-06-19T00:00:00Z", tv: "Cazé TV", home: { name: "Turquia", logo: "https://flagcdn.com/w40/tr.png"}, away: { name: "Paraguai", logo: "https://flagcdn.com/w40/py.png"} },
+            { id: 30, date: "2026-06-19T16:00:00Z", tv: "Cazé TV", home: { name: "EUA", logo: "https://flagcdn.com/w40/us.png"}, away: { name: "Austrália", logo: "https://flagcdn.com/w40/au.png"} },
+            { id: 31, date: "2026-06-19T19:00:00Z", tv: "Cazé TV", home: { name: "Escócia", logo: "https://flagcdn.com/w40/gb-sct.png"}, away: { name: "Marrocos", logo: "https://flagcdn.com/w40/ma.png"} },
+            { id: 32, date: "2026-06-19T21:30:00Z", tv: "Cazé TV", home: { name: "Brasil", logo: "https://flagcdn.com/w40/br.png"}, away: { name: "Haiti", logo: "https://flagcdn.com/w40/ht.png"} },
+            { id: 33, date: "2026-06-20T23:00:00Z", tv: "Cazé TV", home: { name: "Tunísia", logo: "https://flagcdn.com/w40/tn.png"}, away: { name: "Japão", logo: "https://flagcdn.com/w40/jp.png"} },
+            { id: 34, date: "2026-06-20T14:00:00Z", tv: "Cazé TV", home: { name: "Holanda", logo: "https://flagcdn.com/w40/nl.png"}, away: { name: "Suécia", logo: "https://flagcdn.com/w40/se.png"} },
+            { id: 35, date: "2026-06-20T17:00:00Z", tv: "Cazé TV", home: { name: "Alemanha", logo: "https://flagcdn.com/w40/de.png"}, away: { name: "C. do Marfim", logo: "https://flagcdn.com/w40/ci.png"} },
+            { id: 36, date: "2026-06-20T21:00:00Z", tv: "Cazé TV", home: { name: "Equador", logo: "https://flagcdn.com/w40/ec.png"}, away: { name: "Curaçau", logo: "https://flagcdn.com/w40/cw.png"} },
+            { id: 37, date: "2026-06-21T13:00:00Z", tv: "Cazé TV", home: { name: "Espanha", logo: "https://flagcdn.com/w40/es.png"}, away: { name: "Arábia Saudita", logo: "https://flagcdn.com/w40/sa.png"} },
+            { id: 38, date: "2026-06-21T16:00:00Z", tv: "Cazé TV", home: { name: "Bélgica", logo: "https://flagcdn.com/w40/be.png"}, away: { name: "Irã", logo: "https://flagcdn.com/w40/ir.png"} },
+            { id: 39, date: "2026-06-21T19:00:00Z", tv: "Cazé TV", home: { name: "Uruguai", logo: "https://flagcdn.com/w40/uy.png"}, away: { name: "Cabo Verde", logo: "https://flagcdn.com/w40/cv.png"} },
+            { id: 40, date: "2026-06-21T22:00:00Z", tv: "Cazé TV", home: { name: "Nova Zelândia", logo: "https://flagcdn.com/w40/nz.png"}, away: { name: "Egito", logo: "https://flagcdn.com/w40/eg.png"} },
+            { id: 41, date: "2026-06-22T14:00:00Z", tv: "Cazé TV", home: { name: "Argentina", logo: "https://flagcdn.com/w40/ar.png"}, away: { name: "Áustria", logo: "https://flagcdn.com/w40/at.png"} },
+            { id: 42, date: "2026-06-22T18:00:00Z", tv: "Cazé TV", home: { name: "França", logo: "https://flagcdn.com/w40/fr.png"}, away: { name: "Iraque", logo: "https://flagcdn.com/w40/iq.png"} },
+            { id: 43, date: "2026-06-22T21:00:00Z", tv: "Cazé TV", home: { name: "Noruega", logo: "https://flagcdn.com/w40/no.png"}, away: { name: "Senegal", logo: "https://flagcdn.com/w40/sn.png"} },
+            { id: 44, date: "2026-06-23T00:00:00Z", tv: "Cazé TV", home: { name: "Jordânia", logo: "https://flagcdn.com/w40/jo.png"}, away: { name: "Argélia", logo: "https://flagcdn.com/w40/dz.png"} },
+            { id: 45, date: "2026-06-23T14:00:00Z", tv: "Cazé TV", home: { name: "Portugal", logo: "https://flagcdn.com/w40/pt.png"}, away: { name: "Uzbequistão", logo: "https://flagcdn.com/w40/uz.png"} },
+            { id: 46, date: "2026-06-23T17:00:00Z", tv: "Cazé TV", home: { name: "Inglaterra", logo: "https://flagcdn.com/w40/gb-eng.png"}, away: { name: "Gana", logo: "https://flagcdn.com/w40/gh.png"} },
+            { id: 47, date: "2026-06-23T20:00:00Z", tv: "Cazé TV", home: { name: "Panamá", logo: "https://flagcdn.com/w40/pa.png"}, away: { name: "Croácia", logo: "https://flagcdn.com/w40/hr.png"} },
+            { id: 48, date: "2026-06-23T23:00:00Z", tv: "Cazé TV", home: { name: "Colômbia", logo: "https://flagcdn.com/w40/co.png"}, away: { name: "RD Congo", logo: "https://flagcdn.com/w40/cd.png"} },
+
+            // --- 3ª RODADA ---
+            { id: 49, date: "2026-06-24T16:00:00Z", tv: "Cazé TV", home: { name: "Suíça", logo: "https://flagcdn.com/w40/ch.png"}, away: { name: "Canadá", logo: "https://flagcdn.com/w40/ca.png"} },
+            { id: 50, date: "2026-06-24T16:00:00Z", tv: "Cazé TV", home: { name: "Bósnia", logo: "https://flagcdn.com/w40/ba.png"}, away: { name: "Catar", logo: "https://flagcdn.com/w40/qa.png"} },
+            { id: 51, date: "2026-06-24T19:00:00Z", tv: "Cazé TV", home: { name: "Escócia", logo: "https://flagcdn.com/w40/gb-sct.png"}, away: { name: "Brasil", logo: "https://flagcdn.com/w40/br.png"} },
+            { id: 52, date: "2026-06-24T19:00:00Z", tv: "Cazé TV", home: { name: "Marrocos", logo: "https://flagcdn.com/w40/ma.png"}, away: { name: "Haiti", logo: "https://flagcdn.com/w40/ht.png"} },
+            { id: 53, date: "2026-06-24T22:00:00Z", tv: "Cazé TV", home: { name: "Rep. Tcheca", logo: "https://flagcdn.com/w40/cz.png"}, away: { name: "México", logo: "https://flagcdn.com/w40/mx.png"} },
+            { id: 54, date: "2026-06-24T22:00:00Z", tv: "Cazé TV", home: { name: "África do Sul", logo: "https://flagcdn.com/w40/za.png"}, away: { name: "Rep. da Coreia", logo: "https://flagcdn.com/w40/kr.png"} },
+            { id: 55, date: "2026-06-25T17:00:00Z", tv: "Cazé TV", home: { name: "Equador", logo: "https://flagcdn.com/w40/ec.png"}, away: { name: "Alemanha", logo: "https://flagcdn.com/w40/de.png"} },
+            { id: 56, date: "2026-06-25T17:00:00Z", tv: "Cazé TV", home: { name: "Curaçau", logo: "https://flagcdn.com/w40/cw.png"}, away: { name: "C. do Marfim", logo: "https://flagcdn.com/w40/ci.png"} },
+            { id: 57, date: "2026-06-25T20:00:00Z", tv: "Cazé TV", home: { name: "Japão", logo: "https://flagcdn.com/w40/jp.png"}, away: { name: "Suécia", logo: "https://flagcdn.com/w40/se.png"} },
+            { id: 58, date: "2026-06-25T20:00:00Z", tv: "Cazé TV", home: { name: "Tunísia", logo: "https://flagcdn.com/w40/tn.png"}, away: { name: "Holanda", logo: "https://flagcdn.com/w40/nl.png"} },
+            { id: 59, date: "2026-06-25T23:00:00Z", tv: "Cazé TV", home: { name: "Turquia", logo: "https://flagcdn.com/w40/tr.png"}, away: { name: "EUA", logo: "https://flagcdn.com/w40/us.png"} },
+            { id: 60, date: "2026-06-25T23:00:00Z", tv: "Cazé TV", home: { name: "Paraguai", logo: "https://flagcdn.com/w40/py.png"}, away: { name: "Austrália", logo: "https://flagcdn.com/w40/au.png"} },
+            { id: 61, date: "2026-06-26T16:00:00Z", tv: "Cazé TV", home: { name: "Noruega", logo: "https://flagcdn.com/w40/no.png"}, away: { name: "França", logo: "https://flagcdn.com/w40/fr.png"} },
+            { id: 62, date: "2026-06-26T16:00:00Z", tv: "Cazé TV", home: { name: "Senegal", logo: "https://flagcdn.com/w40/sn.png"}, away: { name: "Iraque", logo: "https://flagcdn.com/w40/iq.png"} },
+            { id: 63, date: "2026-06-26T21:00:00Z", tv: "Cazé TV", home: { name: "Cabo Verde", logo: "https://flagcdn.com/w40/cv.png"}, away: { name: "Arábia Saudita", logo: "https://flagcdn.com/w40/sa.png"} },
+            { id: 64, date: "2026-06-26T21:00:00Z", tv: "Cazé TV", home: { name: "Uruguai", logo: "https://flagcdn.com/w40/uy.png"}, away: { name: "Espanha", logo: "https://flagcdn.com/w40/es.png"} },
+            { id: 65, date: "2026-06-27T00:00:00Z", tv: "Cazé TV", home: { name: "Egito", logo: "https://flagcdn.com/w40/eg.png"}, away: { name: "Irã", logo: "https://flagcdn.com/w40/ir.png"} },
+            { id: 66, date: "2026-06-27T00:00:00Z", tv: "Cazé TV", home: { name: "Nova Zelândia", logo: "https://flagcdn.com/w40/nz.png"}, away: { name: "Bélgica", logo: "https://flagcdn.com/w40/be.png"} },
+            { id: 67, date: "2026-06-27T18:00:00Z", tv: "Cazé TV", home: { name: "Panamá", logo: "https://flagcdn.com/w40/pa.png"}, away: { name: "Inglaterra", logo: "https://flagcdn.com/w40/gb-eng.png"} },
+            { id: 68, date: "2026-06-27T18:00:00Z", tv: "Cazé TV", home: { name: "Croácia", logo: "https://flagcdn.com/w40/hr.png"}, away: { name: "Gana", logo: "https://flagcdn.com/w40/gh.png"} },
+            { id: 69, date: "2026-06-27T20:30:00Z", tv: "Cazé TV", home: { name: "Colômbia", logo: "https://flagcdn.com/w40/co.png"}, away: { name: "Portugal", logo: "https://flagcdn.com/w40/pt.png"} },
+            { id: 70, date: "2026-06-27T20:30:00Z", tv: "Cazé TV", home: { name: "RD Congo", logo: "https://flagcdn.com/w40/cd.png"}, away: { name: "Uzbequistão", logo: "https://flagcdn.com/w40/uz.png"} },
+            { id: 71, date: "2026-06-27T23:00:00Z", tv: "Cazé TV", home: { name: "Argélia", logo: "https://flagcdn.com/w40/dz.png"}, away: { name: "Áustria", logo: "https://flagcdn.com/w40/at.png"} },
+            { id: 72, date: "2026-06-28T23:00:00Z", tv: "Cazé TV", home: { name: "Jordânia", logo: "https://flagcdn.com/w40/jo.png"}, away: { name: "Argentina", logo: "https://flagcdn.com/w40/ar.png"} },
+
+            // --- 32-AVOS DE FINAL ---
+            { id: 73, date: "2026-06-28T00:00:00Z", tv: "32-Avos", home: { name: "2º Grupo A", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo B", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 74, date: "2026-06-29T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo E", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo A/B/C/D/F", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 75, date: "2026-06-29T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo F", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo C", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 76, date: "2026-06-29T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo C", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo F", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 77, date: "2026-06-30T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo I", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo C/D/F/G/H", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 78, date: "2026-06-30T00:00:00Z", tv: "32-Avos", home: { name: "2º Grupo E", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo I", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 79, date: "2026-06-30T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo A", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo C/E/F/H/I", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 80, date: "2026-07-01T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo L", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo E/H/I/J/K", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 81, date: "2026-07-01T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo D", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo B/E/F/I/J", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 82, date: "2026-07-01T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo G", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo A/E/H/I/J", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 83, date: "2026-07-02T00:00:00Z", tv: "32-Avos", home: { name: "2º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo L", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 84, date: "2026-07-02T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo H", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo J", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 85, date: "2026-07-02T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo B", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo E/F/G/I/J", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 86, date: "2026-07-03T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo J", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo H", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 87, date: "2026-07-03T00:00:00Z", tv: "32-Avos", home: { name: "1º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo D/E/I/J/L", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 88, date: "2026-07-03T00:00:00Z", tv: "32-Avos", home: { name: "2º Grupo D", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo G", logo: "https://flagcdn.com/w40/un.png"} },
+
+            // --- OITAVAS DE FINAL ---
+            { id: 89, date: "2026-07-04T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 74", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 77", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 90, date: "2026-07-04T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 73", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 75", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 91, date: "2026-07-05T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 76", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 78", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 92, date: "2026-07-05T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 79", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 80", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 93, date: "2026-07-06T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 83", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 84", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 94, date: "2026-07-06T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 81", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 82", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 95, date: "2026-07-07T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 86", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 88", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 96, date: "2026-07-07T00:00:00Z", tv: "Oitavas", home: { name: "Vencedor Jogo 85", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 87", logo: "https://flagcdn.com/w40/un.png"} },
+
+            // --- QUARTAS DE FINAL ---
+            { id: 97, date: "2026-07-09T00:00:00Z", tv: "Quartas", home: { name: "Vencedor Jogo 89", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 90", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 98, date: "2026-07-10T00:00:00Z", tv: "Quartas", home: { name: "Vencedor Jogo 93", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 94", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 99, date: "2026-07-12T00:00:00Z", tv: "Quartas", home: { name: "Vencedor Jogo 91", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 92", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 100, date: "2026-07-12T00:00:00Z", tv: "Quartas", home: { name: "Vencedor Jogo 95", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 96", logo: "https://flagcdn.com/w40/un.png"} },
+
+            // --- SEMIFINAIS ---
+            { id: 101, date: "2026-07-14T00:00:00Z", tv: "Semifinal", home: { name: "Vencedor Jogo 97", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 98", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 102, date: "2026-07-15T00:00:00Z", tv: "Semifinal", home: { name: "Vencedor Jogo 99", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 100", logo: "https://flagcdn.com/w40/un.png"} },
+
+            // --- 3º LUGAR E FINAL ---
+            { id: 103, date: "2026-07-18T00:00:00Z", tv: "3º Lugar", home: { name: "Perdedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Perdedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 104, date: "2026-07-19T00:00:00Z", tv: "GRANDE FINAL", home: { name: "Vencedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} }
+        ];
+
+        function fazerLogin() {
+            const token = document.getElementById('tokenGrupo').value.toUpperCase().trim();
+            const id = document.getElementById('idUsuario').value.toLowerCase().trim();
+
+            if(!token || !id) return alert("Preencha todos os campos!");
+
+            // 1. BYPASS DE ADMINISTRADOR (Acesso Livre)
+            if (token === "ADM" && id === "rafaelbatista") {
+                grupoAtual = "ADM"; usuarioAtual = "rafaelbatista"; nomeUsuarioAtual = "Rafael (Admin)";
+                document.getElementById('lbl-grupo').innerText = `MODO ADMINISTRADOR`;
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('tela-app').style.display = 'flex';
+                document.getElementById('btn-adm').style.display = 'block'; // Revela o botão
+                mudarAba('adm');
+                carregarHibrido(); // Carrega para o admin poder ver os IDs
+                return;
+            }
+
+            // 2. LOGIN NORMAL DE USUÁRIOS
+            db.ref(`grupos/${token}/usuarios/${id}`).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    const dadosUsuario = snapshot.val();
+                    grupoAtual = token; usuarioAtual = id; nomeUsuarioAtual = dadosUsuario.nome;
+                    document.getElementById('lbl-grupo').innerText = `${grupoAtual} - ${nomeUsuarioAtual}`;
+                    document.getElementById('tela-login').style.display = 'none';
+                    document.getElementById('tela-app').style.display = 'flex';
+                    carregarHibrido();
+                } else {
+                    alert("Acesso Negado! Verifique a Liga e o ID.");
+                }
+            }).catch(error => { alert("Erro ao conectar ao banco."); });
+        }
+
+        function sair() { location.reload(); }
+
+        function mudarAba(abaId) {
+            document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
+            document.querySelectorAll('#menu-lateral button').forEach(b => b.classList.remove('btn-ativo'));
+            document.getElementById(`aba-${abaId}`).classList.add('ativa');
+            document.getElementById(`btn-${abaId}`).classList.add('btn-ativo');
+        }
+
+        // FUNÇÃO QUE CALCULA E GERA OS 12 GRUPOS AUTOMATICAMENTE
+        function renderizarGrupos(resultadosAtivos) {
+            const container = document.getElementById('container-grupos');
+            container.innerHTML = "";
+
+            const gruposDefinidos = {
+                'A': ['México', 'África do Sul', 'Rep. da Coreia', 'Rep. Tcheca'],
+                'B': ['Canadá', 'Bósnia', 'Catar', 'Suíça'],
+                'C': ['Brasil', 'Marrocos', 'Haiti', 'Escócia'],
+                'D': ['EUA', 'Paraguai', 'Austrália', 'Turquia'],
+                'E': ['Alemanha', 'Curaçau', 'Equador', 'C. do Marfim'],
+                'F': ['Holanda', 'Japão', 'Tunísia', 'Suécia'],
+                'G': ['Espanha', 'Arábia Saudita', 'Uruguai', 'Cabo Verde'],
+                'H': ['Bélgica', 'Egito', 'Irã', 'Nova Zelândia'],
+                'I': ['França', 'Senegal', 'Iraque', 'Noruega'],
+                'J': ['Argentina', 'Áustria', 'Jordânia', 'Argélia'],
+                'K': ['Portugal', 'Uzbequistão', 'Gana', 'Panamá'],
+                'L': ['Inglaterra', 'Croácia', 'Colômbia', 'RD Congo']
+            };
+
+            // 1. Cria o placar zerado para todo mundo
+            let stats = {};
+            Object.values(gruposDefinidos).flat().forEach(t => {
+                stats[t] = { pts: 0, j: 0, v: 0, sg: 0, pro: 0 };
+            });
+
+            // 2. Lê os resultados que você colocou no ADM e faz a matemática
+            baseDeJogosOficial.slice(0, 72).forEach(jogo => {
+                const res = resultadosAtivos[jogo.id];
+                if (res && res.status === "FT") {
+                    let home = jogo.home.name; let away = jogo.away.name;
+                    if(stats[home] && stats[away]) {
+                        stats[home].j++; stats[away].j++;
+                        let diff = res.m - res.v;
+                        stats[home].sg += diff; stats[away].sg -= diff;
+                        stats[home].pro += res.m; stats[away].pro += res.v;
+
+                        if (diff > 0) { stats[home].pts += 3; stats[home].v++; } // Vitória Mandante
+                        else if (diff < 0) { stats[away].pts += 3; stats[away].v++; } // Vitória Visitante
+                        else { stats[home].pts += 1; stats[away].pts += 1; } // Empate
+                    }
+                }
+            });
+
+            // 3. Monta a tabela na tela já ordenada (Pontos > Saldo > Gols Pró)
+            Object.entries(gruposDefinidos).forEach(([letra, times]) => {
+                let timesOrdenados = times.map(t => ({ nome: t, ...stats[t] }));
+                timesOrdenados.sort((a, b) => b.pts - a.pts || b.sg - a.sg || b.pro - a.pro);
+
+                let linhas = timesOrdenados.map(t => {
+                    let logo = "https://flagcdn.com/w40/un.png";
+                    const jogoEncontrado = baseDeJogosOficial.find(j => j.home.name === t.nome || j.away.name === t.nome);
+                    if (jogoEncontrado) logo = jogoEncontrado.home.name === t.nome ? jogoEncontrado.home.logo : jogoEncontrado.away.logo;
+
+                    return `<tr><td><img src="${logo}" class="bandeira-min"> ${t.nome}</td><td><strong>${t.pts}</strong></td><td>${t.j}</td><td>${t.v}</td><td>${t.sg}</td></tr>`;
+                }).join('');
+
+                container.innerHTML += `
+                    <div class="card">
+                        <h3>Grupo ${letra}</h3>
+                        <table class="tabela-grupos">
+                            <thead><tr><th>Seleção</th><th>PTS</th><th>J</th><th>V</th><th>SG</th></tr></thead>
+                            <tbody>${linhas}</tbody>
+                        </table>
+                    </div>`;
+            });
+        }
+        // ====== MOTOR HÍBRIDO ======
+        async function carregarHibrido() {
+            // Agora o ADM puxa tanto os resultados quanto os confrontos alterados
+            db.ref(`admin`).on('value', async (snap) => {
+                const adminData = snap.val() || {};
+                const resultadosForcados = adminData.resultados || {};
+                const confrontosForcados = adminData.confrontos || {};
+                let resultadosApi = {};
+
+                try {
+                    const resJogos = await fetch("https://v3.football.api-sports.io/fixtures?league=1&season=2026", { headers: { "x-apisports-key": "c020921a0977f7b74af16af82b6fdf19" } });
+                    const dados = await resJogos.json();
+                    if(dados.response) { /* processar dados da api */ }
+                } catch(e) { console.log("API falhou, usando base local."); }
+
+                resultadosGlobais = { ...resultadosApi, ...resultadosForcados };
+
+                renderizarBase(resultadosGlobais, confrontosForcados);
+                renderizarGrupos(resultadosGlobais);
+
+                if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
+            });
+        }
+
+        async function renderizarBase(resultadosAtivos, confrontosForcados) {
+            const container = document.getElementById('lista-jogos');
+            container.innerHTML = "";
+
+            const path = grupoAtual === "ADM" ? null : `grupos/${grupoAtual}/usuarios/${usuarioAtual}/palpites`;
+            let palpites = {};
+            if (path) {
+                const snap = await db.ref(path).once('value');
+                palpites = snap.val() || {};
+            }
+
+            baseDeJogosOficial.forEach(jogo => {
+                // SE O ADM MUDOU O TIME DO MATA-MATA, APLICA AQUI
+                if (confrontosForcados && confrontosForcados[jogo.id]) {
+                    jogo.home.name = confrontosForcados[jogo.id].home;
+                    jogo.away.name = confrontosForcados[jogo.id].away;
+                    jogo.home.logo = obterBandeira(jogo.home.name);
+                    jogo.away.logo = obterBandeira(jogo.away.name);
+                }
+
+                const resultado = resultadosAtivos[jogo.id];
+                const jogoEncerrado = resultado && resultado.status === "FT";
+                const dataJogo = new Date(jogo.date);
+                const dataFormatada = dataJogo.toLocaleDateString('pt-BR') + ' às ' + dataJogo.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                const textoStatus = jogoEncerrado
+                    ? `<span style="color:#dc3545; font-size:12px; font-weight:bold;">Encerrado (Oficial: ${resultado.m} x ${resultado.v})</span>`
+                    : `<span style="color:#006b3f; font-size:12px; font-weight:bold;">${dataFormatada}</span>`;
+
+                montarCard(container, jogo, palpites[jogo.id] || {m: "", v: ""}, jogoEncerrado, textoStatus);
+            });
+        }
+
+        // Função mágica que rouba a bandeira da fase de grupos pelo nome
+        function obterBandeira(nome) {
+            const jogo = baseDeJogosOficial.slice(0, 72).find(j => j.home.name === nome || j.away.name === nome);
+            if (jogo) return jogo.home.name === nome ? jogo.home.logo : jogo.away.logo;
+            return "https://flagcdn.com/w40/un.png";
+        }
+
+        function montarCard(container, jogo, palpite, jogoEncerrado, textoStatus) {
+            container.innerHTML += `
+                <div class="jogo-linha" style="flex-direction:column; align-items:center;">
+                    <span class="id-info">ID: ${jogo.id}</span>
+                    <span class="tv-info">📺 ${jogo.tv}</span>
+                    ${textoStatus}
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
+                        <span class="equipe-nome equipe-mandante">${jogo.home.name} <img src="${jogo.home.logo}" class="bandeira"></span>
+                        <input type="number" id="m-${jogo.id}" value="${palpite.m}" ${jogoEncerrado || grupoAtual==="ADM" ? 'disabled' : ''}>
+                        <span>X</span>
+                        <input type="number" id="v-${jogo.id}" value="${palpite.v}" ${jogoEncerrado || grupoAtual==="ADM" ? 'disabled' : ''}>
+                        <span class="equipe-nome equipe-visitante"><img src="${jogo.away.logo}" class="bandeira"> ${jogo.away.name}</span>
+                        ${!jogoEncerrado && grupoAtual !== "ADM"
+                            ? `<button onclick="salvarPalpite(${jogo.id})" style="background:var(--verde-copa); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;">Salvar</button>`
+                            : `<button disabled style="background:#ccc; color:#666; border:none; padding:8px 12px; border-radius:4px;">Fechado</button>`
+                        }
+                    </div>
+                </div>`;
+        }
+
+        function salvarPalpite(idJogo) {
+            const m = document.getElementById(`m-${idJogo}`).value;
+            const v = document.getElementById(`v-${idJogo}`).value;
+            if (m === "" || v === "") return alert("Preencha o placar!");
+            db.ref(`grupos/${grupoAtual}/usuarios/${usuarioAtual}/palpites/${idJogo}`).set({m, v}).then(() => alert("Salvo!"));
+        }
+
+        // ====== FUNÇÕES DO ADMINISTRADOR ======
+        function forcarResultado() {
+            const id = document.getElementById('adm-id-jogo').value;
+            const m = document.getElementById('adm-gol-m').value;
+            const v = document.getElementById('adm-gol-v').value;
+            if(!id || m==="" || v==="") return alert("Preencha todos os campos do jogo!");
+
+            db.ref(`admin/resultados/${id}`).set({ m: parseInt(m), v: parseInt(v), status: "FT" })
+              .then(() => alert("Resultado oficial travado com sucesso!"));
+        }
+
+        function removerResultado() {
+            const id = document.getElementById('adm-id-jogo').value;
+            if(!id) return alert("Digite o ID do jogo para desfazer.");
+            db.ref(`admin/resultados/${id}`).remove()
+              .then(() => alert("Resultado apagado. Jogo reaberto para palpites!"));
+        }
+
+        // ====== NOVAS FUNÇÕES DO ADMINISTRADOR (GERENCIAMENTO) ======
+
+        // Cria Liga e vários usuários de uma só vez colando a lista
+        function criarLigaEmMassa() {
+            const token = document.getElementById('adm-massa-token').value.toUpperCase().trim();
+            const nomeLiga = document.getElementById('adm-massa-nome').value.trim();
+            const usersRaw = document.getElementById('adm-massa-users').value.trim();
+
+            if(!token || !nomeLiga) return alert("Preencha o Token e o Nome da Liga.");
+
+            // 1. Cria a liga
+            db.ref(`grupos/${token}`).update({ nome_servidor: nomeLiga });
+
+            // 2. Lê cada linha da caixa de texto e cadastra os usuários
+            if (usersRaw) {
+                const linhas = usersRaw.split('\n');
+                linhas.forEach(linha => {
+                    const partes = linha.split(':');
+                    if (partes.length === 2) {
+                        const id = partes[0].toLowerCase().trim();
+                        const nome = partes[1].trim();
+                        if (id && nome) {
+                            db.ref(`grupos/${token}/usuarios/${id}`).update({ nome: nome });
+                        }
+                    }
+                });
+            }
+
+            alert(`Liga ${token} criada/atualizada com sucesso!`);
+            document.getElementById('adm-massa-token').value = "";
+            document.getElementById('adm-massa-nome').value = "";
+            document.getElementById('adm-massa-users').value = "";
+            carregarLigasADM(); // Recarrega a tela de baixo
+        }
+
+        // Lê todo o banco de dados e exibe para o Administrador
+        function carregarLigasADM() {
+            const container = document.getElementById('lista-ligas-admin');
+            container.innerHTML = "Carregando ligas do banco...";
+
+            db.ref('grupos').once('value').then(snap => {
+                const grupos = snap.val();
+                if (!grupos) {
+                    container.innerHTML = "<p>Nenhuma liga cadastrada no sistema ainda.</p>";
+                    return;
+                }
+
+                let html = "";
+                for (const [token, dadosLiga] of Object.entries(grupos)) {
+                    if (token === "ADM") continue; // Pula a liga invisível do ADM
+
+                    html += `
+                        <div style="background: #f1f1f1; padding: 15px; margin-bottom: 15px; border-radius: 6px; border-left: 4px solid var(--verde-copa);">
+                            <h4 style="margin: 0 0 10px 0; color: #333;">${dadosLiga.nome_servidor || 'Sem Nome'} (Token: <b style="color: var(--verde-copa);">${token}</b>)</h4>
+                            <ul style="list-style: none; padding: 0; margin: 0; background: white; border: 1px solid #ddd; border-radius: 4px;">`;
+
+                    if (dadosLiga.usuarios) {
+                        for (const [idUser, dadosUser] of Object.entries(dadosLiga.usuarios)) {
+                            html += `
+                                <li style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding: 8px 10px;">
+                                    <span style="font-size: 14px;"><strong>${idUser}</strong> - ${dadosUser.nome}</span>
+                                    <button onclick="removerUsuarioADM('${token}', '${idUser}')" style="background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; cursor: pointer; font-size: 12px;">X Remover</button>
+                                </li>`;
+                        }
+                    } else {
+                        html += `<li style="padding: 8px 10px; font-size: 14px; color: #999;">Nenhum usuário nesta liga.</li>`;
+                    }
+
+                    html += `
+                            </ul>
+                            <div style="margin-top: 10px; display: flex; gap: 5px;">
+                                <input type="text" id="add-id-${token}" placeholder="Novo ID Login" style="padding: 6px; width: 120px; border: 1px solid #ccc; border-radius: 3px;">
+                                <input type="text" id="add-nome-${token}" placeholder="Nome Completo" style="padding: 6px; flex: 1; border: 1px solid #ccc; border-radius: 3px;">
+                                <button onclick="adicionarUsuarioUnicoADM('${token}')" style="background: #333; color: white; border: none; padding: 6px 12px; cursor: pointer; border-radius: 3px; font-weight: bold;">+ Add Pessoal</button>
+                            </div>
+                        </div>`;
+                }
+                container.innerHTML = html;
+            });
+        }
+
+        // Deleta o usuário clicado
+        function removerUsuarioADM(token, idUser) {
+            if (confirm(`Atenção: Deseja expulsar permanentemente o usuário '${idUser}' da liga ${token}? Isso apagará todos os palpites dele.`)) {
+                db.ref(`grupos/${token}/usuarios/${idUser}`).remove().then(() => {
+                    carregarLigasADM(); // Atualiza a tela automaticamente
+                });
+            }
+        }
+
+        // Adiciona uma pessoa avulsa direto na liga existente
+        function adicionarUsuarioUnicoADM(token) {
+            const id = document.getElementById(`add-id-${token}`).value.toLowerCase().trim();
+            const nome = document.getElementById(`add-nome-${token}`).value.trim();
+
+            if (!id || !nome) return alert("Preencha o ID e o Nome para adicionar.");
+
+            db.ref(`grupos/${token}/usuarios/${id}`).update({ nome: nome }).then(() => {
+                alert("Usuário adicionado!");
+                carregarLigasADM();
+            });
+        }
+
+        function calcularRanking(resultadosFinais) {
+            db.ref(`grupos/${grupoAtual}/usuarios`).once('value').then(snapshot => {
+                const usuarios = snapshot.val();
+
+                const tbody = document.getElementById('tabela-ranking');
+                tbody.innerHTML = "";
+
+                if (!usuarios) {
+                    tbody.innerHTML = `<tr><td colspan="3">Nenhum jogador cadastrado nesta liga ainda.</td></tr>`;
+                    return;
+                }
+
+                let rankingArray = [];
+                for (const [idUser, dadosUser] of Object.entries(usuarios)) {
+                    let pontosTotais = 0;
+                    const palpites = dadosUser.palpites || {};
+
+                    if (resultadosFinais) {
+                        for (const [idJogo, palpite] of Object.entries(palpites)) {
+                            if (resultadosFinais[idJogo] && resultadosFinais[idJogo].status === "FT") {
+                                const real = resultadosFinais[idJogo];
+                                pontosTotais += aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                            }
+                        }
+                    }
+                    rankingArray.push({ nome: dadosUser.nome, pontos: pontosTotais });
+                }
+
+                rankingArray.sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome));
+
+                rankingArray.forEach((jogador, index) => {
+                    tbody.innerHTML += `<tr><td>${index + 1}º</td><td>${jogador.nome}</td><td><strong>${jogador.pontos}</strong></td></tr>`;
+                });
+            });
+        }
+
+        function aplicarRegras(pM, pV, rM, rV) {
+            pM = parseInt(pM); pV = parseInt(pV); rM = parseInt(rM); rV = parseInt(rV);
+            if (isNaN(pM) || isNaN(pV)) return 0;
+            if (pM === rM && pV === rV) return 20;
+
+            const diffPalpite = pM - pV; const diffReal = rM - rV;
+            const acertouVencedor = (diffPalpite > 0 && diffReal > 0) || (diffPalpite < 0 && diffReal < 0);
+            const acertouEmpate = (diffPalpite === 0 && diffReal === 0);
+
+            if ((acertouVencedor && diffPalpite === diffReal) || acertouEmpate) return 16;
+            if (acertouVencedor && (pM === rM || pV === rV)) return 15;
+            if (acertouVencedor) return 10;
+            if (pM === rM || pV === rV) return 5;
+            return 0;
+        }
+
+        // Define as seleções reais nas fases eliminatórias
+        function definirMataMata() {
+            const id = document.getElementById('adm-mata-id').value;
+            const m = document.getElementById('adm-mata-m').value.trim();
+            const v = document.getElementById('adm-mata-v').value.trim();
+            if(!id || !m || !v) return alert("Preencha o ID e os nomes das seleções!");
+
+            // Salva no banco de dados para todo mundo ver igual
+            db.ref(`admin/confrontos/${id}`).set({home: m, away: v}).then(() => alert("Confronto do Mata-Mata atualizado com sucesso!"));
+        }
+
+        // Calcula e exibe o ranking de qualquer liga para o ADM ver
+        function verRankingAdmin() {
+            const token = document.getElementById('adm-ranking-token').value.toUpperCase().trim();
+            if(!token) return alert("Digite o Token da liga que deseja visualizar!");
+
+            db.ref(`grupos/${token}/usuarios`).once('value').then(snapshot => {
+                const usuarios = snapshot.val();
+                const tbody = document.getElementById('tabela-ranking-adm');
+                tbody.innerHTML = "";
+
+                if (!usuarios) return tbody.innerHTML = `<tr><td colspan="3">Nenhum jogador encontrado nesta liga.</td></tr>`;
+
+                let rankingArray = [];
+                for (const [idUser, dadosUser] of Object.entries(usuarios)) {
+                    let pontosTotais = 0;
+                    const palpites = dadosUser.palpites || {};
+
+                    for (const [idJogo, palpite] of Object.entries(palpites)) {
+                        // Usa os resultados globais que o ADM digitou
+                        if (resultadosGlobais[idJogo] && resultadosGlobais[idJogo].status === "FT") {
+                            const real = resultadosGlobais[idJogo];
+                            pontosTotais += aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                        }
+                    }
+                    rankingArray.push({ nome: dadosUser.nome, pontos: pontosTotais });
+                }
+
+                rankingArray.sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome));
+                rankingArray.forEach((jogador, index) => {
+                    tbody.innerHTML += `<tr><td>${index + 1}º</td><td>${jogador.nome}</td><td><strong>${jogador.pontos}</strong></td></tr>`;
+                });
+            });
+        }
+    </script>
+</body>
+</html>
