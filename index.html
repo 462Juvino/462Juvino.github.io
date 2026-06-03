@@ -24,8 +24,16 @@
             display: flex; align-items: center; justify-content: center;
         }
         .login-box {
-            background: rgba(255, 255, 255, 0.95); padding: 40px; border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 100%; max-width: 400px; text-align: center;
+            /* O truque do linear-gradient cria uma camada branca semi-transparente sobre a imagem */
+            background: linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),
+                        url('https://digitalhub.fifa.com/transform/4e4717fc-7f87-4ea4-b989-7f5730ec94ae/General-Graphic-3840-x-2160-8?&io=transform:fill,height:910,width:1536&quality=75') no-repeat center center;
+            background-size: cover;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
         .login-box h2 { margin-top: 0; color: var(--verde-copa); }
         .login-box input {
@@ -91,6 +99,28 @@
         .admin-form input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
         .admin-form button { padding: 10px 20px; background: #333; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
         .btn-danger { background: #dc3545 !important; }
+
+        /* Ajustes para Celular (Responsivo) */
+        #btn-menu-mobile {
+            display: none; background: var(--verde-copa); color: white; border: none;
+            padding: 10px 15px; font-size: 18px; cursor: pointer; position: fixed;
+            top: 10px; left: 10px; z-index: 1000; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            #btn-menu-mobile { display: block; }
+            #menu-lateral {
+                position: fixed; left: -260px; height: 100vh; z-index: 999;
+                transition: left 0.3s ease-in-out; box-shadow: 2px 0 5px rgba(0,0,0,0.2);
+            }
+            #menu-lateral.aberto { left: 0; }
+            #conteudo-principal {
+                padding-top: 60px; padding-left: 10px; padding-right: 10px; width: 100%; box-sizing: border-box;
+            }
+            .jogo-linha { flex-direction: column; gap: 8px; }
+            .equipe-nome { justify-content: center !important; text-align: center !important; width: 100%; }
+        }
+
     </style>
 </head>
 <body>
@@ -99,13 +129,16 @@
         <div class="login-box">
             <h2>Copa do Mundo 2026</h2>
             <p>Acesse seu bolão</p>
-            <input type="text" id="tokenGrupo" placeholder="Token da Liga (Ex: FAMILIA26)">
-            <input type="text" id="idUsuario" placeholder="Seu ID (Ex: rafaelbatista)">
+            <input type="text" id="tokenGrupo" placeholder="Liga (Ex: TESTE26)">
+            <input type="text" id="idUsuario" placeholder="ID de Login (Ex: exemplo1)">
             <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
         </div>
     </div>
 
     <div id="tela-app" style="display: none;">
+        <!-- Botão Mobile -->
+        <button id="btn-menu-mobile" onclick="toggleMenu()">☰ Menu</button>
+
         <aside id="menu-lateral">
             <h3>Bolão <span id="lbl-grupo"></span></h3>
             <button onclick="mudarAba('palpites')" class="btn-ativo" id="btn-palpites">Meus Palpites</button>
@@ -135,8 +168,18 @@
 
             <!-- ABA RANKING -->
             <section id="aba-ranking" class="aba">
-                <h2>Ranking Geral</h2>
+                <h2>Ranking Geral e Rodadas</h2>
                 <div class="card">
+                    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                        <label for="filtro-rodada" style="font-weight: bold; color: var(--verde-copa);">Filtro:</label>
+                        <select id="filtro-rodada" onchange="calcularRanking(resultadosGlobais)" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; flex: 1; font-size: 14px;">
+                            <option value="geral">Ranking Geral (Todos os Jogos)</option>
+                            <option value="rodada1">1ª Rodada (Jogos 1 ao 24)</option>
+                            <option value="rodada2">2ª Rodada (Jogos 25 ao 48)</option>
+                            <option value="rodada3">3ª Rodada (Jogos 49 ao 72)</option>
+                            <option value="mata-mata">Mata-Mata (Jogos 73 ao 104)</option>
+                        </select>
+                    </div>
                     <table>
                         <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
                         <tbody id="tabela-ranking"><tr><td colspan="3">Carregando...</td></tr></tbody>
@@ -339,24 +382,28 @@
         ];
 
         function fazerLogin() {
-            const token = document.getElementById('tokenGrupo').value.toUpperCase().trim();
-            const id = document.getElementById('idUsuario').value.toLowerCase().trim();
+            let tokenBruto = document.getElementById('tokenGrupo').value;
+            let idBruto = document.getElementById('idUsuario').value;
 
-            if(!token || !id) return alert("Preencha todos os campos!");
+            if(!tokenBruto || !idBruto) return alert("Preencha todos os campos!");
 
-            // 1. BYPASS DE ADMINISTRADOR (Acesso Livre)
+            // Limpa tudo: token fica maiúsculo e ID fica minúsculo
+            const token = limparTexto(tokenBruto).toUpperCase();
+            const id = limparTexto(idBruto).toLowerCase();
+
+            // 1. BYPASS DE ADMINISTRADOR
             if (token === "ADM" && id === "rafaelbatista") {
                 grupoAtual = "ADM"; usuarioAtual = "rafaelbatista"; nomeUsuarioAtual = "Rafael (Admin)";
                 document.getElementById('lbl-grupo').innerText = `MODO ADMINISTRADOR`;
                 document.getElementById('tela-login').style.display = 'none';
                 document.getElementById('tela-app').style.display = 'flex';
-                document.getElementById('btn-adm').style.display = 'block'; // Revela o botão
+                document.getElementById('btn-adm').style.display = 'block';
                 mudarAba('adm');
-                carregarHibrido(); // Carrega para o admin poder ver os IDs
+                carregarHibrido();
                 return;
             }
 
-            // 2. LOGIN NORMAL DE USUÁRIOS
+            // 2. LOGIN NORMAL
             db.ref(`grupos/${token}/usuarios/${id}`).once('value').then(snapshot => {
                 if (snapshot.exists()) {
                     const dadosUsuario = snapshot.val();
@@ -371,15 +418,35 @@
             }).catch(error => { alert("Erro ao conectar ao banco."); });
         }
 
-        function sair() { location.reload(); }
+        // Desloga o usuário e zera a tela
+        function sair() {
+            // Zera as credenciais no código
+            usuarioAtual = "";
+            grupoAtual = "";
+            nomeUsuarioAtual = "";
+
+            // Limpa as caixas de texto do login
+            document.getElementById('tokenGrupo').value = "";
+            document.getElementById('idUsuario').value = "";
+
+            // Oculta o app e o botão ADM, mostra a tela de login
+            document.getElementById('tela-app').style.display = 'none';
+            document.getElementById('btn-adm').style.display = 'none';
+            document.getElementById('tela-login').style.display = 'flex';
+
+            // Força a volta para a primeira aba (palpites) para o próximo usuário
+            mudarAba('palpites');
+        }
 
         function mudarAba(abaId) {
             document.querySelectorAll('.aba').forEach(a => a.classList.remove('ativa'));
             document.querySelectorAll('#menu-lateral button').forEach(b => b.classList.remove('btn-ativo'));
             document.getElementById(`aba-${abaId}`).classList.add('ativa');
             document.getElementById(`btn-${abaId}`).classList.add('btn-ativo');
-        }
 
+            // Fecha o menu lateral no mobile automaticamente
+            document.getElementById('menu-lateral').classList.remove('aberto');
+        }
         // FUNÇÃO QUE CALCULA E GERA OS 12 GRUPOS AUTOMATICAMENTE
         function renderizarGrupos(resultadosAtivos) {
             const container = document.getElementById('container-grupos');
@@ -661,8 +728,9 @@
         function calcularRanking(resultadosFinais) {
             db.ref(`grupos/${grupoAtual}/usuarios`).once('value').then(snapshot => {
                 const usuarios = snapshot.val();
-
                 const tbody = document.getElementById('tabela-ranking');
+                const filtro = document.getElementById('filtro-rodada').value; // Pega o que o usuário escolheu
+
                 tbody.innerHTML = "";
 
                 if (!usuarios) {
@@ -677,7 +745,18 @@
 
                     if (resultadosFinais) {
                         for (const [idJogo, palpite] of Object.entries(palpites)) {
-                            if (resultadosFinais[idJogo] && resultadosFinais[idJogo].status === "FT") {
+                            const idNum = parseInt(idJogo);
+
+                            // Verifica se o jogo pertence ao filtro escolhido
+                            let contarPonto = false;
+                            if (filtro === "geral") contarPonto = true;
+                            else if (filtro === "rodada1" && idNum >= 1 && idNum <= 24) contarPonto = true;
+                            else if (filtro === "rodada2" && idNum >= 25 && idNum <= 48) contarPonto = true;
+                            else if (filtro === "rodada3" && idNum >= 49 && idNum <= 72) contarPonto = true;
+                            else if (filtro === "mata-mata" && idNum >= 73 && idNum <= 104) contarPonto = true;
+
+                            // Se passar no filtro e o jogo já tiver acabado, soma os pontos!
+                            if (contarPonto && resultadosFinais[idJogo] && resultadosFinais[idJogo].status === "FT") {
                                 const real = resultadosFinais[idJogo];
                                 pontosTotais += aplicarRegras(palpite.m, palpite.v, real.m, real.v);
                             }
@@ -686,6 +765,7 @@
                     rankingArray.push({ nome: dadosUser.nome, pontos: pontosTotais });
                 }
 
+                // Ordena do maior pro menor
                 rankingArray.sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome));
 
                 rankingArray.forEach((jogador, index) => {
@@ -754,6 +834,18 @@
                 });
             });
         }
+
+        // Remove acentos, espaços e pontuações
+        function limparTexto(texto) {
+            return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
+        }
+
+        // Abre/Fecha o menu no celular
+        function toggleMenu() {
+            document.getElementById('menu-lateral').classList.toggle('aberto');
+        }
+
+
     </script>
 </body>
 </html>
