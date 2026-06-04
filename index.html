@@ -600,26 +600,48 @@
         }
 
         function montarCard(container, jogo, palpite, jogoEncerrado, textoStatus) {
+            // Calcula se já passou do tempo (1 hora = 3.600.000 milissegundos)
+            const dataJogoMs = new Date(jogo.date).getTime();
+            const agoraMs = new Date().getTime();
+            const umaHoraMs = 60 * 60 * 1000;
+            const travadoPeloTempo = (dataJogoMs - agoraMs) <= umaHoraMs;
+
+            // A trava geral verifica se o jogo já acabou, se o tempo esgotou, ou se é o ADM olhando
+            const bloqueado = jogoEncerrado || travadoPeloTempo || grupoAtual === "ADM";
+
+            let btnSalvar = `<button disabled style="background:#ccc; color:#666; border:none; padding:8px 12px; border-radius:4px;">Fechado</button>`;
+            if (!bloqueado) {
+                btnSalvar = `<button id="btn-salvar-${jogo.id}" onclick="salvarPalpite(${jogo.id})" style="background:var(--verde-copa); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;">Salvar</button>`;
+            }
+
             container.innerHTML += `
                 <div class="jogo-linha" style="flex-direction:column; align-items:center;">
                     <span class="id-info">ID: ${jogo.id}</span>
                     <span class="tv-info">📺 ${jogo.tv}</span>
                     ${textoStatus}
-                    <div style="display:flex; align-items:center; gap:15px; margin-top:10px;">
+                    <div class="timer-jogo" id="timer-${jogo.id}" data-hora="${jogo.date}" style="font-size: 11px; font-weight: bold; margin-top: 5px; text-align: center;"></div>
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:5px;">
                         <span class="equipe-nome equipe-mandante">${jogo.home.name} <img src="${jogo.home.logo}" class="bandeira"></span>
-                        <input type="number" id="m-${jogo.id}" value="${palpite.m}" ${jogoEncerrado || grupoAtual==="ADM" ? 'disabled' : ''}>
+                        <input type="number" id="m-${jogo.id}" value="${palpite.m}" ${bloqueado ? 'disabled' : ''}>
                         <span>X</span>
-                        <input type="number" id="v-${jogo.id}" value="${palpite.v}" ${jogoEncerrado || grupoAtual==="ADM" ? 'disabled' : ''}>
+                        <input type="number" id="v-${jogo.id}" value="${palpite.v}" ${bloqueado ? 'disabled' : ''}>
                         <span class="equipe-nome equipe-visitante"><img src="${jogo.away.logo}" class="bandeira"> ${jogo.away.name}</span>
-                        ${!jogoEncerrado && grupoAtual !== "ADM"
-                            ? `<button onclick="salvarPalpite(${jogo.id})" style="background:var(--verde-copa); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;">Salvar</button>`
-                            : `<button disabled style="background:#ccc; color:#666; border:none; padding:8px 12px; border-radius:4px;">Fechado</button>`
-                        }
+                        ${btnSalvar}
                     </div>
                 </div>`;
         }
 
         function salvarPalpite(idJogo) {
+            // Trava de segurança no momento exato do clique
+            const jogoRef = baseDeJogosOficial.find(j => j.id === idJogo);
+            if(jogoRef) {
+                const dataJogoMs = new Date(jogoRef.date).getTime();
+                const agoraMs = new Date().getTime();
+                if ((dataJogoMs - agoraMs) <= (60 * 60 * 1000)) {
+                    return alert("Tempo esgotado! Os palpites para este jogo foram encerrados 1 hora antes da partida.");
+                }
+            }
+
             const m = document.getElementById(`m-${idJogo}`).value;
             const v = document.getElementById(`v-${idJogo}`).value;
             if (m === "" || v === "") return alert("Preencha o placar!");
@@ -866,6 +888,50 @@
         function toggleMenu() {
             document.getElementById('menu-lateral').classList.toggle('aberto');
         }
+
+        // Motor que atualiza o cronômetro na tela a cada 10 segundos
+        setInterval(() => {
+            if(grupoAtual === "ADM") return; // ADM não precisa de cronômetro
+
+            document.querySelectorAll('.timer-jogo').forEach(el => {
+                const jogoHora = new Date(el.getAttribute('data-hora')).getTime();
+                const agora = new Date().getTime();
+                const diff = jogoHora - agora;
+                const limiteBloqueio = 60 * 60 * 1000; // 1 hora
+
+                if (diff <= limiteBloqueio) {
+                    el.innerText = "🔒 Palpites Encerrados";
+                    el.style.color = "#dc3545"; // Vermelho
+
+                    // Desativa os campos e o botão na hora se a janela estiver aberta
+                    const idJogo = el.id.split('-')[1];
+                    const btn = document.getElementById(`btn-salvar-${idJogo}`);
+                    if(btn && !btn.disabled) {
+                        btn.disabled = true;
+                        btn.style.background = "#ccc";
+                        btn.style.color = "#666";
+                        btn.innerText = "Fechado";
+                        document.getElementById(`m-${idJogo}`).disabled = true;
+                        document.getElementById(`v-${idJogo}`).disabled = true;
+                    }
+                } else {
+                    const tempoRestante = diff - limiteBloqueio;
+                    const horas = Math.floor(tempoRestante / (1000 * 60 * 60));
+                    const minutos = Math.floor((tempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+
+                    if(horas > 48) {
+                        el.innerText = "✅ Aberto para palpites";
+                        el.style.color = "#006b3f";
+                    } else if (horas > 0) {
+                        el.innerText = `⏳ Trava em: ${horas}h e ${minutos}m`;
+                        el.style.color = "#ff8c00"; // Laranja
+                    } else {
+                        el.innerText = `⏳ Trava em: ${minutos} minutos!`;
+                        el.style.color = "#ff8c00";
+                    }
+                }
+            });
+        }, 10000);
 
 
     </script>
