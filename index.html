@@ -121,21 +121,41 @@
                 padding-top: 60px; padding-left: 10px; padding-right: 10px; width: 100%; box-sizing: border-box;
             }
 
-            /* Ajustes Finos para os Cards de Palpite não vazarem da tela */
+            /* Ajustes Finos para os Cards não vazarem da tela */
             .jogo-linha { padding: 15px 5px; }
             .jogo-linha > div {
-                flex-wrap: wrap !important; /* Permite que o botão caia para a linha de baixo */
-                gap: 5px !important;
+                flex-wrap: wrap !important;
+                gap: 4px !important; /* Reduz o espaço entre os times e o placar */
                 width: 100%;
+                justify-content: center !important;
             }
+
+            /* BLINDAGEM CONTRA NOMES GRANDES */
             .equipe-nome {
                 width: auto !important;
-                flex: 1; /* Faz os nomes das seleções dividirem o espaço igualmente */
-                font-size: 13px; /* Reduz a fonte levemente para caber os nomes grandes */
+                flex: 1; /* Divide o espaço igualmente */
+                max-width: 35%; /* Impede que o nome empurre o resto para a linha de baixo */
+                font-size: 11px !important; /* Fonte menor */
+                gap: 3px !important; /* Aproxima a bandeira do texto */
+                white-space: normal !important; /* Permite "África do Sul" quebrar em duas linhas */
+                word-wrap: break-word;
+                line-height: 1.1;
             }
             .equipe-mandante { justify-content: flex-end !important; text-align: right !important; }
             .equipe-visitante { justify-content: flex-start !important; text-align: left !important; }
-            .jogo-linha input { width: 35px; padding: 5px 2px; }
+
+            /* Reduz a data e o meio para caber perfeitamente no celular */
+            .jogo-linha > div > div {
+                min-width: 0 !important; /* Remove a largura mínima que forçava a quebra */
+                flex: 1; /* Preenche o centro harmoniosamente */
+            }
+            .jogo-linha > div > div span {
+                font-size: 9.5px !important; /* Data bem pequenininha */
+                display: block; /* Garante alinhamento embaixo do X */
+            }
+
+            /* Caixinhas de Palpite e Botão (App Logado) */
+            .jogo-linha input { width: 30px; padding: 5px 2px; font-size: 14px; text-align: center; }
 
             /* Joga o botão Salvar para a parte de baixo ocupando toda a largura */
             .jogo-linha > div > button {
