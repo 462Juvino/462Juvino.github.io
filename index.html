@@ -426,7 +426,7 @@
         const db = firebase.database();
 
         let usuarioAtual = ""; let grupoAtual = ""; let nomeUsuarioAtual = "";
-        let resultadosGlobais = {}; // Adicione esta linha no topo
+
 
         // =========================================================
         // BASE DE JOGOS OFICIAL - COPA DO MUNDO 2026 (104 Jogos)
@@ -652,7 +652,7 @@
             });
         }
 
-        let confrontosGlobais = {}; // Adicione junto da linha do resultadosGlobais lá no topo
+
 
         // --- NAVEGAÇÃO DE TELAS ---
         function abrirLogin() {
@@ -664,23 +664,101 @@
             document.getElementById('tela-publica').style.display = 'block';
         }
 
+        // --- VARIÁVEIS GLOBAIS DE DADOS ---
+        let resultadosGlobais = {};
+        let resultadosAPI = {};       // Guarda o que vem da internet
+        let resultadosForcados = {};  // Guarda o que o ADM digitou
+        let confrontosGlobais = {};
+
         // --- MOTOR GLOBAL (Carrega para visitantes e logados) ---
         db.ref(`admin`).on('value', (snap) => {
             const adminData = snap.val() || {};
-            resultadosGlobais = adminData.resultados || {};
+            resultadosForcados = adminData.resultados || {};
             confrontosGlobais = adminData.confrontos || {};
 
-            // Renderiza sempre a vitrine pública em tempo real
+            atualizarInterfaceHibrida();
+        });
+
+        // Função que funde a API com os dados manuais do ADM
+        function atualizarInterfaceHibrida() {
+            // A MÁGICA DO FALLBACK: O que o ADM digita sobrescreve a API
+            resultadosGlobais = { ...resultadosAPI, ...resultadosForcados };
+
+            // Atualiza a Vitrine (visitantes)
             renderizarVitrinePublica(resultadosGlobais, confrontosGlobais);
             renderizarGrupos(resultadosGlobais, 'container-grupos-publico');
 
-            // Se a pessoa fez login no app, atualiza a área privada também
+            // Atualiza a Área Logada (se o usuário estiver no App)
             if (grupoAtual) {
                 renderizarBase(resultadosGlobais, confrontosGlobais);
                 renderizarGrupos(resultadosGlobais, 'container-grupos');
                 if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
             }
-        });
+        }
+
+        // --- MOTOR DE MÚLTIPLAS APIs ---
+        async function buscarResultadosDasAPIs() {
+            try {
+                // TENTATIVA 1: API Principal (Exemplo: api-sports)
+                const respostaAPI1 = await fetch("https://v3.football.api-sports.io/fixtures?league=1&season=2026", {
+                    headers: { "x-apisports-key": "c020921a0977f7b74af16af82b6fdf19" }
+                });
+
+                if (!respostaAPI1.ok) throw new Error("API 1 falhou");
+                const dadosAPI1 = await respostaAPI1.json();
+
+                // Aqui você vai mapear os dados da API para o nosso formato { id: {m, v, status} }
+                resultadosAPI = processarDadosDaAPI(dadosAPI1);
+
+            } catch (erro1) {
+                console.warn("⚠️ API 1 fora do ar, tentando API 2 (Fallback)...");
+
+                try {
+                    // TENTATIVA 2: API Secundária (Exemplo: football-data.org)
+                    const respostaAPI2 = await fetch("https://api.football-data.org/v4/competitions/WC/matches", {
+                        headers: { "X-Auth-Token": "214a24dc9f41435b8f2ff7bc86dc5f1f" }
+                    });
+
+                    if (!respostaAPI2.ok) throw new Error("API 2 falhou");
+                    const dadosAPI2 = await respostaAPI2.json();
+
+                    resultadosAPI = processarDadosDaAPI(dadosAPI2);
+
+                } catch (erro2) {
+                    console.error("🚨 Todas as APIs falharam! Usando apenas modo manual do ADM.");
+                    resultadosAPI = {}; // Mantém vazio, o sistema usará apenas resultadosForcados
+                }
+            }
+
+            // Depois de tentar buscar, atualiza a tela
+            atualizarInterfaceHibrida();
+        }
+
+        // Função "Tradutora" (Exemplo de como transformar o dado da API no nosso formato)
+        function processarDadosDaAPI(dadosBrutos) {
+            let dadosLimpos = {};
+            // Quando a Copa de 2026 chegar, você fará um "for/forEach" nos dadosBrutos aqui
+            // Exemplo imaginário de como ficará:
+            /*
+            dadosBrutos.response.forEach(jogo => {
+                if(jogo.fixture.status.short === "FT") {
+                    let meuID = converterIdDaAPIProNossoID(jogo.fixture.id);
+                    dadosLimpos[meuID] = {
+                        m: jogo.goals.home,
+                        v: jogo.goals.away,
+                        status: "FT"
+                    };
+                }
+            });
+            */
+            return dadosLimpos;
+        }
+
+        // Inicia a busca automática quando a página carrega
+        buscarResultadosDasAPIs();
+
+        // Opcional: Atualiza a API a cada 5 minutos (300.000 ms) para pegar jogos ao vivo
+        setInterval(buscarResultadosDasAPIs, 300000);
 
         // --- MODO VISITANTE: RENDERIZA JOGOS APENAS PARA LEITURA ---
         function renderizarVitrinePublica(resultados, confrontos) {
