@@ -995,7 +995,7 @@
 
                 contJogos.innerHTML += `
                     <div class="jogo-linha" style="flex-direction:column; align-items:center;">
-                        <span class="id-info">ID: ${j.id} - ${obterFase(j.id)}</span>
+                        <span class="id-info" style="text-align: center; line-height: 1.2;">ID: ${j.id}<br><span style="color: #ffcc00; font-size: 9px; font-weight: normal;">${obterFase(j.id)}</span></span>
                         <span class="tv-info">📺 ${j.tv}</span>
                         <div style="display:flex; align-items:center; gap:15px; margin-top:10px; justify-content:center; width:100%;">
                             <span class="equipe-nome equipe-mandante">${j.home.name} <img src="${j.home.logo}" class="bandeira"></span>
@@ -1131,7 +1131,7 @@
 
             container.innerHTML += `
                 <div class="jogo-linha" style="flex-direction:column; align-items:center;">
-                    <span class="id-info">ID: ${jogo.id} - ${obterFase(jogo.id)}</span>
+                    <span class="id-info" style="text-align: center; line-height: 1.2;">ID: ${jogo.id}<br><span style="color: #ffcc00; font-size: 9px; font-weight: normal;">${obterFase(jogo.id)}</span></span>
                     <span class="tv-info">📺 ${jogo.tv}</span>
                     ${textoStatus}
                     <div class="timer-jogo" id="timer-${jogo.id}" data-hora="${jogo.date}" style="font-size: 11px; font-weight: bold; margin-top: 5px; text-align: center;"></div>
