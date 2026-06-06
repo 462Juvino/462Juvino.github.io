@@ -243,6 +243,8 @@
                 <button id="btn-pub-jogos" class="ativo" onclick="mudarAbaPublica('jogos')">Tabela de Jogos</button>
                 <button id="btn-pub-grupos" onclick="mudarAbaPublica('grupos')">Classificação dos Grupos</button>
                 <button id="btn-pub-historia" onclick="mudarAbaPublica('historia')">História das Copas</button>
+                <!-- NOVO BOTÃO -->
+                <button id="btn-pub-palpites" onclick="mudarAbaPublica('palpites')">Palpites da Galera</button>
             </div>
 
             <!-- Conteúdo: Jogos -->
@@ -255,7 +257,7 @@
                 <div id="container-grupos-publico"></div>
             </div>
 
-            <!-- Conteúdo: História das Copas (Com Bandeiras Oficiais e Taças) -->
+            <!-- Conteúdo: História das Copas -->
             <div id="pub-historia" style="display: none;">
                 <div class="card" style="overflow-x: auto;">
                     <h2 style="color: var(--verde-copa); margin-top: 0;">Histórico dos Campeões Mundiais</h2>
@@ -295,6 +297,21 @@
                             <tr><td>1930</td><td>Uruguai</td><td><img src="https://flagcdn.com/w40/uy.png" class="bandeira-min"> <strong>Uruguai</strong> <span style="font-size: 11px;">🏆🏆</span></td><td style="text-align: center;">4 x 2</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> Argentina</td></tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <!-- NOVO CONTEÚDO: Palpites da Galera (Oculto por padrão) -->
+            <div id="pub-palpites" style="display: none;">
+                <div class="card">
+                    <h2 style="color: var(--verde-copa); margin-top: 0;">O que a galera apostou?</h2>
+                    <p style="color: #444; font-size: 14px;">Aqui você vê os palpites registrados! Mas atenção: <b>as apostas só são reveladas aqui 1 hora antes do jogo começar</b> (para evitar cópias).</p>
+                    <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <label style="font-weight: bold; color: var(--verde-copa);">Filtro por Liga:</label>
+                        <select id="filtro-liga-publico" onchange="renderizarPalpitesPublicos()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; flex: 1; min-width: 200px;">
+                            <option value="todas">Todas as Ligas</option>
+                        </select>
+                    </div>
+                    <div id="container-palpites-publicos">Carregando banco de palpites...</div>
                 </div>
             </div>
 
@@ -482,6 +499,17 @@
                         <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
                         <tbody id="tabela-ranking-adm"><tr><td colspan="3">Aguardando busca...</td></tr></tbody>
                     </table>
+                </div>
+
+                <div class="card">
+                    <h3>6. Espionagem ADM (Ver todas as apostas)</h3>
+                    <p style="font-size: 13px; color: #666;">Como Administrador, você tem o poder de ver <b>todos os palpites</b> de qualquer usuário, mesmo antes do jogo bloquear.</p>
+                    <div class="admin-form">
+                        <select id="filtro-liga-adm" onchange="renderizarPalpitesADM()" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
+                            <option value="todas">Todas as Ligas</option>
+                        </select>
+                    </div>
+                    <div id="container-palpites-adm" style="margin-top: 15px;">Aguardando dados...</div>
                 </div>
 
             </section>
@@ -1282,10 +1310,109 @@
             document.getElementById('pub-jogos').style.display = aba === 'jogos' ? 'block' : 'none';
             document.getElementById('pub-grupos').style.display = aba === 'grupos' ? 'block' : 'none';
             document.getElementById('pub-historia').style.display = aba === 'historia' ? 'block' : 'none';
+            document.getElementById('pub-palpites').style.display = aba === 'palpites' ? 'block' : 'none';
 
             document.getElementById('btn-pub-jogos').classList.toggle('ativo', aba === 'jogos');
             document.getElementById('btn-pub-grupos').classList.toggle('ativo', aba === 'grupos');
             document.getElementById('btn-pub-historia').classList.toggle('ativo', aba === 'historia');
+            document.getElementById('btn-pub-palpites').classList.toggle('ativo', aba === 'palpites');
+        }
+
+        // =========================================================
+        // NOVO MOTOR: LEITURA GLOBAL DE PALPITES (PÚBLICO E ADM)
+        // =========================================================
+        let dadosGruposGlobais = {};
+
+        db.ref('grupos').on('value', (snap) => {
+            dadosGruposGlobais = snap.val() || {};
+            atualizarFiltrosDeLigas();
+            renderizarPalpitesPublicos();
+            if (grupoAtual === "ADM") renderizarPalpitesADM();
+        });
+
+        function atualizarFiltrosDeLigas() {
+            const comboPub = document.getElementById('filtro-liga-publico');
+            const comboAdm = document.getElementById('filtro-liga-adm');
+
+            const selecaoPub = comboPub ? comboPub.value : 'todas';
+            const selecaoAdm = comboAdm ? comboAdm.value : 'todas';
+
+            let optionsHtml = '<option value="todas">Todas as Ligas</option>';
+            for (const token in dadosGruposGlobais) {
+                if (token === "ADM") continue;
+                const nomeLiga = dadosGruposGlobais[token].nome_servidor || token;
+                optionsHtml += `<option value="${token}">${nomeLiga} (${token})</option>`;
+            }
+
+            if (comboPub) { comboPub.innerHTML = optionsHtml; comboPub.value = selecaoPub; }
+            if (comboAdm) { comboAdm.innerHTML = optionsHtml; comboAdm.value = selecaoAdm; }
+        }
+
+        function gerarHTMLPalpites(isAdm) {
+            const filtro = isAdm ? document.getElementById('filtro-liga-adm').value : document.getElementById('filtro-liga-publico').value;
+            let html = "";
+            const agora = Date.now();
+
+            baseDeJogosOficial.forEach(jogo => {
+                // Calcula se o jogo já passou da trava de 1 hora
+                const isBloqueado = agora >= (new Date(jogo.date).getTime() - 3600000);
+
+                // REGRA DE OURO: Se é o público tentando espiar um jogo que ainda não bloqueou, pula fora!
+                if (!isAdm && !isBloqueado) return;
+
+                let apostasDoJogo = [];
+
+                // Varre o banco de dados buscando quem apostou neste jogo específico
+                for (const [tokenLiga, dadosLiga] of Object.entries(dadosGruposGlobais)) {
+                    if (tokenLiga === "ADM") continue;
+                    if (filtro !== "todas" && filtro !== tokenLiga) continue;
+
+                    if (dadosLiga.usuarios) {
+                        for (const [idUser, dadosUser] of Object.entries(dadosLiga.usuarios)) {
+                            if (dadosUser.palpites && dadosUser.palpites[jogo.id]) {
+                                const p = dadosUser.palpites[jogo.id];
+                                if (p.m !== "" && p.v !== "") {
+                                    apostasDoJogo.push({ nome: dadosUser.nome, liga: dadosLiga.nome_servidor || tokenLiga, m: p.m, v: p.v });
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Se encontrou alguma aposta, desenha o bloco bonitinho do jogo
+                if (apostasDoJogo.length > 0) {
+                    let homeName = jogo.home.name; let awayName = jogo.away.name;
+                    if (confrontosGlobais && confrontosGlobais[jogo.id]) {
+                        homeName = confrontosGlobais[jogo.id].home; awayName = confrontosGlobais[jogo.id].away;
+                    }
+
+                    html += `<div style="background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 10px 0; color: var(--verde-copa); border-bottom: 1px solid #eee; padding-bottom: 5px;">ID ${jogo.id}: ${homeName} x ${awayName}</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
+
+                    apostasDoJogo.forEach(aposta => {
+                        html += `<div style="background: #f9f9f9; padding: 5px 10px; border-radius: 4px; font-size: 13px; border: 1px solid #eee;">
+                            <strong>${aposta.nome}</strong> <span style="font-size:10px; color:#888;">(${aposta.liga})</span><br>
+                            <div style="text-align: center; margin-top: 3px; font-weight: bold; font-size: 15px; color: #333;">${aposta.m} x ${aposta.v}</div>
+                        </div>`;
+                    });
+
+                    html += `</div></div>`;
+                }
+            });
+
+            if (html === "") html = "<p style='color: #666; font-style: italic;'>Nenhuma aposta encontrada no filtro selecionado ou os jogos ainda estão abertos para palpites.</p>";
+            return html;
+        }
+
+        function renderizarPalpitesPublicos() {
+            const cont = document.getElementById('container-palpites-publicos');
+            if(cont) cont.innerHTML = gerarHTMLPalpites(false);
+        }
+
+        function renderizarPalpitesADM() {
+            const cont = document.getElementById('container-palpites-adm');
+            if(cont) cont.innerHTML = gerarHTMLPalpites(true);
         }
 
 
