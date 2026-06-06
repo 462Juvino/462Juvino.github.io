@@ -228,17 +228,21 @@
 
     <!-- 1. TELA PÚBLICA (Vitrine para o AdSense e Visitantes) -->
     <div id="tela-publica">
-        <div class="seo-text">
-            <h1 style="color: var(--verde-copa); margin-top: 0; text-shadow: 1px 1px 2px rgba(255,255,255,0.8);">Portal Copa do Mundo 2026</h1>
-            <p style="color: #222; line-height: 1.6; text-align: justify; font-weight: 500;">Acompanhe a tabela oficial de jogos, horários e a classificação atualizada da fase de grupos da Copa do Mundo FIFA 2026. Este portal oferece resultados em tempo real. Se você participa de alguma liga privada do nosso sistema de bolão, faça o login abaixo para registrar seus palpites e acompanhar o ranking geral da sua competição.</p>
-            <button onclick="abrirLogin()" style="background: var(--verde-copa); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; max-width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.2); margin-top: 10px;">Entrar no Meu Bolão</button>
-        </div>
 
-        <div style="max-width: 800px; margin: 0 auto; padding: 10px;">
+        <!-- PARTE SUPERIOR: Botão rápido de Login e Abas de Navegação -->
+        <div style="max-width: 800px; margin: 0 auto; padding: 10px; padding-top: 30px;">
+
+            <!-- Barra de Topo com Botão Entrar -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: rgba(255,255,255,0.95); padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">
+                <h2 style="color: var(--verde-copa); margin: 0; font-size: 18px; text-transform: uppercase;">Copa do Mundo 2026</h2>
+                <button onclick="abrirLogin()" style="background: var(--verde-copa); color: white; border: none; padding: 10px 20px; font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">Entrar no Bolão</button>
+            </div>
+
             <!-- Menu de Abas da Vitrine -->
             <div class="abas-publicas">
                 <button id="btn-pub-jogos" class="ativo" onclick="mudarAbaPublica('jogos')">Tabela de Jogos</button>
                 <button id="btn-pub-grupos" onclick="mudarAbaPublica('grupos')">Classificação dos Grupos</button>
+                <button id="btn-pub-historia" onclick="mudarAbaPublica('historia')">História das Copas</button>
             </div>
 
             <!-- Conteúdo: Jogos -->
@@ -250,7 +254,71 @@
             <div id="pub-grupos" style="display: none;">
                 <div id="container-grupos-publico"></div>
             </div>
+
+            <!-- Conteúdo: História das Copas (Com Bandeiras Oficiais e Taças) -->
+            <div id="pub-historia" style="display: none;">
+                <div class="card" style="overflow-x: auto;">
+                    <h2 style="color: var(--verde-copa); margin-top: 0;">Histórico dos Campeões Mundiais</h2>
+                    <p style="color: #444; font-size: 14px; margin-bottom: 15px;">Relembre todas as finais da Copa do Mundo FIFA. As taças (🏆) representam o total de títulos mundiais que a seleção possui hoje.</p>
+                    <table style="min-width: 600px; font-size: 14px; border-collapse: collapse; width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="padding: 12px; text-align: left;">Ano</th>
+                                <th style="padding: 12px; text-align: left;">País Sede</th>
+                                <th style="padding: 12px; text-align: left; color: #006b3f;">Campeão & Títulos</th>
+                                <th style="padding: 12px; text-align: center;">Placar da Final</th>
+                                <th style="padding: 12px; text-align: left;">Vice-campeão</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>2022</td><td>Catar</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> <strong>Argentina</strong> <span style="font-size: 11px;">🏆🏆🏆</span></td><td style="text-align: center;">3 (4) x (2) 3</td><td><img src="https://flagcdn.com/w40/fr.png" class="bandeira-min"> França</td></tr>
+                            <tr><td>2018</td><td>Rússia</td><td><img src="https://flagcdn.com/w40/fr.png" class="bandeira-min"> <strong>França</strong> <span style="font-size: 11px;">🏆🏆</span></td><td style="text-align: center;">4 x 2</td><td><img src="https://flagcdn.com/w40/hr.png" class="bandeira-min"> Croácia</td></tr>
+                            <tr><td>2014</td><td>Brasil</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> <strong>Alemanha</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">1 x 0 (Pro)</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> Argentina</td></tr>
+                            <tr><td>2010</td><td>África do Sul</td><td><img src="https://flagcdn.com/w40/es.png" class="bandeira-min"> <strong>Espanha</strong> <span style="font-size: 11px;">🏆</span></td><td style="text-align: center;">1 x 0 (Pro)</td><td><img src="https://flagcdn.com/w40/nl.png" class="bandeira-min"> Holanda</td></tr>
+                            <tr><td>2006</td><td>Alemanha</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> <strong>Itália</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">1 (5) x (3) 1</td><td><img src="https://flagcdn.com/w40/fr.png" class="bandeira-min"> França</td></tr>
+                            <tr><td>2002</td><td>Japão/Coreia</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> <strong>Brasil</strong> <span style="font-size: 11px;">🏆🏆🏆🏆🏆</span></td><td style="text-align: center;">2 x 0</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> Alemanha</td></tr>
+                            <tr><td>1998</td><td>França</td><td><img src="https://flagcdn.com/w40/fr.png" class="bandeira-min"> <strong>França</strong> <span style="font-size: 11px;">🏆🏆</span></td><td style="text-align: center;">3 x 0</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> Brasil</td></tr>
+                            <tr><td>1994</td><td>EUA</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> <strong>Brasil</strong> <span style="font-size: 11px;">🏆🏆🏆🏆🏆</span></td><td style="text-align: center;">0 (3) x (2) 0</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> Itália</td></tr>
+                            <tr><td>1990</td><td>Itália</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> <strong>Alemanha Oci.</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">1 x 0</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> Argentina</td></tr>
+                            <tr><td>1986</td><td>México</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> <strong>Argentina</strong> <span style="font-size: 11px;">🏆🏆🏆</span></td><td style="text-align: center;">3 x 2</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> Alemanha Oci.</td></tr>
+                            <tr><td>1982</td><td>Espanha</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> <strong>Itália</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">3 x 1</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> Alemanha Oci.</td></tr>
+                            <tr><td>1978</td><td>Argentina</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> <strong>Argentina</strong> <span style="font-size: 11px;">🏆🏆🏆</span></td><td style="text-align: center;">3 x 1 (Pro)</td><td><img src="https://flagcdn.com/w40/nl.png" class="bandeira-min"> Holanda</td></tr>
+                            <tr><td>1974</td><td>Alemanha Oci.</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> <strong>Alemanha Oci.</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">2 x 1</td><td><img src="https://flagcdn.com/w40/nl.png" class="bandeira-min"> Holanda</td></tr>
+                            <tr><td>1970</td><td>México</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> <strong>Brasil</strong> <span style="font-size: 11px;">🏆🏆🏆🏆🏆</span></td><td style="text-align: center;">4 x 1</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> Itália</td></tr>
+                            <tr><td>1966</td><td>Inglaterra</td><td><img src="https://flagcdn.com/w40/gb-eng.png" class="bandeira-min"> <strong>Inglaterra</strong> <span style="font-size: 11px;">🏆</span></td><td style="text-align: center;">4 x 2 (Pro)</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> Alemanha Oci.</td></tr>
+                            <tr><td>1962</td><td>Chile</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> <strong>Brasil</strong> <span style="font-size: 11px;">🏆🏆🏆🏆🏆</span></td><td style="text-align: center;">3 x 1</td><td><img src="https://flagcdn.com/w40/cz.png" class="bandeira-min"> Tchecoslováquia</td></tr>
+                            <tr><td>1958</td><td>Suécia</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> <strong>Brasil</strong> <span style="font-size: 11px;">🏆🏆🏆🏆🏆</span></td><td style="text-align: center;">5 x 2</td><td><img src="https://flagcdn.com/w40/se.png" class="bandeira-min"> Suécia</td></tr>
+                            <tr><td>1954</td><td>Suíça</td><td><img src="https://flagcdn.com/w40/de.png" class="bandeira-min"> <strong>Alemanha Oci.</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">3 x 2</td><td><img src="https://flagcdn.com/w40/hu.png" class="bandeira-min"> Hungria</td></tr>
+                            <tr><td>1950</td><td>Brasil</td><td><img src="https://flagcdn.com/w40/uy.png" class="bandeira-min"> <strong>Uruguai</strong> <span style="font-size: 11px;">🏆🏆</span></td><td style="text-align: center;">2 x 1</td><td><img src="https://flagcdn.com/w40/br.png" class="bandeira-min"> Brasil</td></tr>
+                            <tr><td>1938</td><td>França</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> <strong>Itália</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">4 x 2</td><td><img src="https://flagcdn.com/w40/hu.png" class="bandeira-min"> Hungria</td></tr>
+                            <tr><td>1934</td><td>Itália</td><td><img src="https://flagcdn.com/w40/it.png" class="bandeira-min"> <strong>Itália</strong> <span style="font-size: 11px;">🏆🏆🏆🏆</span></td><td style="text-align: center;">2 x 1 (Pro)</td><td><img src="https://flagcdn.com/w40/cz.png" class="bandeira-min"> Tchecoslováquia</td></tr>
+                            <tr><td>1930</td><td>Uruguai</td><td><img src="https://flagcdn.com/w40/uy.png" class="bandeira-min"> <strong>Uruguai</strong> <span style="font-size: 11px;">🏆🏆</span></td><td style="text-align: center;">4 x 2</td><td><img src="https://flagcdn.com/w40/ar.png" class="bandeira-min"> Argentina</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
+
+        <!-- PARTE INFERIOR: Textão de SEO (O Robô do AdSense lê aqui) -->
+        <div class="seo-text" style="text-align: left; padding: 35px; margin-top: 40px; margin-bottom: 50px;">
+            <h1 style="color: var(--verde-copa); text-align: center; text-shadow: 1px 1px 2px rgba(255,255,255,0.8); margin-top: 0;">Portal de Acompanhamento: Copa do Mundo 2026</h1>
+
+            <h2 style="color: #333; font-size: 20px; border-bottom: 2px solid var(--verde-copa); padding-bottom: 5px;">Tudo sobre a Copa do Mundo FIFA 2026</h2>
+            <p style="color: #444; line-height: 1.6;">A Copa do Mundo de 2026 será um marco histórico no universo do futebol. Pela primeira vez na história, o torneio será sediado por três países simultaneamente: Estados Unidos, Canadá e México. Além dessa inovação geográfica, a competição foi oficialmente expandida pela FIFA para incluir 48 seleções, aumentando a diversidade tática, a representatividade global e o número total de partidas para os fãs de esporte acompanharem de perto.</p>
+
+            <h2 style="color: #333; font-size: 20px; border-bottom: 2px solid var(--verde-copa); padding-bottom: 5px; margin-top: 25px;">Como funciona a nossa plataforma de Bolão?</h2>
+            <p style="color: #444; line-height: 1.6;">Nosso portal foi desenvolvido para oferecer a melhor experiência de acompanhamento estatístico e registro de palpites em tempo real. Se você é um apaixonado por futebol, sabe que a fase de grupos é o momento de maior imprevisibilidade do torneio. Através desta vitrine pública, qualquer visitante pode acompanhar a tabela oficial de jogos, verificar os horários locais de transmissão e visualizar a classificação dos 12 grupos atualizada a cada rodada.</p>
+            <p style="color: #444; line-height: 1.6;">Para participar de uma competição privada, os usuários utilizam nosso sistema de login com um token exclusivo. A plataforma calcula a pontuação de forma 100% automatizada baseada na precisão esportiva: acertar o placar exato garante a pontuação máxima de 20 pontos, enquanto acertar o vencedor e a diferença de saldo de gols rende 16 pontos. Essa matemática foi estruturada para premiar o real conhecimento analítico de cada participante.</p>
+
+            <h2 style="color: #333; font-size: 20px; border-bottom: 2px solid var(--verde-copa); padding-bottom: 5px; margin-top: 25px;">Integridade e Regras Automáticas</h2>
+            <p style="color: #444; line-height: 1.6;">Para garantir a justiça e evitar fraudes nas ligas cadastradas, nosso sistema conta com uma trava de segurança baseada no horário oficial das partidas. Todos os campos de palpites são desativados e bloqueados automaticamente 1 hora antes do apito inicial, assegurando que nenhum participante possa alterar suas previsões após a divulgação das escalações oficiais pelas seleções.</p>
+
+            <div style="text-align: center; margin-top: 35px;">
+                <button onclick="abrirLogin()" style="background: var(--verde-copa); color: white; border: none; padding: 15px 30px; font-size: 18px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; max-width: 350px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">Entrar no Meu Bolão</button>
+            </div>
+        </div>
+
     </div>
 
     <!-- 2. TELA DE LOGIN (Oculta até clicarem no botão) -->
@@ -1208,13 +1276,16 @@
             });
         }, 10000);
 
+
         // Alternar abas na tela pública
         function mudarAbaPublica(aba) {
             document.getElementById('pub-jogos').style.display = aba === 'jogos' ? 'block' : 'none';
             document.getElementById('pub-grupos').style.display = aba === 'grupos' ? 'block' : 'none';
+            document.getElementById('pub-historia').style.display = aba === 'historia' ? 'block' : 'none';
 
             document.getElementById('btn-pub-jogos').classList.toggle('ativo', aba === 'jogos');
             document.getElementById('btn-pub-grupos').classList.toggle('ativo', aba === 'grupos');
+            document.getElementById('btn-pub-historia').classList.toggle('ativo', aba === 'historia');
         }
 
 
