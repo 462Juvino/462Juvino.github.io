@@ -357,7 +357,6 @@
                 </div>
             </div>
 
-            <!-- NOVO CONTEÚDO: Palpites da Galera (Oculto por padrão) -->
             <div id="pub-palpites" style="display: none;">
                 <div class="card">
                     <h2 style="color: var(--verde-copa); margin-top: 0;">O que a galera apostou?</h2>
@@ -371,7 +370,6 @@
                     <div id="container-palpites-publicos">Carregando banco de palpites...</div>
                 </div>
             </div>
-
         </div>
 
         <!-- PARTE INFERIOR: Textão de SEO (O Robô do AdSense lê aqui) -->
@@ -536,14 +534,18 @@
                 <h2>Painel do Administrador</h2>
 
                 <div class="card">
-                    <h3>1. Forçar Resultado de Jogo</h3>
-                    <p style="font-size: 13px; color: #666;">Use o ID que aparece no canto esquerdo de cada jogo.</p>
+                    <h3>1. Atualizar Placar (Ao Vivo ou Final)</h3>
+                    <p style="font-size: 13px; color: #666;">Selecione "Ao Vivo" para atualizar o placar sem distribuir pontos. Use "Encerrado" quando o jogo acabar.</p>
                     <div class="admin-form">
-                        <input type="number" id="adm-id-jogo" placeholder="ID do Jogo (Ex: 1)">
-                        <input type="number" id="adm-gol-m" placeholder="Gols Mandante">
-                        <input type="number" id="adm-gol-v" placeholder="Gols Visitante">
-                        <button onclick="forcarResultado()">Salvar Oficial</button>
-                        <button class="btn-danger" onclick="removerResultado()">Desfazer</button>
+                        <input type="number" id="adm-id-jogo" placeholder="ID (Ex: 1)" style="flex: 0.5;">
+                        <input type="number" id="adm-gol-m" placeholder="M" style="flex: 0.5;">
+                        <input type="number" id="adm-gol-v" placeholder="V" style="flex: 0.5;">
+                        <select id="adm-status-jogo" style="padding: 10px; border-radius: 4px; border: 1px solid #ccc; flex: 1;">
+                            <option value="LIVE">🔴 Ao Vivo</option>
+                            <option value="FT">🏁 Encerrado (FT)</option>
+                        </select>
+                        <button onclick="forcarResultado()" style="flex: 1;">Salvar</button>
+                        <button class="btn-danger" onclick="removerResultado()" style="flex: 1;">Apagar</button>
                     </div>
                 </div>
 
@@ -785,7 +787,7 @@
 
             baseDeJogosOficial.slice(0, 72).forEach(jogo => {
                 const res = resultadosAtivos[jogo.id];
-                if (res && res.status === "FT") {
+                if (res && (res.status === "FT" || res.status === "LIVE")) {
                     let home = jogo.home.name; let away = jogo.away.name;
                     if(stats[home] && stats[away]) {
                         stats[home].j++; stats[away].j++;
@@ -814,7 +816,7 @@
                 baseDeJogosOficial.slice(0, 72).forEach(j => {
                     if (times.includes(j.home.name) && times.includes(j.away.name)) {
                         const r = resultadosAtivos[j.id];
-                        const placar = (r && r.status === "FT") ? `${r.m} x ${r.v}` : "- x -";
+                        const placar = (r && (r.status === "FT" || r.status === "LIVE")) ? `${r.m} x ${r.v}` : "- x -";
                         jogosHtml += `
                             <div class="mini-jogo">
                                 <span><img src="${obterBandeira(j.home.name)}" class="bandeira-min"> ${j.home.name}</span>
@@ -954,41 +956,29 @@
             }
         }
 
-        // --- MOTOR DE MÚLTIPLAS APIs ---
+        // --- MOTOR DE API COMUNITÁRIA (COPA 2026) ---
         async function buscarResultadosDasAPIs() {
             try {
-                // TENTATIVA 1: API Principal (Exemplo: api-sports)
-                const respostaAPI1 = await fetch("https://v3.football.api-sports.io/fixtures?league=1&season=2026", {
-                    headers: { "x-apisports-key": "c020921a0977f7b74af16af82b6fdf19" }
-                });
+                // Conectando na API Open Source sem necessidade de Chave (API Key)
+                const respostaAPI = await fetch("https://worldcup26.ir/get/games");
 
-                if (!respostaAPI1.ok) throw new Error("API 1 falhou");
-                const dadosAPI1 = await respostaAPI1.json();
+                if (!respostaAPI.ok) throw new Error("API Comunitária falhou");
+                const dadosAPI = await respostaAPI.json();
 
-                // Aqui você vai mapear os dados da API para o nosso formato { id: {m, v, status} }
-                resultadosAPI = processarDadosDaAPI(dadosAPI1);
+                // === LINHAS DE TESTE (ESPIÃO) ===
+                console.log("✅ SUCESSO! A API Comunitária da Copa 2026 respondeu.");
+                console.log("⚽ Dados crus da API:", dadosAPI);
+                // =================================
 
-            } catch (erro1) {
-                console.warn("⚠️ API 1 fora do ar, tentando API 2 (Fallback)...");
+                // Desativamos a tradução temporariamente só para ver os dados chegarem no Console
+                // resultadosAPI = processarDadosDaAPI(dadosAPI);
 
-                try {
-                    // TENTATIVA 2: API Secundária (Exemplo: football-data.org)
-                    const respostaAPI2 = await fetch("https://api.football-data.org/v4/competitions/WC/matches", {
-                        headers: { "X-Auth-Token": "214a24dc9f41435b8f2ff7bc86dc5f1f" }
-                    });
-
-                    if (!respostaAPI2.ok) throw new Error("API 2 falhou");
-                    const dadosAPI2 = await respostaAPI2.json();
-
-                    resultadosAPI = processarDadosDaAPI(dadosAPI2);
-
-                } catch (erro2) {
-                    console.error("🚨 Todas as APIs falharam! Usando apenas modo manual do ADM.");
-                    resultadosAPI = {}; // Mantém vazio, o sistema usará apenas resultadosForcados
-                }
+            } catch (erro) {
+                console.warn("⚠️ API Comunitária fora do ar ou bloqueada. Usando modo manual do ADM.");
+                resultadosAPI = {}; // Mantém vazio para usar os dados do Painel ADM
             }
 
-            // Depois de tentar buscar, atualiza a tela
+            // Atualiza a tela após a tentativa
             atualizarInterfaceHibrida();
         }
 
@@ -1035,9 +1025,14 @@
                 const dataJogo = new Date(j.date);
                 const dataStr = dataJogo.toLocaleDateString('pt-BR') + ' às ' + dataJogo.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
 
-                let placarHtml = res && res.status === "FT"
-                    ? `<strong style="font-size: 22px; color: #dc3545;">${res.m} x ${res.v}</strong><br><span style="color:#dc3545; font-size:12px;">Encerrado</span>`
-                    : `<strong style="font-size: 18px; color: #666;">- x -</strong><br><span style="color:#006b3f; font-size:12px;">${dataStr}</span>`;
+                let placarHtml = "";
+                if (res && res.status === "FT") {
+                    placarHtml = `<strong style="font-size: 22px; color: #dc3545;">${res.m} x ${res.v}</strong><br><span style="color:#dc3545; font-size:12px;">Encerrado</span>`;
+                } else if (res && res.status === "LIVE") {
+                    placarHtml = `<strong style="font-size: 22px; color: #ff8c00;">${res.m} x ${res.v}</strong><br><span style="color:#ff8c00; font-size:12px; font-weight:bold;">🔴 Ao Vivo</span>`;
+                } else {
+                    placarHtml = `<strong style="font-size: 18px; color: #666;">- x -</strong><br><span style="color:#006b3f; font-size:12px;">${dataStr}</span>`;
+                }
 
                 contJogos.innerHTML += `
                     <div class="jogo-linha" style="flex-direction:column; align-items:center;">
@@ -1129,11 +1124,19 @@
 
                 const resultado = resultadosAtivos[jogo.id];
                 const jogoEncerrado = resultado && resultado.status === "FT";
+                const jogoAoVivo = resultado && resultado.status === "LIVE";
+                
                 const dataJogo = new Date(jogo.date);
                 const dataFormatada = dataJogo.toLocaleDateString('pt-BR') + ' às ' + dataJogo.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                const textoStatus = jogoEncerrado
-                    ? `<span style="color:#dc3545; font-size:12px; font-weight:bold;">Encerrado (Oficial: ${resultado.m} x ${resultado.v})</span>`
-                    : `<span style="color:#006b3f; font-size:12px; font-weight:bold;">${dataFormatada}</span>`;
+                
+                let textoStatus = "";
+                if (jogoEncerrado) {
+                    textoStatus = `<span style="color:#dc3545; font-size:12px; font-weight:bold;">Encerrado (Oficial: ${resultado.m} x ${resultado.v})</span>`;
+                } else if (jogoAoVivo) {
+                    textoStatus = `<span style="color:#ff8c00; font-size:13px; font-weight:bold; text-shadow: 0 0 2px rgba(255,140,0,0.5);">🔴 AO VIVO (Atual: ${resultado.m} x ${resultado.v})</span>`;
+                } else {
+                    textoStatus = `<span style="color:#006b3f; font-size:12px; font-weight:bold;">${dataFormatada}</span>`;
+                }
 
                 montarCard(container, jogo, palpites[jogo.id] || {m: "", v: ""}, jogoEncerrado, textoStatus);
             });
@@ -1214,10 +1217,11 @@
             const id = document.getElementById('adm-id-jogo').value;
             const m = document.getElementById('adm-gol-m').value;
             const v = document.getElementById('adm-gol-v').value;
+            const status = document.getElementById('adm-status-jogo').value;
             if(!id || m==="" || v==="") return alert("Preencha todos os campos do jogo!");
 
-            db.ref(`admin/resultados/${id}`).set({ m: parseInt(m), v: parseInt(v), status: "FT" })
-              .then(() => alert("Resultado oficial travado com sucesso!"));
+            db.ref(`admin/resultados/${id}`).set({ m: parseInt(m), v: parseInt(v), status: status })
+              .then(() => alert(`Placar ${status === 'FT' ? 'encerrado' : 'ao vivo'} atualizado com sucesso!`));
         }
 
         function removerResultado() {
