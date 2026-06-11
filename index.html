@@ -459,7 +459,18 @@
                         </select>
                     </div>
                     <table>
-                        <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Jogador</th>
+                                <th title="Pontos Totais" style="text-align: center; cursor: help;">P</th>
+                                <th title="Placares Exatos (20 pts)" style="text-align: center; cursor: help; color: #006b3f;">EX</th>
+                                <th title="Saldo de Gols / Empate (16 pts)" style="text-align: center; cursor: help; color: #8bc34a;">SG</th>
+                                <th title="Vencedor + 1 Placar (15 pts)" style="text-align: center; cursor: help; color: #ff9800;">VP</th>
+                                <th title="Acertou o Vencedor (10 pts)" style="text-align: center; cursor: help; color: #ffeb3b; text-shadow: 0 0 1px #000;">V</th>
+                                <th title="Prêmio de Consolação (5 pts)" style="text-align: center; cursor: help; color: #f44336;">C</th>
+                            </tr>
+                        </thead>
                         <tbody id="tabela-ranking"><tr><td colspan="3">Carregando...</td></tr></tbody>
                     </table>
                 </div>
@@ -502,6 +513,21 @@
                     <ul style="font-size: 14px;">
                         <li>🕒 <strong>Bloqueio Automático:</strong> Os palpites são bloqueados automaticamente <strong>1 hora antes</strong> do início de cada partida. Fique atento ao cronômetro no card do jogo.</li>
                         <li>⚽ <strong>Mata-Mata:</strong> Nas fases eliminatórias, o placar que vale para o bolão é o do final da partida (Tempo Normal + Prorrogação, se houver). <strong>Gols de disputa de pênaltis não entram na conta!</strong></li>
+                        
+                        <li style="margin-top: 20px;">⚖️ <strong>Critérios de Desempate:</strong> Caso dois jogadores tenham a mesma pontuação, o sistema desempata priorizando quem teve mais acertos difíceis, nesta exata ordem:</li>
+                    </ul>
+                    
+                    <div style="background: #f9f9f9; padding: 15px; border-radius: 6px; border: 1px solid #ddd; font-size: 13px;">
+                        <strong style="color: var(--verde-copa);">Entenda as siglas da Tabela de Ranking:</strong><br>
+                        <b>P:</b> Pontos Totais<br>
+                        <b>EX:</b> Quantidade de Placares Exatos cravados (Desempate 1)<br>
+                        <b>SG:</b> Quantidade de Saldo de Gols/Empate (Desempate 2)<br>
+                        <b>VP:</b> Quantidade de Vencedor + 1 Placar (Desempate 3)<br>
+                        <b>V:</b> Quantidade de acertos simples de Vencedor (Desempate 4)<br>
+                        <b>C:</b> Quantidade de Prêmios de Consolação (Desempate 5)
+                    </div>
+
+
                     </ul>
                 </div>
             </section>
@@ -558,7 +584,18 @@
                         <button onclick="verRankingAdmin()">Buscar Ranking</button>
                     </div>
                     <table style="margin-top: 15px;">
-                        <thead><tr><th>Pos</th><th>Jogador</th><th>Pontos</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Jogador</th>
+                                <th title="Pontos Totais" style="text-align: center; cursor: help;">P</th>
+                                <th title="Placares Exatos (20 pts)" style="text-align: center; cursor: help; color: #006b3f;">EX</th>
+                                <th title="Saldo de Gols / Empate (16 pts)" style="text-align: center; cursor: help; color: #8bc34a;">SG</th>
+                                <th title="Vencedor + 1 Placar (15 pts)" style="text-align: center; cursor: help; color: #ff9800;">VP</th>
+                                <th title="Acertou o Vencedor (10 pts)" style="text-align: center; cursor: help; color: #ffeb3b; text-shadow: 0 0 1px #000;">V</th>
+                                <th title="Prêmio de Consolação (5 pts)" style="text-align: center; cursor: help; color: #f44336;">C</th>
+                            </tr>
+                        </thead>
                         <tbody id="tabela-ranking-adm"><tr><td colspan="3">Aguardando busca...</td></tr></tbody>
                     </table>
                 </div>
@@ -1297,25 +1334,24 @@
             db.ref(`grupos/${grupoAtual}/usuarios`).once('value').then(snapshot => {
                 const usuarios = snapshot.val();
                 const tbody = document.getElementById('tabela-ranking');
-                const filtro = document.getElementById('filtro-rodada').value; // Pega o que o usuário escolheu
+                const filtro = document.getElementById('filtro-rodada').value;
 
                 tbody.innerHTML = "";
 
                 if (!usuarios) {
-                    tbody.innerHTML = `<tr><td colspan="3">Nenhum jogador cadastrado nesta liga ainda.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8">Nenhum jogador cadastrado nesta liga ainda.</td></tr>`;
                     return;
                 }
 
                 let rankingArray = [];
                 for (const [idUser, dadosUser] of Object.entries(usuarios)) {
-                    let pontosTotais = 0;
+                    let ptsTotal = 0, c20 = 0, c16 = 0, c15 = 0, c10 = 0, c5 = 0;
                     const palpites = dadosUser.palpites || {};
 
                     if (resultadosFinais) {
                         for (const [idJogo, palpite] of Object.entries(palpites)) {
                             const idNum = parseInt(idJogo);
 
-                            // Verifica se o jogo pertence ao filtro escolhido
                             let contarPonto = false;
                             if (filtro === "geral") contarPonto = true;
                             else if (filtro === "rodada1" && idNum >= 1 && idNum <= 24) contarPonto = true;
@@ -1323,21 +1359,44 @@
                             else if (filtro === "rodada3" && idNum >= 49 && idNum <= 72) contarPonto = true;
                             else if (filtro === "mata-mata" && idNum >= 73 && idNum <= 104) contarPonto = true;
 
-                            // Se passar no filtro e o jogo já tiver acabado, soma os pontos!
                             if (contarPonto && resultadosFinais[idJogo] && resultadosFinais[idJogo].status === "FT") {
                                 const real = resultadosFinais[idJogo];
-                                pontosTotais += aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                                const pontosGanhos = aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                                
+                                ptsTotal += pontosGanhos;
+                                if (pontosGanhos === 20) c20++;
+                                else if (pontosGanhos === 16) c16++;
+                                else if (pontosGanhos === 15) c15++;
+                                else if (pontosGanhos === 10) c10++;
+                                else if (pontosGanhos === 5) c5++;
                             }
                         }
                     }
-                    rankingArray.push({ nome: dadosUser.nome, pontos: pontosTotais });
+                    rankingArray.push({ nome: dadosUser.nome, pontos: ptsTotal, c20, c16, c15, c10, c5 });
                 }
 
-                // Ordena do maior pro menor
-                rankingArray.sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome));
+                // O MOTOR DE DESEMPATE EM ORDEM DE PRIORIDADE
+                rankingArray.sort((a, b) => {
+                    return b.pontos - a.pontos || 
+                           b.c20 - a.c20 || 
+                           b.c16 - a.c16 || 
+                           b.c15 - a.c15 || 
+                           b.c10 - a.c10 || 
+                           b.c5 - a.c5 || 
+                           a.nome.localeCompare(b.nome);
+                });
 
                 rankingArray.forEach((jogador, index) => {
-                    tbody.innerHTML += `<tr><td>${index + 1}º</td><td>${jogador.nome}</td><td><strong>${jogador.pontos}</strong></td></tr>`;
+                    tbody.innerHTML += `<tr>
+                        <td>${index + 1}º</td>
+                        <td>${jogador.nome}</td>
+                        <td style="text-align: center;"><strong>${jogador.pontos}</strong></td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c20}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c16}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c15}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c10}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c5}</td>
+                    </tr>`;
                 });
             });
         }
@@ -1379,26 +1438,51 @@
                 const tbody = document.getElementById('tabela-ranking-adm');
                 tbody.innerHTML = "";
 
-                if (!usuarios) return tbody.innerHTML = `<tr><td colspan="3">Nenhum jogador encontrado nesta liga.</td></tr>`;
+                if (!usuarios) return tbody.innerHTML = `<tr><td colspan="8">Nenhum jogador encontrado nesta liga.</td></tr>`;
 
                 let rankingArray = [];
                 for (const [idUser, dadosUser] of Object.entries(usuarios)) {
-                    let pontosTotais = 0;
+                    let ptsTotal = 0, c20 = 0, c16 = 0, c15 = 0, c10 = 0, c5 = 0;
                     const palpites = dadosUser.palpites || {};
 
                     for (const [idJogo, palpite] of Object.entries(palpites)) {
-                        // Usa os resultados globais que o ADM digitou
                         if (resultadosGlobais[idJogo] && resultadosGlobais[idJogo].status === "FT") {
                             const real = resultadosGlobais[idJogo];
-                            pontosTotais += aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                            const pontosGanhos = aplicarRegras(palpite.m, palpite.v, real.m, real.v);
+                            
+                            ptsTotal += pontosGanhos;
+                            if (pontosGanhos === 20) c20++;
+                            else if (pontosGanhos === 16) c16++;
+                            else if (pontosGanhos === 15) c15++;
+                            else if (pontosGanhos === 10) c10++;
+                            else if (pontosGanhos === 5) c5++;
                         }
                     }
-                    rankingArray.push({ nome: dadosUser.nome, pontos: pontosTotais });
+                    rankingArray.push({ nome: dadosUser.nome, pontos: ptsTotal, c20, c16, c15, c10, c5 });
                 }
 
-                rankingArray.sort((a, b) => b.pontos - a.pontos || a.nome.localeCompare(b.nome));
+                // O MOTOR DE DESEMPATE EM ORDEM DE PRIORIDADE
+                rankingArray.sort((a, b) => {
+                    return b.pontos - a.pontos || 
+                           b.c20 - a.c20 || 
+                           b.c16 - a.c16 || 
+                           b.c15 - a.c15 || 
+                           b.c10 - a.c10 || 
+                           b.c5 - a.c5 || 
+                           a.nome.localeCompare(b.nome);
+                });
+
                 rankingArray.forEach((jogador, index) => {
-                    tbody.innerHTML += `<tr><td>${index + 1}º</td><td>${jogador.nome}</td><td><strong>${jogador.pontos}</strong></td></tr>`;
+                    tbody.innerHTML += `<tr>
+                        <td>${index + 1}º</td>
+                        <td>${jogador.nome}</td>
+                        <td style="text-align: center;"><strong>${jogador.pontos}</strong></td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c20}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c16}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c15}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c10}</td>
+                        <td style="text-align: center; color: #555; font-size: 13px;">${jogador.c5}</td>
+                    </tr>`;
                 });
             });
         }
