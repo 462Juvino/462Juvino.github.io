@@ -533,6 +533,14 @@
             <section id="aba-adm" class="aba">
                 <h2>Painel do Administrador</h2>
 
+                <div class="card" style="border: 2px solid var(--verde-copa);">
+                    <h3 style="color: var(--verde-copa); margin-top: 0;">⚡ Sincronização Automática (API)</h3>
+                    <p style="font-size: 13px; color: #666;">Puxe os resultados e artilheiros em tempo real da API e salve permanentemente no Banco de Dados. Isso protege o bolão caso a API caia.</p>
+                    <button onclick="sincronizarAPI()" style="background: var(--verde-copa); color: white; border: none; padding: 12px; width: 100%; border-radius: 6px; font-weight: bold; font-size: 16px; cursor: pointer;">
+                        🔄 Puxar Dados da API Agora
+                    </button>
+                </div>
+
                 <div class="card">
                     <h3>1. Atualizar Placar (Ao Vivo ou Final)</h3>
                     <p style="font-size: 13px; color: #666;">Selecione "Ao Vivo" para atualizar o placar sem distribuir pontos. Use "Encerrado" quando o jogo acabar.</p>
@@ -939,10 +947,10 @@
             atualizarInterfaceHibrida();
         });
 
-        // Função que funde a API com os dados manuais do ADM
+        // Função que atualiza a tela instantaneamente usando o Firebase
         function atualizarInterfaceHibrida() {
-            // A MÁGICA DO FALLBACK: O que o ADM digita sobrescreve a API
-            resultadosGlobais = { ...resultadosAPI, ...resultadosForcados };
+            // Agora a fonte de verdade absoluta é o Firebase (resultadosForcados)
+            resultadosGlobais = { ...resultadosForcados };
 
             // Atualiza a Vitrine (visitantes)
             renderizarVitrinePublica(resultadosGlobais, confrontosGlobais);
@@ -955,58 +963,144 @@
                 if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
             }
         }
-
-        // --- MOTOR DE API COMUNITÁRIA (COPA 2026) ---
-        async function buscarResultadosDasAPIs() {
+        // --- MOTOR DE SINCRONIZAÇÃO NÍVEL ENTERPRISE (API ESPN) ---
+        // Agora com "modoSilencioso" para rodar invisível no celular dos usuários
+        async function sincronizarAPI(modoSilencioso = false) {
+            // Se for clique manual e não for ADM, bloqueia. Se for modo invisível, deixa passar.
+            if (!modoSilencioso && grupoAtual !== "ADM") return alert("Apenas o Administrador pode sincronizar manualmente a API.");
+            
             try {
-                // Conectando na API Open Source sem necessidade de Chave (API Key)
-                const respostaAPI = await fetch("https://worldcup26.ir/get/games");
+                if (!modoSilencioso) alert("Buscando dados ultrarrápidos da ESPN... Aguarde.");
+                const urlESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+                
+                const resposta = await fetch(urlESPN);
+                if (!resposta.ok) throw new Error("A API da ESPN não respondeu.");
+                
+                const dadosAPI = await resposta.json();
+                if (!dadosAPI || !dadosAPI.events) throw new Error("A estrutura da ESPN está vazia.");
 
-                if (!respostaAPI.ok) throw new Error("API Comunitária falhou");
-                const dadosAPI = await respostaAPI.json();
+                let jogosAtualizados = 0;
 
-                // === LINHAS DE TESTE (ESPIÃO) ===
-                console.log("✅ SUCESSO! A API Comunitária da Copa 2026 respondeu.");
-                console.log("⚽ Dados crus da API:", dadosAPI);
-                // =================================
+                const dicionarioTimes = {
+                    "mexico": "México", "south africa": "África do Sul", "south korea": "Rep. da Coreia", 
+                    "czechia": "Rep. Tcheca", "canada": "Canadá", "bosnia and herzegovina": "Bósnia", 
+                    "bosnia": "Bósnia", "united states": "EUA", "usa": "EUA", "paraguay": "Paraguai", 
+                    "qatar": "Catar", "switzerland": "Suíça", "brazil": "Brasil", "morocco": "Marrocos", 
+                    "haiti": "Haiti", "scotland": "Escócia", "australia": "Austrália", "turkey": "Turquia", 
+                    "turkiye": "Turquia", "germany": "Alemanha", "curacao": "Curaçau", 
+                    "ivory coast": "C. do Marfim", "cote d'ivoire": "C. do Marfim", "ecuador": "Equador", 
+                    "netherlands": "Holanda", "japan": "Japão", "sweden": "Suécia", "tunisia": "Tunísia", 
+                    "spain": "Espanha", "cape verde": "Cabo Verde", "saudi arabia": "Arábia Saudita", 
+                    "uruguay": "Uruguai", "belgium": "Bélgica", "egypt": "Egito", "iran": "Irã", 
+                    "new zealand": "Nova Zelândia", "austria": "Áustria", "jordan": "Jordânia", 
+                    "france": "França", "senegal": "Senegal", "iraq": "Iraque", "norway": "Noruega", 
+                    "argentina": "Argentina", "algeria": "Argélia", "portugal": "Portugal", 
+                    "dr congo": "RD Congo", "congo dr": "RD Congo", "england": "Inglaterra", 
+                    "croatia": "Croácia", "ghana": "Gana", "panama": "Panamá", "uzbekistan": "Uzbequistão", 
+                    "colombia": "Colômbia"
+                };
 
-                // Desativamos a tradução temporariamente só para ver os dados chegarem no Console
-                // resultadosAPI = processarDadosDaAPI(dadosAPI);
+                const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+
+                dadosAPI.events.forEach(evento => {
+                    const competicao = evento.competitions[0];
+                    const statusEstado = competicao.status.type.state; 
+                    const clock = competicao.status.displayClock;
+
+                    let status = "";
+                    if (statusEstado === "post") status = "FT";
+                    else if (statusEstado === "in") status = "LIVE";
+
+                    if (status === "FT" || status === "LIVE") {
+                        const time1 = competicao.competitors[0];
+                        const time2 = competicao.competitors[1];
+
+                        const timeHome = time1.homeAway === "home" ? time1 : time2;
+                        const timeAway = time1.homeAway === "away" ? time1 : time2;
+
+                        const nomeHomeESPN = normalizar(timeHome.team.name);
+                        const nomeAwayESPN = normalizar(timeAway.team.name);
+
+                        const nossoHome = dicionarioTimes[nomeHomeESPN] || timeHome.team.name;
+                        const nossoAway = dicionarioTimes[nomeAwayESPN] || timeAway.team.name;
+
+                        const jogoNosso = baseDeJogosOficial.find(j => 
+                            (j.home.name === nossoHome && j.away.name === nossoAway) ||
+                            (j.home.name === nossoAway && j.away.name === nossoHome) 
+                        );
+
+                        if (jogoNosso) {
+                            const isHomeNosso = jogoNosso.home.name === nossoHome;
+                            const m = parseInt(isHomeNosso ? timeHome.score : timeAway.score) || 0;
+                            const v = parseInt(isHomeNosso ? timeAway.score : timeHome.score) || 0;
+
+                            let golsM = []; let golsV = [];
+                            if (competicao.details) {
+                                competicao.details.forEach(detalhe => {
+                                    if (detalhe.scoringPlay) {
+                                        const jogador = detalhe.athletesInvolved ? detalhe.athletesInvolved[0].shortName : "Gol";
+                                        const minuto = detalhe.clock ? detalhe.clock.displayValue : "";
+                                        const isGolHomeESPN = detalhe.team.id === timeHome.team.id;
+                                        const isGolNossoMandante = isHomeNosso ? isGolHomeESPN : !isGolHomeESPN;
+
+                                        if (isGolNossoMandante) golsM.push(`${jogador} ${minuto}`);
+                                        else golsV.push(`${jogador} ${minuto}`);
+                                    }
+                                });
+                            }
+
+                            // Grava silenciosamente no Firebase!
+                            db.ref(`admin/resultados/${jogoNosso.id}`).update({ 
+                                m: m, v: v, status: status, clock: clock,
+                                scorersM: golsM.join('<br>'), scorersV: golsV.join('<br>')
+                            });
+                            jogosAtualizados++;
+                        }
+                    }
+                });
+
+                if (!modoSilencioso) {
+                    if (jogosAtualizados > 0) alert(`✅ Sucesso! ${jogosAtualizados} jogos atualizados direto da ESPN.`);
+                    else alert("A API da ESPN conectou, mas nenhum jogo da Copa ao vivo ou encerrado foi achado.");
+                } else if (jogosAtualizados > 0) {
+                    console.log(`🕵️ Fantasma atualizou ${jogosAtualizados} jogos no fundo!`);
+                }
 
             } catch (erro) {
-                console.warn("⚠️ API Comunitária fora do ar ou bloqueada. Usando modo manual do ADM.");
-                resultadosAPI = {}; // Mantém vazio para usar os dados do Painel ADM
+                console.error("Erro na ESPN:", erro);
+                if (!modoSilencioso) alert("⚠️ Falha na conexão com a ESPN: " + erro.message);
+            }
+        }
+
+        // =========================================================
+        // MOTOR AUTÔNOMO (CROWDSOURCED CRON)
+        // =========================================================
+        function checarJogosPendentes() {
+            const agoraMs = new Date().getTime();
+            let temJogoRodandoOuAtrasado = false;
+
+            // Varre a tabela inteira do bolão
+            for (let i = 0; i < baseDeJogosOficial.length; i++) {
+                const jogo = baseDeJogosOficial[i];
+                const dataJogoMs = new Date(jogo.date).getTime();
+                const res = resultadosGlobais[jogo.id];
+
+                // A MÁGICA: O jogo já começou (data do jogo <= agora)
+                // E o resultado não existe ou o status NÃO É "FT" (Encerrado)?
+                if (agoraMs >= dataJogoMs && (!res || res.status !== "FT")) {
+                    temJogoRodandoOuAtrasado = true;
+                    break; // Achou um precisando de atenção, já pode parar a varredura
+                }
             }
 
-            // Atualiza a tela após a tentativa
-            atualizarInterfaceHibrida();
+            // Se tem jogo precisando de atenção, liga a API invisível!
+            if (temJogoRodandoOuAtrasado) {
+                console.log("⚽ Jogo ao vivo ou pendente detectado! Puxando dados da ESPN em background...");
+                sincronizarAPI(true); // O 'true' aciona o Modo Silencioso
+            } else {
+                console.log("💤 Nenhum jogo ao vivo agora. Motor autônomo dormindo.");
+            }
         }
-
-        // Função "Tradutora" (Exemplo de como transformar o dado da API no nosso formato)
-        function processarDadosDaAPI(dadosBrutos) {
-            let dadosLimpos = {};
-            // Quando a Copa de 2026 chegar, você fará um "for/forEach" nos dadosBrutos aqui
-            // Exemplo imaginário de como ficará:
-            /*
-            dadosBrutos.response.forEach(jogo => {
-                if(jogo.fixture.status.short === "FT") {
-                    let meuID = converterIdDaAPIProNossoID(jogo.fixture.id);
-                    dadosLimpos[meuID] = {
-                        m: jogo.goals.home,
-                        v: jogo.goals.away,
-                        status: "FT"
-                    };
-                }
-            });
-            */
-            return dadosLimpos;
-        }
-
-        // Inicia a busca automática quando a página carrega
-        buscarResultadosDasAPIs();
-
-        // Opcional: Atualiza a API a cada 5 minutos (300.000 ms) para pegar jogos ao vivo
-        setInterval(buscarResultadosDasAPIs, 300000);
 
         // --- MODO VISITANTE: RENDERIZA JOGOS APENAS PARA LEITURA ---
         function renderizarVitrinePublica(resultados, confrontos) {
@@ -1034,6 +1128,15 @@
                     placarHtml = `<strong style="font-size: 18px; color: #666;">- x -</strong><br><span style="color:#006b3f; font-size:12px;">${dataStr}</span>`;
                 }
 
+                let artilheirosHtml = "";
+                if (res && (res.status === "FT" || res.status === "LIVE") && (res.scorersM || res.scorersV)) {
+                    artilheirosHtml = `
+                        <div style="width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 8px; padding: 5px 10px; background: #f0f0f0; border-radius: 4px; box-sizing: border-box;">
+                            <div style="flex: 1; text-align: right; padding-right: 10px;">${res.scorersM ? '⚽ ' + res.scorersM : ''}</div>
+                            <div style="flex: 1; text-align: left; padding-left: 10px;">${res.scorersV ? '⚽ ' + res.scorersV : ''}</div>
+                        </div>`;
+                }
+
                 contJogos.innerHTML += `
                     <div class="jogo-linha" style="flex-direction:column; align-items:center;">
                         <span class="id-info" style="text-align: center; line-height: 1.2;">ID: ${j.id}<br><span style="color: #ffcc00; font-size: 9px; font-weight: normal;">${obterFase(j.id)}</span></span>
@@ -1043,6 +1146,7 @@
                             <div style="text-align:center; min-width:80px;">${placarHtml}</div>
                             <span class="equipe-nome equipe-visitante"><img src="${j.away.logo}" class="bandeira"> ${j.away.name}</span>
                         </div>
+                        ${artilheirosHtml}
                     </div>`;
             });
         }
@@ -1133,7 +1237,8 @@
                 if (jogoEncerrado) {
                     textoStatus = `<span style="color:#dc3545; font-size:12px; font-weight:bold;">Encerrado (Oficial: ${resultado.m} x ${resultado.v})</span>`;
                 } else if (jogoAoVivo) {
-                    textoStatus = `<span style="color:#ff8c00; font-size:13px; font-weight:bold; text-shadow: 0 0 2px rgba(255,140,0,0.5);">🔴 AO VIVO (Atual: ${resultado.m} x ${resultado.v})</span>`;
+                    const relogio = resultado.clock ? ` • ${resultado.clock}` : "";
+                    textoStatus = `<span style="color:#ff8c00; font-size:13px; font-weight:bold; text-shadow: 0 0 2px rgba(255,140,0,0.5);">🔴 AO VIVO${relogio} (Atual: ${resultado.m} x ${resultado.v})</span>`;
                 } else {
                     textoStatus = `<span style="color:#006b3f; font-size:12px; font-weight:bold;">${dataFormatada}</span>`;
                 }
@@ -1164,18 +1269,26 @@
         }
 
         function montarCard(container, jogo, palpite, jogoEncerrado, textoStatus) {
-            // Calcula se já passou do tempo (1 hora = 3.600.000 milissegundos)
             const dataJogoMs = new Date(jogo.date).getTime();
             const agoraMs = new Date().getTime();
             const umaHoraMs = 60 * 60 * 1000;
             const travadoPeloTempo = (dataJogoMs - agoraMs) <= umaHoraMs;
-
-            // A trava geral verifica se o jogo já acabou, se o tempo esgotou, ou se é o ADM olhando
             const bloqueado = jogoEncerrado || travadoPeloTempo || grupoAtual === "ADM";
 
             let btnSalvar = `<button disabled style="background:#ccc; color:#666; border:none; padding:8px 12px; border-radius:4px;">Fechado</button>`;
             if (!bloqueado) {
                 btnSalvar = `<button id="btn-salvar-${jogo.id}" onclick="salvarPalpite(${jogo.id})" style="background:var(--verde-copa); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;">Salvar</button>`;
+            }
+
+            // Puxa os dados globais para saber quem fez os gols
+            const resGlobal = resultadosGlobais[jogo.id];
+            let artilheirosHtml = "";
+            if (resGlobal && (resGlobal.status === "FT" || resGlobal.status === "LIVE") && (resGlobal.scorersM || resGlobal.scorersV)) {
+                artilheirosHtml = `
+                    <div style="width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 8px; padding: 5px 10px; background: #f0f0f0; border-radius: 4px; box-sizing: border-box;">
+                        <div style="flex: 1; text-align: right; padding-right: 10px;">${resGlobal.scorersM ? '⚽ ' + resGlobal.scorersM : ''}</div>
+                        <div style="flex: 1; text-align: left; padding-left: 10px;">${resGlobal.scorersV ? '⚽ ' + resGlobal.scorersV : ''}</div>
+                    </div>`;
             }
 
             container.innerHTML += `
@@ -1184,7 +1297,7 @@
                     <span class="tv-info">📺 ${jogo.tv}</span>
                     ${textoStatus}
                     <div class="timer-jogo" id="timer-${jogo.id}" data-hora="${jogo.date}" style="font-size: 11px; font-weight: bold; margin-top: 5px; text-align: center;"></div>
-                    <div style="display:flex; align-items:center; gap:15px; margin-top:5px;">
+                    <div style="display:flex; align-items:center; gap:15px; margin-top:5px; width:100%; justify-content:center;">
                         <span class="equipe-nome equipe-mandante">${jogo.home.name} <img src="${jogo.home.logo}" class="bandeira"></span>
                         <input type="number" id="m-${jogo.id}" value="${palpite.m}" ${bloqueado ? 'disabled' : ''}>
                         <span>X</span>
@@ -1192,6 +1305,7 @@
                         <span class="equipe-nome equipe-visitante"><img src="${jogo.away.logo}" class="bandeira"> ${jogo.away.name}</span>
                         ${btnSalvar}
                     </div>
+                    ${artilheirosHtml}
                 </div>`;
         }
 
@@ -1363,7 +1477,7 @@
                             else if (filtro === "rodada3" && idNum >= 49 && idNum <= 72) contarPonto = true;
                             else if (filtro === "mata-mata" && idNum >= 73 && idNum <= 104) contarPonto = true;
 
-                            if (contarPonto && resultadosFinais[idJogo] && resultadosFinais[idJogo].status === "FT") {
+                            if (contarPonto && resultadosFinais[idJogo] && (resultadosFinais[idJogo].status === "FT" || resultadosFinais[idJogo].status === "LIVE")) {
                                 const real = resultadosFinais[idJogo];
                                 const pontosGanhos = aplicarRegras(palpite.m, palpite.v, real.m, real.v);
                                 
@@ -1450,7 +1564,7 @@
                     const palpites = dadosUser.palpites || {};
 
                     for (const [idJogo, palpite] of Object.entries(palpites)) {
-                        if (resultadosGlobais[idJogo] && resultadosGlobais[idJogo].status === "FT") {
+                        if (resultadosGlobais[idJogo] && (resultadosGlobais[idJogo].status === "FT" || resultadosGlobais[idJogo].status === "LIVE")) {
                             const real = resultadosGlobais[idJogo];
                             const pontosGanhos = aplicarRegras(palpite.m, palpite.v, real.m, real.v);
                             
@@ -1501,8 +1615,17 @@
             document.getElementById('menu-lateral').classList.toggle('aberto');
         }
 
+
+
+                    // Dispara o motor autônomo assim que o site carrega
+        setTimeout(checarJogosPendentes, 3000); 
+
+        // E manda ele checar sozinho a cada 1 MINUTO caso a pessoa deixe o site aberto
+        setInterval(checarJogosPendentes, 60000);
+
         // Motor que atualiza o cronômetro na tela a cada 10 segundos
         setInterval(() => {
+        
             if(grupoAtual === "ADM") return; // ADM não precisa de cronômetro
 
             document.querySelectorAll('.timer-jogo').forEach(el => {
