@@ -963,10 +963,8 @@
                 if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
             }
         }
-        // --- MOTOR DE SINCRONIZAÇÃO NÍVEL ENTERPRISE (API ESPN) ---
-        // Agora com "modoSilencioso" para rodar invisível no celular dos usuários
+        // --- MOTOR DE SINCRONIZAÇÃO SUPREMO (API ESPN + ESTÁDIO + CARTÕES) ---
         async function sincronizarAPI(modoSilencioso = false) {
-            // Se for clique manual e não for ADM, bloqueia. Se for modo invisível, deixa passar.
             if (!modoSilencioso && grupoAtual !== "ADM") return alert("Apenas o Administrador pode sincronizar manualmente a API.");
             
             try {
@@ -982,30 +980,41 @@
                 let jogosAtualizados = 0;
 
                 const dicionarioTimes = {
-                    "mexico": "México", "south africa": "África do Sul", "south korea": "Rep. da Coreia", 
-                    "czechia": "Rep. Tcheca", "canada": "Canadá", "bosnia and herzegovina": "Bósnia", 
-                    "bosnia": "Bósnia", "united states": "EUA", "usa": "EUA", "paraguay": "Paraguai", 
+                    "mexico": "México", "southafrica": "África do Sul", "southkorea": "Rep. da Coreia", 
+                    "czechia": "Rep. Tcheca", "canada": "Canadá", "bosniaherzegovina": "Bósnia", 
+                    "bosnia": "Bósnia", "unitedstates": "EUA", "usa": "EUA", "paraguay": "Paraguai", 
                     "qatar": "Catar", "switzerland": "Suíça", "brazil": "Brasil", "morocco": "Marrocos", 
                     "haiti": "Haiti", "scotland": "Escócia", "australia": "Austrália", "turkey": "Turquia", 
                     "turkiye": "Turquia", "germany": "Alemanha", "curacao": "Curaçau", 
-                    "ivory coast": "C. do Marfim", "cote d'ivoire": "C. do Marfim", "ecuador": "Equador", 
+                    "ivorycoast": "C. do Marfim", "cotedivoire": "C. do Marfim", "ecuador": "Equador", 
                     "netherlands": "Holanda", "japan": "Japão", "sweden": "Suécia", "tunisia": "Tunísia", 
-                    "spain": "Espanha", "cape verde": "Cabo Verde", "saudi arabia": "Arábia Saudita", 
+                    "spain": "Espanha", "capeverde": "Cabo Verde", "saudiarabia": "Arábia Saudita", 
                     "uruguay": "Uruguai", "belgium": "Bélgica", "egypt": "Egito", "iran": "Irã", 
-                    "new zealand": "Nova Zelândia", "austria": "Áustria", "jordan": "Jordânia", 
+                    "newzealand": "Nova Zelândia", "austria": "Áustria", "jordan": "Jordânia", 
                     "france": "França", "senegal": "Senegal", "iraq": "Iraque", "norway": "Noruega", 
                     "argentina": "Argentina", "algeria": "Argélia", "portugal": "Portugal", 
-                    "dr congo": "RD Congo", "congo dr": "RD Congo", "england": "Inglaterra", 
+                    "drcongo": "RD Congo", "congodr": "RD Congo", "england": "Inglaterra", 
                     "croatia": "Croácia", "ghana": "Gana", "panama": "Panamá", "uzbekistan": "Uzbequistão", 
                     "colombia": "Colômbia"
                 };
 
-                const normalizar = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+                const superLimpeza = (texto) => {
+                    if (!texto) return "";
+                    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "").toLowerCase().trim();
+                };
 
                 dadosAPI.events.forEach(evento => {
                     const competicao = evento.competitions[0];
                     const statusEstado = competicao.status.type.state; 
                     const clock = competicao.status.displayClock;
+
+                    // Pega o Estádio e Cidade
+                    let estadio = "";
+                    if (competicao.venue) {
+                        const nomeEstadio = competicao.venue.fullName || "";
+                        const cidadeEstadio = competicao.venue.address ? competicao.venue.address.city : "";
+                        estadio = cidadeEstadio ? `${nomeEstadio}, ${cidadeEstadio}` : nomeEstadio;
+                    }
 
                     let status = "";
                     if (statusEstado === "post") status = "FT";
@@ -1018,41 +1027,48 @@
                         const timeHome = time1.homeAway === "home" ? time1 : time2;
                         const timeAway = time1.homeAway === "away" ? time1 : time2;
 
-                        const nomeHomeESPN = normalizar(timeHome.team.name);
-                        const nomeAwayESPN = normalizar(timeAway.team.name);
+                        const nomeHomeESPNLimpo = superLimpeza(timeHome.team.name);
+                        const nomeAwayESPNLimpo = superLimpeza(timeAway.team.name);
 
-                        const nossoHome = dicionarioTimes[nomeHomeESPN] || timeHome.team.name;
-                        const nossoAway = dicionarioTimes[nomeAwayESPN] || timeAway.team.name;
+                        const nossoHome = dicionarioTimes[nomeHomeESPNLimpo] || timeHome.team.name;
+                        const nossoAway = dicionarioTimes[nomeAwayESPNLimpo] || timeAway.team.name;
 
-                        const jogoNosso = baseDeJogosOficial.find(j => 
-                            (j.home.name === nossoHome && j.away.name === nossoAway) ||
-                            (j.home.name === nossoAway && j.away.name === nossoHome) 
-                        );
+                        const jogoNosso = baseDeJogosOficial.find(j => {
+                            const nH = superLimpeza(j.home.name); const nA = superLimpeza(j.away.name);
+                            const tradH = superLimpeza(nossoHome); const tradA = superLimpeza(nossoAway);
+                            return (nH === tradH && nA === tradA) || (nH === tradA && nA === tradH);
+                        });
 
                         if (jogoNosso) {
-                            const isHomeNosso = jogoNosso.home.name === nossoHome;
+                            const isHomeNosso = superLimpeza(jogoNosso.home.name) === superLimpeza(nossoHome);
                             const m = parseInt(isHomeNosso ? timeHome.score : timeAway.score) || 0;
                             const v = parseInt(isHomeNosso ? timeAway.score : timeHome.score) || 0;
 
-                            let golsM = []; let golsV = [];
+                            // Varre os eventos (Gols, Amarelos e Vermelhos)
+                            let eventosM = []; let eventosV = [];
                             if (competicao.details) {
                                 competicao.details.forEach(detalhe => {
-                                    if (detalhe.scoringPlay) {
-                                        const jogador = detalhe.athletesInvolved ? detalhe.athletesInvolved[0].shortName : "Gol";
-                                        const minuto = detalhe.clock ? detalhe.clock.displayValue : "";
-                                        const isGolHomeESPN = detalhe.team.id === timeHome.team.id;
-                                        const isGolNossoMandante = isHomeNosso ? isGolHomeESPN : !isGolHomeESPN;
+                                    const jogador = detalhe.athletesInvolved ? detalhe.athletesInvolved[0].shortName : "Lance";
+                                    const minuto = detalhe.clock ? detalhe.clock.displayValue : "";
+                                    const isHomeESPN = detalhe.team.id === timeHome.team.id;
+                                    const isNossoMandante = isHomeNosso ? isHomeESPN : !isHomeESPN;
 
-                                        if (isGolNossoMandante) golsM.push(`${jogador} ${minuto}`);
-                                        else golsV.push(`${jogador} ${minuto}`);
+                                    let textoEvento = "";
+                                    if (detalhe.scoringPlay) textoEvento = `⚽ ${jogador} ${minuto}`;
+                                    else if (detalhe.redCard) textoEvento = `🟥 ${jogador} ${minuto}`;
+                                    else if (detalhe.yellowCard) textoEvento = `🟨 ${jogador} ${minuto}`;
+
+                                    if (textoEvento) {
+                                        if (isNossoMandante) eventosM.push(textoEvento);
+                                        else eventosV.push(textoEvento);
                                     }
                                 });
                             }
 
-                            // Grava silenciosamente no Firebase!
+                            // Grava tudo no Firebase
                             db.ref(`admin/resultados/${jogoNosso.id}`).update({ 
-                                m: m, v: v, status: status, clock: clock,
-                                scorersM: golsM.join('<br>'), scorersV: golsV.join('<br>')
+                                m: m, v: v, status: status, clock: clock, estadio: estadio,
+                                scorersM: eventosM.join('<br>'), scorersV: eventosV.join('<br>')
                             });
                             jogosAtualizados++;
                         }
@@ -1061,9 +1077,7 @@
 
                 if (!modoSilencioso) {
                     if (jogosAtualizados > 0) alert(`✅ Sucesso! ${jogosAtualizados} jogos atualizados direto da ESPN.`);
-                    else alert("A API da ESPN conectou, mas nenhum jogo da Copa ao vivo ou encerrado foi achado.");
-                } else if (jogosAtualizados > 0) {
-                    console.log(`🕵️ Fantasma atualizou ${jogosAtualizados} jogos no fundo!`);
+                    else alert("A API da ESPN conectou, mas nenhum jogo ativo correspondente foi achado.");
                 }
 
             } catch (erro) {
@@ -1128,12 +1142,17 @@
                     placarHtml = `<strong style="font-size: 18px; color: #666;">- x -</strong><br><span style="color:#006b3f; font-size:12px;">${dataStr}</span>`;
                 }
 
+                let estadioHtml = "";
+                if (res && res.estadio) {
+                    estadioHtml = `<div style="font-size: 10px; color: #777; margin-bottom: 2px;">📍 ${res.estadio}</div>`;
+                }
+
                 let artilheirosHtml = "";
                 if (res && (res.status === "FT" || res.status === "LIVE") && (res.scorersM || res.scorersV)) {
                     artilheirosHtml = `
-                        <div style="width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 8px; padding: 5px 10px; background: #f0f0f0; border-radius: 4px; box-sizing: border-box;">
-                            <div style="flex: 1; text-align: right; padding-right: 10px;">${res.scorersM ? '⚽ ' + res.scorersM : ''}</div>
-                            <div style="flex: 1; text-align: left; padding-left: 10px;">${res.scorersV ? '⚽ ' + res.scorersV : ''}</div>
+                        <div style="width: 100%; display: flex; justify-content: space-between; font-size: 10.5px; color: #444; margin-top: 8px; padding: 6px 10px; background: #f2f2f2; border-radius: 4px; box-sizing: border-box; line-height: 1.3;">
+                            <div style="flex: 1; text-align: right; padding-right: 8px; border-right: 1px dashed #ccc;">${res.scorersM || ''}</div>
+                            <div style="flex: 1; text-align: left; padding-left: 8px;">${res.scorersV || ''}</div>
                         </div>`;
                 }
 
@@ -1141,7 +1160,8 @@
                     <div class="jogo-linha" style="flex-direction:column; align-items:center;">
                         <span class="id-info" style="text-align: center; line-height: 1.2;">ID: ${j.id}<br><span style="color: #ffcc00; font-size: 9px; font-weight: normal;">${obterFase(j.id)}</span></span>
                         <span class="tv-info">📺 ${j.tv}</span>
-                        <div style="display:flex; align-items:center; gap:15px; margin-top:10px; justify-content:center; width:100%;">
+                        <div style="margin-top: 5px;">${estadioHtml}</div>
+                        <div style="display:flex; align-items:center; gap:15px; margin-top:5px; justify-content:center; width:100%;">
                             <span class="equipe-nome equipe-mandante">${j.home.name} <img src="${j.home.logo}" class="bandeira"></span>
                             <div style="text-align:center; min-width:80px;">${placarHtml}</div>
                             <span class="equipe-nome equipe-visitante"><img src="${j.away.logo}" class="bandeira"> ${j.away.name}</span>
@@ -1280,14 +1300,21 @@
                 btnSalvar = `<button id="btn-salvar-${jogo.id}" onclick="salvarPalpite(${jogo.id})" style="background:var(--verde-copa); color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer;">Salvar</button>`;
             }
 
-            // Puxa os dados globais para saber quem fez os gols
             const resGlobal = resultadosGlobais[jogo.id];
-            let artilheirosHtml = "";
+            
+            // 📍 Textinho discreto do Estádio
+            let estadioHtml = "";
+            if (resGlobal && resGlobal.estadio) {
+                estadioHtml = `<div style="font-size: 10px; color: #777; margin-bottom: 2px;">📍 ${resGlobal.estadio}</div>`;
+            }
+
+            // 🟨 🟥 ⚽ Bloco de Eventos Compacto
+            let eventosHtml = "";
             if (resGlobal && (resGlobal.status === "FT" || resGlobal.status === "LIVE") && (resGlobal.scorersM || resGlobal.scorersV)) {
-                artilheirosHtml = `
-                    <div style="width: 100%; display: flex; justify-content: space-between; font-size: 11px; color: #555; margin-top: 8px; padding: 5px 10px; background: #f0f0f0; border-radius: 4px; box-sizing: border-box;">
-                        <div style="flex: 1; text-align: right; padding-right: 10px;">${resGlobal.scorersM ? '⚽ ' + resGlobal.scorersM : ''}</div>
-                        <div style="flex: 1; text-align: left; padding-left: 10px;">${resGlobal.scorersV ? '⚽ ' + resGlobal.scorersV : ''}</div>
+                eventosHtml = `
+                    <div style="width: 100%; display: flex; justify-content: space-between; font-size: 10.5px; color: #444; margin-top: 8px; padding: 6px 10px; background: #f2f2f2; border-radius: 4px; box-sizing: border-box; line-height: 1.3;">
+                        <div style="flex: 1; text-align: right; padding-right: 8px; border-right: 1px dashed #ccc;">${resGlobal.scorersM || ''}</div>
+                        <div style="flex: 1; text-align: left; padding-left: 8px;">${resGlobal.scorersV || ''}</div>
                     </div>`;
             }
 
@@ -1296,6 +1323,7 @@
                     <span class="id-info" style="text-align: center; line-height: 1.2;">ID: ${jogo.id}<br><span style="color: #ffcc00; font-size: 9px; font-weight: normal;">${obterFase(jogo.id)}</span></span>
                     <span class="tv-info">📺 ${jogo.tv}</span>
                     ${textoStatus}
+                    ${estadioHtml}
                     <div class="timer-jogo" id="timer-${jogo.id}" data-hora="${jogo.date}" style="font-size: 11px; font-weight: bold; margin-top: 5px; text-align: center;"></div>
                     <div style="display:flex; align-items:center; gap:15px; margin-top:5px; width:100%; justify-content:center;">
                         <span class="equipe-nome equipe-mandante">${jogo.home.name} <img src="${jogo.home.logo}" class="bandeira"></span>
@@ -1305,7 +1333,7 @@
                         <span class="equipe-nome equipe-visitante"><img src="${jogo.away.logo}" class="bandeira"> ${jogo.away.name}</span>
                         ${btnSalvar}
                     </div>
-                    ${artilheirosHtml}
+                    ${eventosHtml}
                 </div>`;
         }
 
