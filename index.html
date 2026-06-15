@@ -414,7 +414,8 @@
             <button onclick="mudarAba('palpites')" class="btn-ativo" id="btn-palpites">Meus Palpites</button>
             <button onclick="mudarAba('grupos')" id="btn-grupos">Grupos e Mata-Mata</button>
             <button onclick="mudarAba('ranking')" id="btn-ranking">Ranking Geral</button>
-            <button onclick="mudarAba('regras')" id="btn-regras">Regras do Bolão</button> <!-- NOVO BOTÃO -->
+            <button onclick="mudarAba('palpites-galera')" id="btn-palpites-galera">Palpites da Galera</button>
+            <button onclick="mudarAba('regras')" id="btn-regras">Regras do Bolão</button>
 
             <!-- Botão ADM oculto por padrão -->
             <button onclick="mudarAba('adm')" id="btn-adm" style="display: none; background: #ffce00; color: #333; font-weight: bold; margin-top: 20px;">Painel ADM</button>
@@ -472,6 +473,12 @@
                         <tbody id="tabela-ranking"><tr><td colspan="3">Carregando...</td></tr></tbody>
                     </table>
                 </div>
+            </section>
+
+            <section id="aba-palpites-galera" class="aba">
+                <h2>Palpites da Galera - Liga <span id="lbl-nome-liga-palpites"></span></h2>
+                <p style="color: #444; font-size: 14px;">Aqui você acompanha as apostas dos seus adversários. Lembre-se: <b>os palpites só aparecem 1 hora antes de cada jogo começar</b>.</p>
+                <div id="container-palpites-logado">Carregando palpites da sua liga...</div>
             </section>
 
             <!-- ABA REGRAS -->
@@ -857,6 +864,9 @@
             if(!cont) return;
             cont.innerHTML = "";
 
+            // NOVA LINHA ADICIONADA AQUI: Vincula a árvore visual ao motor de cálculo
+            const confrontosAtuais = obterConfrontosDinamicos(resultadosAtivos, confrontosGlobais);
+
             const fases = [
                 { titulo: "16-Avos", start: 73, end: 88 },
                 { titulo: "Oitavas", start: 89, end: 96 },
@@ -872,11 +882,11 @@
                     let hName = jogo.home.name; let aName = jogo.away.name;
                     let hLogo = jogo.home.logo; let aLogo = jogo.away.logo;
 
-                    if (confrontosGlobais && confrontosGlobais[jogo.id]) {
-                        hName = confrontosGlobais[jogo.id].home; aName = confrontosGlobais[jogo.id].away;
+                    // ALTERADO AQUI para usar confrontosAtuais
+                    if (confrontosAtuais && confrontosAtuais[jogo.id]) {
+                        hName = confrontosAtuais[jogo.id].home; aName = confrontosAtuais[jogo.id].away;
                         hLogo = obterBandeira(hName); aLogo = obterBandeira(aName);
                     }
-
                     const res = resultadosAtivos[jogo.id];
                     const hScore = res ? res.m : "-";
                     const aScore = res ? res.v : "-";
@@ -947,29 +957,37 @@
             atualizarInterfaceHibrida();
         });
 
-        // Função que atualiza a tela instantaneamente usando o Firebase
         function atualizarInterfaceHibrida() {
-            // Agora a fonte de verdade absoluta é o Firebase (resultadosForcados)
             resultadosGlobais = { ...resultadosForcados };
 
-            // Atualiza a Vitrine (visitantes)
             renderizarVitrinePublica(resultadosGlobais, confrontosGlobais);
             renderizarGrupos(resultadosGlobais, 'container-grupos-publico');
 
-            // Atualiza a Área Logada (se o usuário estiver no App)
             if (grupoAtual) {
                 renderizarBase(resultadosGlobais, confrontosGlobais);
                 renderizarGrupos(resultadosGlobais, 'container-grupos');
+                // NOVA LINHA ADICIONADA: Atualiza a espionagem da própria liga
+                renderizarPalpitesLigaLogada(); 
                 if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
             }
         }
-        // --- MOTOR DE SINCRONIZAÇÃO SUPREMO (API ESPN + ESTÁDIO + CARTÕES) ---
+        // --- MOTOR DE SINCRONIZAÇÃO SUPREMO (API ESPN + ESTÁDIO + CARTÕES + JANELA DE 3 DIAS) ---
         async function sincronizarAPI(modoSilencioso = false) {
             if (!modoSilencioso && grupoAtual !== "ADM") return alert("Apenas o Administrador pode sincronizar manualmente a API.");
             
             try {
                 if (!modoSilencioso) alert("Buscando dados ultrarrápidos da ESPN... Aguarde.");
-                const urlESPN = "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard";
+                
+                // Cria a janela de datas (Ontem e Amanhã) para furar o Fuso Horário
+                const formatarDataESPN = (diasAdicionais) => {
+                    let d = new Date();
+                    d.setDate(d.getDate() + diasAdicionais);
+                    return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+                };
+                
+                const dataOntem = formatarDataESPN(-1);
+                const dataAmanha = formatarDataESPN(1);
+                const urlESPN = `https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=${dataOntem}-${dataAmanha}`;
                 
                 const resposta = await fetch(urlESPN);
                 if (!resposta.ok) throw new Error("A API da ESPN não respondeu.");
@@ -1116,16 +1134,20 @@
             }
         }
 
-        // --- MODO VISITANTE: RENDERIZA JOGOS APENAS PARA LEITURA ---
+        // --- MODO VISITANTE: RENDERIZA TODOS OS JOGOS NA TABELA PÚBLICA ---
         function renderizarVitrinePublica(resultados, confrontos) {
             const contJogos = document.getElementById('lista-jogos-publico');
             if(!contJogos) return;
             contJogos.innerHTML = "";
 
+            // NOVA LINHA ADICIONADA AQUI: Resolve as chaves automaticamente na vitrine
+            const confrontosAtuais = obterConfrontosDinamicos(resultados, confrontos);
+
             baseDeJogosOficial.forEach(jogo => {
                 let j = {...jogo, home: {...jogo.home}, away: {...jogo.away}};
-                if (confrontos && confrontos[j.id]) {
-                    j.home.name = confrontos[j.id].home; j.away.name = confrontos[j.id].away;
+                // ALTERADO AQUI para usar confrontosAtuais
+                if (confrontosAtuais && confrontosAtuais[j.id]) {
+                    j.home.name = confrontosAtuais[j.id].home; j.away.name = confrontosAtuais[j.id].away;
                     j.home.logo = obterBandeira(j.home.name); j.away.logo = obterBandeira(j.away.name);
                 }
 
@@ -1137,7 +1159,8 @@
                 if (res && res.status === "FT") {
                     placarHtml = `<strong style="font-size: 22px; color: #dc3545;">${res.m} x ${res.v}</strong><br><span style="color:#dc3545; font-size:12px;">Encerrado</span>`;
                 } else if (res && res.status === "LIVE") {
-                    placarHtml = `<strong style="font-size: 22px; color: #ff8c00;">${res.m} x ${res.v}</strong><br><span style="color:#ff8c00; font-size:12px; font-weight:bold;">🔴 Ao Vivo</span>`;
+                    const relogio = res.clock ? ` (${res.clock})` : "";
+                    placarHtml = `<strong style="font-size: 22px; color: #ff8c00;">${res.m} x ${res.v}</strong><br><span style="color:#ff8c00; font-size:12px; font-weight:bold;">🔴 Ao Vivo${relogio}</span>`;
                 } else {
                     placarHtml = `<strong style="font-size: 18px; color: #666;">- x -</strong><br><span style="color:#006b3f; font-size:12px;">${dataStr}</span>`;
                 }
@@ -1197,18 +1220,23 @@
                     const dadosUsuario = snapshot.val();
                     grupoAtual = token; usuarioAtual = id; nomeUsuarioAtual = dadosUsuario.nome;
                     document.getElementById('lbl-grupo').innerText = `${grupoAtual} - ${nomeUsuarioAtual}`;
+                    
+                    // NOVA LINHA ADICIONADA: Injeta o nome da liga no topo da aba de espiar
+                    if(document.getElementById('lbl-nome-liga-palpites')) {
+                        const nomeServidor = dadosGruposGlobais[token] ? dadosGruposGlobais[token].nome_servidor : token;
+                        document.getElementById('lbl-nome-liga-palpites').innerText = nomeServidor;
+                    }
 
-                    // GRAVA NA MEMÓRIA DO DISPOSITIVO
                     localStorage.setItem('bolaoToken', token);
                     localStorage.setItem('bolaoId', id);
 
                     entrarNoApp();
                 } else {
-                    alert("Acesso Negado! Verifique a Liga e o ID.");
-                    // Limpa se tiver lixo salvo
-                    localStorage.removeItem('bolaoToken');
-                    localStorage.removeItem('bolaoId');
+                    alert("ID de Usuário não encontrado nesta Liga. Verifique a digitação!");
                 }
+            }).catch(erro => {
+                console.error(erro);
+                alert("Erro ao conectar ao banco de dados.");
             });
         }
 
@@ -1230,6 +1258,9 @@
             const container = document.getElementById('lista-jogos');
             container.innerHTML = "";
 
+            // NOVA LINHA ADICIONADA AQUI: Resolve as chaves na tela de apostas
+            const confrontosAtuais = obterConfrontosDinamicos(resultadosAtivos, confrontosForcados);
+
             const path = grupoAtual === "ADM" ? null : `grupos/${grupoAtual}/usuarios/${usuarioAtual}/palpites`;
             let palpites = {};
             if (path) {
@@ -1238,10 +1269,10 @@
             }
 
             baseDeJogosOficial.forEach(jogo => {
-                // SE O ADM MUDOU O TIME DO MATA-MATA, APLICA AQUI
-                if (confrontosForcados && confrontosForcados[jogo.id]) {
-                    jogo.home.name = confrontosForcados[jogo.id].home;
-                    jogo.away.name = confrontosForcados[jogo.id].away;
+                // ALTERADO AQUI para usar confrontosAtuais
+                if (confrontosAtuais && confrontosAtuais[jogo.id]) {
+                    jogo.home.name = confrontosAtuais[jogo.id].home;
+                    jogo.away.name = confrontosAtuais[jogo.id].away;
                     jogo.home.logo = obterBandeira(jogo.home.name);
                     jogo.away.logo = obterBandeira(jogo.away.name);
                 }
@@ -1638,6 +1669,115 @@
             return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]/g, "");
         }
 
+        // =========================================================
+        // NOVO MOTOR: CÉREBRO DE CHAVEAMENTO AUTOMÁTICO DO MATA-MATA
+        // =========================================================
+        function obterConfrontosDinamicos(resultadosAtivos, confrontosForcados) {
+            let confrontosDinamicos = { ...confrontosForcados };
+            let mapaPosicoes = {};
+
+            // 1. Calcula a classificação dos grupos em tempo real para achar 1º e 2º lugares
+            const gruposDefinidos = {
+                'A': ['México', 'África do Sul', 'Rep. da Coreia', 'Rep. Tcheca'],
+                'B': ['Canadá', 'Bósnia', 'Catar', 'Suíça'],
+                'C': ['Brasil', 'Marrocos', 'Haiti', 'Escócia'],
+                'D': ['EUA', 'Paraguai', 'Austrália', 'Turquia'],
+                'E': ['Alemanha', 'Curaçau', 'Equador', 'C. do Marfim'],
+                'F': ['Holanda', 'Japão', 'Tunísia', 'Suécia'],
+                'G': ['Espanha', 'Arábia Saudita', 'Uruguai', 'Cabo Verde'],
+                'H': ['Bélgica', 'Egito', 'Irã', 'Nova Zelândia'],
+                'I': ['França', 'Senegal', 'Iraque', 'Noruega'],
+                'J': ['Argentina', 'Áustria', 'Jordânia', 'Argélia'],
+                'K': ['Portugal', 'RD Congo', 'Uzbequistão', 'Colômbia'],
+                'L': ['Inglaterra', 'Croácia', 'Gana', 'Panamá']
+            };
+
+            let stats = {};
+            Object.values(gruposDefinidos).flat().forEach(t => {
+                stats[t] = { pts: 0, j: 0, v: 0, sg: 0, pro: 0 };
+            });
+
+            baseDeJogosOficial.slice(0, 72).forEach(jogo => {
+                const res = resultadosAtivos[jogo.id];
+                if (res && (res.status === "FT" || res.status === "LIVE")) {
+                    let home = jogo.home.name; let away = jogo.away.name;
+                    if(stats[home] && stats[away]) {
+                        stats[home].j++; stats[away].j++;
+                        let diff = res.m - res.v;
+                        stats[home].sg += diff; stats[away].sg -= diff;
+                        stats[home].pro += res.m; stats[away].pro += res.v;
+                        if (diff > 0) { stats[home].pts += 3; stats[home].v++; }
+                        else if (diff < 0) { stats[away].pts += 3; stats[away].v++; }
+                        else { stats[home].pts += 1; stats[away].pts += 1; }
+                    }
+                }
+            });
+
+            Object.entries(gruposDefinidos).forEach(([letra, times]) => {
+                let timesOrdenados = times.map(t => ({ nome: t, ...stats[t] }));
+                timesOrdenados.sort((a, b) => b.pts - a.pts || b.sg - a.sg || b.pro - a.pro);
+                mapaPosicoes[`1º Grupo ${letra}`] = timesOrdenados[0].nome;
+                mapaPosicoes[`2º Grupo ${letra}`] = timesOrdenados[1].nome;
+            });
+
+            // 2. Varre sequencialmente os jogos do mata-mata (ID 73 ao 104) montando a árvore
+            baseDeJogosOficial.forEach(jogo => {
+                if (jogo.id < 73) return;
+
+                // Se o ADM já definiu algo fixo pelo painel manual, respeita o comando do ADM
+                if (confrontosForcados && confrontosForcados[jogo.id]) return;
+
+                let nomeH = jogo.home.name;
+                let nomeA = jogo.away.name;
+
+                // Tenta traduzir se for liderança de grupo
+                if (mapaPosicoes[nomeH]) nomeH = mapaPosicoes[nomeH];
+                if (mapaPosicoes[nomeA]) nomeA = mapaPosicoes[nomeA];
+
+                // Tenta descobrir o vencedor ou perdedor se a fase anterior acabou (FT)
+                const resolverAvancoTime = (idAnterior, tipo) => {
+                    const rA = resultadosAtivos[idAnterior];
+                    if (rA && rA.status === "FT") {
+                        const cA = confrontosDinamicos[idAnterior] || { home: baseDeJogosOficial[idAnterior-1].home.name, away: baseDeJogosOficial[idAnterior-1].away.name };
+                        const timeHomeAnterior = cA.home.name || cA.home;
+                        const timeAwayAnterior = cA.away.name || cA.away;
+
+                        if (tipo === "vencedor") {
+                            return rA.m > rA.v ? timeHomeAnterior : timeAwayAnterior;
+                        } else {
+                            return rA.m < rA.v ? timeHomeAnterior : timeAwayAnterior;
+                        }
+                    }
+                    return null;
+                };
+
+                if (nomeH.startsWith("Vencedor Jogo")) {
+                    const idAlvo = parseInt(nomeH.replace("Vencedor Jogo ", ""));
+                    const timeGanhou = resolverAvancoTime(idAlvo, "vencedor");
+                    if (timeGanhou) nomeH = timeGanhou;
+                }
+                if (nomeA.startsWith("Vencedor Jogo")) {
+                    const idAlvo = parseInt(nomeA.replace("Vencedor Jogo ", ""));
+                    const timeGanhou = resolverAvancoTime(idAlvo, "vencedor");
+                    if (timeGanhou) nomeA = timeGanhou;
+                }
+                if (nomeH.startsWith("Perdedor Jogo")) {
+                    const idAlvo = parseInt(nomeH.replace("Perdedor Jogo ", ""));
+                    const timePerdeu = resolverAvancoTime(idAlvo, "perdedor");
+                    if (timePerdeu) nomeH = timePerdeu;
+                }
+                if (nomeA.startsWith("Perdedor Jogo")) {
+                    const idAlvo = parseInt(nomeA.replace("Perdedor Jogo ", ""));
+                    const timePerdeu = resolverAvancoTime(idAlvo, "perdedor");
+                    if (timePerdeu) nomeA = timePerdeu;
+                }
+
+                confrontosDinamicos[jogo.id] = { home: nomeH, away: nomeA };
+            });
+
+            return confrontosDinamicos;
+        }
+
         // Abre/Fecha o menu no celular
         function toggleMenu() {
             document.getElementById('menu-lateral').classList.toggle('aberto');
@@ -1713,6 +1853,9 @@
         // =========================================================
         // NOVO MOTOR: LEITURA GLOBAL DE PALPITES (PÚBLICO E ADM)
         // =========================================================
+        // =========================================================
+        // NOVO MOTOR: LEITURA GLOBAL DE PALPITES (PÚBLICO E ADM)
+        // =========================================================
         let dadosGruposGlobais = {};
 
         db.ref('grupos').on('value', (snap) => {
@@ -1720,6 +1863,9 @@
             atualizarFiltrosDeLigas();
             renderizarPalpitesPublicos();
             if (grupoAtual === "ADM") renderizarPalpitesADM();
+            
+            // ESSA É A LINHA QUE FALTAVA: Manda atualizar a tela do usuário logado também!
+            if (grupoAtual && grupoAtual !== "ADM") renderizarPalpitesLigaLogada(); 
         });
 
         function atualizarFiltrosDeLigas() {
@@ -1743,18 +1889,39 @@
         function gerarHTMLPalpites(isAdm) {
             const filtro = isAdm ? document.getElementById('filtro-liga-adm').value : document.getElementById('filtro-liga-publico').value;
             let html = "";
-            const agora = Date.now();
+            const agoraMs = Date.now();
 
-            baseDeJogosOficial.forEach(jogo => {
-                // Calcula se o jogo já passou da trava de 1 hora
-                const isBloqueado = agora >= (new Date(jogo.date).getTime() - 3600000);
+            let jogosAlvo = baseDeJogosOficial;
 
-                // REGRA DE OURO: Se é o público tentando espiar um jogo que ainda não bloqueou, pula fora!
+            // Se for PÚBLICO (Tela Inicial), filtra para pegar APENAS os 2 mais quentes!
+            if (!isAdm) {
+                let jogosRelevantes = [];
+                baseDeJogosOficial.forEach(jogo => {
+                    const dataJogoMs = new Date(jogo.date).getTime();
+                    const res = resultadosGlobais[jogo.id];
+                    
+                    const jogoAoVivo = res && res.status === "LIVE";
+                    const jogoFuturo = !res && (dataJogoMs >= agoraMs - (2 * 60 * 60 * 1000)); // Filtra jogos que estão rolando ou no futuro
+                    const isBloqueado = agoraMs >= (dataJogoMs - 3600000); // Faltando 1 hora
+                    
+                    if (jogoAoVivo) {
+                        jogosRelevantes.push({ jogo, prioridade: 1 });
+                    } else if (jogoFuturo && isBloqueado) {
+                        // Só adiciona aos relevantes se JÁ bloqueou, porque antes disso o palpite é secreto!
+                        jogosRelevantes.push({ jogo, prioridade: 2 });
+                    }
+                });
+
+                jogosRelevantes.sort((a, b) => a.prioridade - b.prioridade || new Date(a.jogo.date).getTime() - new Date(b.jogo.date).getTime());
+                jogosAlvo = jogosRelevantes.slice(0, 2).map(item => item.jogo);
+            }
+
+            jogosAlvo.forEach(jogo => {
+                const isBloqueado = agoraMs >= (new Date(jogo.date).getTime() - 3600000);
                 if (!isAdm && !isBloqueado) return;
 
                 let apostasDoJogo = [];
 
-                // Varre o banco de dados buscando quem apostou neste jogo específico
                 for (const [tokenLiga, dadosLiga] of Object.entries(dadosGruposGlobais)) {
                     if (tokenLiga === "ADM") continue;
                     if (filtro !== "todas" && filtro !== tokenLiga) continue;
@@ -1771,7 +1938,6 @@
                     }
                 }
 
-                // Se encontrou alguma aposta, desenha o bloco bonitinho do jogo
                 if (apostasDoJogo.length > 0) {
                     let homeName = jogo.home.name; let awayName = jogo.away.name;
                     if (confrontosGlobais && confrontosGlobais[jogo.id]) {
@@ -1793,7 +1959,7 @@
                 }
             });
 
-            if (html === "") html = "<p style='color: #666; font-style: italic;'>Nenhuma aposta encontrada no filtro selecionado ou os jogos ainda estão abertos para palpites.</p>";
+            if (html === "") html = "<p style='color: #666; font-style: italic;'>Nenhum jogo ativo no momento ou os palpites ainda estão ocultos (faltando > 1h).</p>";
             return html;
         }
 
@@ -1805,6 +1971,68 @@
         function renderizarPalpitesADM() {
             const cont = document.getElementById('container-palpites-adm');
             if(cont) cont.innerHTML = gerarHTMLPalpites(true);
+        }
+
+        // =========================================================
+        // NOVO MOTOR: RENDERIZA PALPITES APENAS DA LIGA DO USUÁRIO LOGADO
+        // =========================================================
+        function renderizarPalpitesLigaLogada() {
+            const cont = document.getElementById('container-palpites-logado');
+            if (!cont || !grupoAtual || grupoAtual === "ADM") return;
+
+            let html = "";
+            const agora = Date.now();
+            const dadosLiga = dadosGruposGlobais[grupoAtual];
+
+            if (!dadosLiga || !dadosLiga.usuarios) {
+                cont.innerHTML = "<p style='color:#666; font-style:italic;'>Nenhum palpite registrado na sua liga ainda.</p>";
+                return;
+            }
+
+            baseDeJogosOficial.forEach(jogo => {
+                // Trava de segurança: só mostra se o jogo começou/bloqueou (1 hora antes)
+                const isBloqueado = agora >= (new Date(jogo.date).getTime() - 3600000);
+                let apostasDoJogo = [];
+
+                // Varre apenas os usuários do grupo do jogador logado!
+                for (const [idUser, dadosUser] of Object.entries(dadosLiga.usuarios)) {
+                    if (dadosUser.palpites && dadosUser.palpites[jogo.id]) {
+                        const p = dadosUser.palpites[jogo.id];
+                        if (p.m !== "" && p.v !== "") {
+                            // Se for o próprio usuário, mostra sempre. Se for amigo, esconde até travar.
+                            if (idUser === usuarioAtual || isBloqueado) {
+                                apostasDoJogo.push({ nome: dadosUser.nome, m: p.m, v: p.v, oculto: false });
+                            } else {
+                                apostasDoJogo.push({ nome: dadosUser.nome, m: "?", v: "?", oculto: true });
+                            }
+                        }
+                    }
+                }
+
+                if (apostasDoJogo.length > 0) {
+                    let homeName = jogo.home.name; let awayName = jogo.away.name;
+                    if (confrontosGlobais && confrontosGlobais[jogo.id]) {
+                        homeName = confrontosGlobais[jogo.id].home; awayName = confrontosGlobais[jogo.id].away;
+                    }
+
+                    html += `<div style="background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 10px; margin-bottom: 15px;">
+                        <h4 style="margin: 0 0 10px 0; color: var(--verde-copa); border-bottom: 1px solid #eee; padding-bottom: 5px;">ID ${jogo.id} (${obterFase(jogo.id)}): ${homeName} x ${awayName}</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">`;
+
+                    apostasDoJogo.forEach(aposta => {
+                        const estiloPlacar = aposta.oculto ? "color: #999; font-style: italic;" : "color: #333;";
+                        html += `<div style="background: #f9f9f9; padding: 5px 10px; border-radius: 4px; font-size: 13px; border: 1px solid #eee; min-width: 100px;">
+                            <strong>${aposta.nome}</strong><br>
+                            <div style="text-align: center; margin-top: 3px; font-weight: bold; font-size: 15px; ${estiloPlacar}">${aposta.m} x ${aposta.v}</div>
+                        </div>`;
+                    });
+
+                    html += `</div></div>`;
+                }
+            });
+
+            if (html === "") html = "<p style='color: #666; font-style: italic;'>Seus amigos ainda não enviaram palpites para os próximos jogos.</p>";
+            cont.innerHTML = html;
         }
 
         // =========================================================
