@@ -1246,12 +1246,15 @@
             document.getElementById('tela-app').style.display = 'flex';
             if(grupoAtual === "ADM") document.getElementById('btn-adm').style.display = 'block';
 
-            // Adicione esta linha exata aqui:
             history.pushState({ tela: 'app' }, "", "#app");
 
             document.body.style.overflow = "hidden";
             renderizarBase(resultadosGlobais, confrontosGlobais);
             renderizarGrupos(resultadosGlobais, 'container-grupos');
+            
+            // ✨ A CORREÇÃO MÁGICA ESTÁ AQUI: Manda renderizar a aba de espiar na exata hora do login!
+            renderizarPalpitesLigaLogada(); 
+
             if (grupoAtual !== "ADM") calcularRanking(resultadosGlobais);
         }
         async function renderizarBase(resultadosAtivos, confrontosForcados) {
