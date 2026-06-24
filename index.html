@@ -426,9 +426,20 @@
 
         <main id="conteudo-principal">
 
-            <!-- ABA PALPITES -->
             <section id="aba-palpites" class="aba ativa">
-                <h2>Palpites - Fase de Grupos</h2>
+                <h2>Meus Palpites</h2>
+
+                <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 10px; background: #fff; padding: 10px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <label for="filtro-meus-palpites" style="font-weight: bold; color: var(--verde-copa);">Filtrar:</label>
+                    <select id="filtro-meus-palpites" onchange="atualizarInterfaceHibrida()" style="padding: 8px; border-radius: 4px; border: 1px solid #ccc; flex: 1; font-size: 14px;">
+                        <option value="todos">Todos os Jogos</option>
+                        <option value="1ª Rodada">1ª Rodada</option>
+                        <option value="2ª Rodada">2ª Rodada</option>
+                        <option value="3ª Rodada">3ª Rodada</option>
+                        <option value="mata-mata">Fases Eliminatórias (Mata-Mata)</option>
+                    </select>
+                </div>
+
                 <div class="card" id="lista-jogos"><p>Carregando tabela oficial...</p></div>
             </section>
 
@@ -722,47 +733,47 @@
             { id: 71, date: "2026-06-27T23:00:00-03:00", tv: "Cazé TV", home: { name: "Argélia", logo: "https://flagcdn.com/w40/dz.png"}, away: { name: "Áustria", logo: "https://flagcdn.com/w40/at.png"} },
             { id: 72, date: "2026-06-28T23:00:00-03:00", tv: "Cazé TV", home: { name: "Jordânia", logo: "https://flagcdn.com/w40/jo.png"}, away: { name: "Argentina", logo: "https://flagcdn.com/w40/ar.png"} },
 
-            // --- 32-AVOS DE FINAL ---
-            { id: 73, date: "2026-06-28T00:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo A", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo B", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 74, date: "2026-06-29T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo E", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo A/B/C/D/F", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 75, date: "2026-06-29T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo F", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo C", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 76, date: "2026-06-29T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo C", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo F", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 77, date: "2026-06-30T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo I", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo C/D/F/G/H", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 78, date: "2026-06-30T00:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo E", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo I", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 79, date: "2026-06-30T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo A", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo C/E/F/H/I", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 80, date: "2026-07-01T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo L", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo E/H/I/J/K", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 81, date: "2026-07-01T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo D", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo B/E/F/I/J", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 82, date: "2026-07-01T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo G", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo A/E/H/I/J", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 83, date: "2026-07-02T00:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo L", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 84, date: "2026-07-02T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo H", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo J", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 85, date: "2026-07-02T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo B", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo E/F/G/I/J", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 86, date: "2026-07-03T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo J", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo H", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 87, date: "2026-07-03T00:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo D/E/I/J/L", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 88, date: "2026-07-03T00:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo D", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo G", logo: "https://flagcdn.com/w40/un.png"} },
+            // --- 32-AVOS DE FINAL (Segunda Fase) ---
+            { id: 73, date: "2026-06-28T16:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo A", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Canadá", logo: "https://flagcdn.com/w40/ca.png"} }, // SF 3
+            { id: 74, date: "2026-06-29T14:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo C", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo F", logo: "https://flagcdn.com/w40/un.png"} }, // SF 9
+            { id: 75, date: "2026-06-29T17:30:00-03:00", tv: "32-Avos", home: { name: "Alemanha", logo: "https://flagcdn.com/w40/de.png"}, away: { name: "3º Grupo A/B/C/D/F", logo: "https://flagcdn.com/w40/un.png"} }, // SF 1
+            { id: 76, date: "2026-06-29T22:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo F", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo C", logo: "https://flagcdn.com/w40/un.png"} }, // SF 4
+            { id: 77, date: "2026-06-30T14:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo E", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo I", logo: "https://flagcdn.com/w40/un.png"} }, // SF 10
+            { id: 78, date: "2026-06-30T18:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo I", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo C/D/F/G/H", logo: "https://flagcdn.com/w40/un.png"} }, // SF 2
+            { id: 79, date: "2026-06-30T22:00:00-03:00", tv: "32-Avos", home: { name: "México", logo: "https://flagcdn.com/w40/mx.png"}, away: { name: "3º Grupo C/E/F/H/I", logo: "https://flagcdn.com/w40/un.png"} }, // SF 11
+            { id: 80, date: "2026-07-01T13:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo L", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo E/H/I/J/K", logo: "https://flagcdn.com/w40/un.png"} }, // SF 12
+            { id: 81, date: "2026-07-01T17:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo G", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo A/E/H/I/J", logo: "https://flagcdn.com/w40/un.png"} }, // SF 8
+            { id: 82, date: "2026-07-01T21:00:00-03:00", tv: "32-Avos", home: { name: "Estados Unidos", logo: "https://flagcdn.com/w40/us.png"}, away: { name: "3º Grupo B/E/F/I/J", logo: "https://flagcdn.com/w40/un.png"} }, // SF 7
+            { id: 83, date: "2026-07-02T00:00:00-03:00", tv: "32-Avos", home: { name: "Suíça", logo: "https://flagcdn.com/w40/ch.png"}, away: { name: "3º Grupo E/F/G/I/J", logo: "https://flagcdn.com/w40/un.png"} }, // SF 15
+            { id: 84, date: "2026-07-02T16:00:00-03:00", tv: "32-Avos", home: { name: "1º Grupo H", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo J", logo: "https://flagcdn.com/w40/un.png"} }, // SF 6
+            { id: 85, date: "2026-07-02T20:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo L", logo: "https://flagcdn.com/w40/un.png"} }, // SF 5
+            { id: 86, date: "2026-07-03T15:00:00-03:00", tv: "32-Avos", home: { name: "2º Grupo D", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "2º Grupo G", logo: "https://flagcdn.com/w40/un.png"} }, // SF 14
+            { id: 87, date: "2026-07-03T19:00:00-03:00", tv: "32-Avos", home: { name: "Argentina", logo: "https://flagcdn.com/w40/ar.png"}, away: { name: "2º Grupo H", logo: "https://flagcdn.com/w40/un.png"} }, // SF 13
+            { id: 88, date: "2026-07-03T22:30:00-03:00", tv: "32-Avos", home: { name: "1º Grupo K", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "3º Grupo D/E/I/J/L", logo: "https://flagcdn.com/w40/un.png"} }, // SF 16
 
             // --- OITAVAS DE FINAL ---
-            { id: 89, date: "2026-07-04T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 74", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 77", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 90, date: "2026-07-04T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 73", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 75", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 91, date: "2026-07-05T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 76", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 78", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 92, date: "2026-07-05T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 79", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 80", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 93, date: "2026-07-06T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 83", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 84", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 94, date: "2026-07-06T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 81", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 82", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 95, date: "2026-07-07T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 86", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 88", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 96, date: "2026-07-07T00:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 85", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 87", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 89, date: "2026-07-04T14:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 73", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 76", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 2
+            { id: 90, date: "2026-07-04T18:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 75", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 78", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 1
+            { id: 91, date: "2026-07-05T17:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 74", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 77", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 5
+            { id: 92, date: "2026-07-05T21:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 79", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 80", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 6
+            { id: 93, date: "2026-07-06T16:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 85", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 84", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 3
+            { id: 94, date: "2026-07-06T21:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 82", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 81", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 4
+            { id: 95, date: "2026-07-07T13:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 87", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 86", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 7
+            { id: 96, date: "2026-07-07T17:00:00-03:00", tv: "Oitavas", home: { name: "Vencedor Jogo 83", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 88", logo: "https://flagcdn.com/w40/un.png"} }, // Oitavas 8
 
             // --- QUARTAS DE FINAL ---
-            { id: 97, date: "2026-07-09T00:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 89", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 90", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 98, date: "2026-07-10T00:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 93", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 94", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 99, date: "2026-07-12T00:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 91", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 92", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 100, date: "2026-07-12T00:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 95", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 96", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 97, date: "2026-07-09T17:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 90", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 89", logo: "https://flagcdn.com/w40/un.png"} }, // Quartas 1
+            { id: 98, date: "2026-07-10T16:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 93", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 94", logo: "https://flagcdn.com/w40/un.png"} }, // Quartas 2
+            { id: 99, date: "2026-07-11T18:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 91", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 92", logo: "https://flagcdn.com/w40/un.png"} }, // Quartas 3
+            { id: 100, date: "2026-07-11T22:00:00-03:00", tv: "Quartas", home: { name: "Vencedor Jogo 95", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 96", logo: "https://flagcdn.com/w40/un.png"} }, // Quartas 4
 
             // --- SEMIFINAIS ---
-            { id: 101, date: "2026-07-14T00:00:00-03:00", tv: "Semifinal", home: { name: "Vencedor Jogo 97", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 98", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 102, date: "2026-07-15T00:00:00-03:00", tv: "Semifinal", home: { name: "Vencedor Jogo 99", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 100", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 101, date: "2026-07-14T16:00:00-03:00", tv: "Semifinal", home: { name: "Vencedor Jogo 97", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 98", logo: "https://flagcdn.com/w40/un.png"} }, // Semi 1
+            { id: 102, date: "2026-07-15T16:00:00-03:00", tv: "Semifinal", home: { name: "Vencedor Jogo 99", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 100", logo: "https://flagcdn.com/w40/un.png"} }, // Semi 2
 
             // --- 3º LUGAR E FINAL ---
-            { id: 103, date: "2026-07-18T00:00:00-03:00", tv: "3º Lugar", home: { name: "Perdedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Perdedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} },
-            { id: 104, date: "2026-07-19T00:00:00-03:00", tv: "GRANDE FINAL", home: { name: "Vencedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} }
+            { id: 103, date: "2026-07-18T18:00:00-03:00", tv: "3º Lugar", home: { name: "Perdedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Perdedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} },
+            { id: 104, date: "2026-07-19T16:00:00-03:00", tv: "GRANDE FINAL", home: { name: "Vencedor Jogo 101", logo: "https://flagcdn.com/w40/un.png"}, away: { name: "Vencedor Jogo 102", logo: "https://flagcdn.com/w40/un.png"} }
         ];
 
         function mudarAba(abaId) {
@@ -1140,15 +1151,19 @@
             if(!contJogos) return;
             contJogos.innerHTML = "";
 
-            // NOVA LINHA ADICIONADA AQUI: Resolve as chaves automaticamente na vitrine
+            // Resolve as chaves automaticamente na vitrine
             const confrontosAtuais = obterConfrontosDinamicos(resultados, confrontos);
 
             baseDeJogosOficial.forEach(jogo => {
-                let j = {...jogo, home: {...jogo.home}, away: {...jogo.away}};
-                // ALTERADO AQUI para usar confrontosAtuais
+                // Cria a cópia segura do jogo antes de usar
+                let j = { ...jogo, home: { ...jogo.home }, away: { ...jogo.away } };
+
+                // Aplica o mata-mata
                 if (confrontosAtuais && confrontosAtuais[j.id]) {
-                    j.home.name = confrontosAtuais[j.id].home; j.away.name = confrontosAtuais[j.id].away;
-                    j.home.logo = obterBandeira(j.home.name); j.away.logo = obterBandeira(j.away.name);
+                    j.home.name = confrontosAtuais[j.id].home;
+                    j.away.name = confrontosAtuais[j.id].away;
+                    j.home.logo = obterBandeira(j.home.name);
+                    j.away.logo = obterBandeira(j.away.name);
                 }
 
                 const res = resultados[j.id];
@@ -1261,7 +1276,6 @@
             const container = document.getElementById('lista-jogos');
             container.innerHTML = "";
 
-            // NOVA LINHA ADICIONADA AQUI: Resolve as chaves na tela de apostas
             const confrontosAtuais = obterConfrontosDinamicos(resultadosAtivos, confrontosForcados);
 
             const path = grupoAtual === "ADM" ? null : `grupos/${grupoAtual}/usuarios/${usuarioAtual}/palpites`;
@@ -1271,22 +1285,37 @@
                 palpites = snap.val() || {};
             }
 
+            // AQUI ESTÁ A LÓGICA DO FILTRO QUE FALTAVA
+            const filtroSelecionado = document.getElementById('filtro-meus-palpites') ? document.getElementById('filtro-meus-palpites').value : 'todos';
+
             baseDeJogosOficial.forEach(jogo => {
-                // ALTERADO AQUI para usar confrontosAtuais
-                if (confrontosAtuais && confrontosAtuais[jogo.id]) {
-                    jogo.home.name = confrontosAtuais[jogo.id].home;
-                    jogo.away.name = confrontosAtuais[jogo.id].away;
-                    jogo.home.logo = obterBandeira(jogo.home.name);
-                    jogo.away.logo = obterBandeira(jogo.away.name);
+                const faseDoJogo = obterFase(jogo.id);
+                let mostrar = true;
+
+                // Checa se o jogo deve aparecer ou ser ocultado
+                if (filtroSelecionado === "mata-mata" && !["16-Avos", "Oitavas", "Quartas", "Semifinal", "3º Lugar", "Final"].includes(faseDoJogo)) mostrar = false;
+                else if (filtroSelecionado !== "todos" && filtroSelecionado !== "mata-mata" && faseDoJogo !== filtroSelecionado) mostrar = false;
+
+                if (!mostrar) return; // Se o filtro bloqueou, pula pro próximo jogo
+
+                // Faz uma cópia segura do jogo para não bagunçar a base original
+                let j = { ...jogo, home: { ...jogo.home }, away: { ...jogo.away } };
+
+                // Resolve as chaves do mata-mata na tela de apostas
+                if (confrontosAtuais && confrontosAtuais[j.id]) {
+                    j.home.name = confrontosAtuais[j.id].home;
+                    j.away.name = confrontosAtuais[j.id].away;
+                    j.home.logo = obterBandeira(j.home.name);
+                    j.away.logo = obterBandeira(j.away.name);
                 }
 
-                const resultado = resultadosAtivos[jogo.id];
+                const resultado = resultadosAtivos[j.id];
                 const jogoEncerrado = resultado && resultado.status === "FT";
                 const jogoAoVivo = resultado && resultado.status === "LIVE";
-                
-                const dataJogo = new Date(jogo.date);
+
+                const dataJogo = new Date(j.date);
                 const dataFormatada = dataJogo.toLocaleDateString('pt-BR') + ' às ' + dataJogo.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
-                
+
                 let textoStatus = "";
                 if (jogoEncerrado) {
                     textoStatus = `<span style="color:#dc3545; font-size:12px; font-weight:bold;">Encerrado (Oficial: ${resultado.m} x ${resultado.v})</span>`;
@@ -1297,7 +1326,7 @@
                     textoStatus = `<span style="color:#006b3f; font-size:12px; font-weight:bold;">${dataFormatada}</span>`;
                 }
 
-                montarCard(container, jogo, palpites[jogo.id] || {m: "", v: ""}, jogoEncerrado, textoStatus);
+                montarCard(container, j, palpites[j.id] || {m: "", v: ""}, jogoEncerrado, textoStatus);
             });
         }
 
