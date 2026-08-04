@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>daaz - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7445704187291505" crossorigin="anonymous"></script>
+</head>
+<body class="theme-bomba">
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--destaque);">
+        <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
+        <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
+    </header>
+
+    <main style="text-align: center;">
+        <img src="imagens/daaz.png" alt="Logo daaz" style="max-width: 250px; border-radius: 25px; margin: 20px auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+        <h1 style="margin-bottom: 40px;">daaz</h1>
+
+        <section style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: left; margin-bottom: 40px;">
+            <h2 style="margin-top: 0;">SOBRE O JOGO</h2>
+            <p>O clássico jogo de Stop / Adedonha totalmente reimaginado pela RDM Studio! Desafie seus amigos, digite rápido, use seu vocabulário e grite daaz antes de todo mundo para garantir a sua vitória.</p>
+        </section>
+
+        <section style="text-align: left;">
+            <h2>📺 GAMEPLAY OFICIAL</h2>
+            <div style="background: #000; border-radius: 15px; overflow: hidden; margin-top: 20px; border: 2px solid var(--card-bg);">
+                <iframe width="100%" height="500" src="https://www.youtube.com/embed/w3-E48bg9rw" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </section>
+
+        <div id="game-access-area" style="margin-top: 30px;">
+            <button class="btn-download" style="background: #64748b; cursor: not-allowed;">Verificando Licença...</button>
+        </div>
+        <a href="" target="_blank" class="btn-download">⬇ SOMENTE ONLINE</a>
+    </main>
+    <footer>&copy; 2026 RDM Studio.</footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        // SUAS CHAVES (Mantenha sempre atualizadas aqui)
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
+            authDomain: "authrdm-a82a6.firebaseapp.com",
+            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
+            projectId: "authrdm-a82a6",
+            storageBucket: "authrdm-a82a6.firebasestorage.app",
+            messagingSenderId: "97459319845",
+            appId: "1:97459319845:web:8e1a16bbb6269af3b5fbcc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const logado = localStorage.getItem("rdm_user");
+        const perfil = localStorage.getItem("rdm_perfil");
+        const accessArea = document.getElementById("game-access-area");
+
+        // Link atualizado para o daaz e o ID mapeado no banco
+        const linkDoJogo = "https://462juvino.github.io/daaz/";
+        const idDesteJogo = "daaz";
+
+        // Variáveis de Tempo
+        const duasHorasMs = 2 * 60 * 60 * 1000;
+        const vinteQuatroHorasMs = 24 * 60 * 60 * 1000;
+        const dataHoje = new Date();
+        const mesAtual = dataHoje.getMonth() + 1;
+        const anoAtual = dataHoje.getFullYear();
+        const timestampAgora = dataHoje.getTime();
+
+        // Expõe funções para os botões gerados no HTML
+        window.iniciarSessaoGratuita = async function(reivindicar) {
+            const controleRef = ref(database, `usuarios/${logado}/controle_gratis`);
+            let dadosAtualizar = { inicio_sessao: timestampAgora };
+
+            if (reivindicar) {
+                dadosAtualizar.jogo_escolhido = idDesteJogo;
+                dadosAtualizar.mes_escolha = mesAtual;
+                dadosAtualizar.ano_escolha = anoAtual;
+                alert("Jogo reivindicado! Suas 2 horas diárias começam agora.");
+            } else {
+                alert("Nova sessão de 2 horas iniciada!");
+            }
+
+            await update(controleRef, dadosAtualizar);
+            window.open(linkDoJogo, "_blank");
+            window.location.reload(); // Recarrega para atualizar o botão
+        };
+
+        async function checarAcesso() {
+            if (!logado) {
+                accessArea.innerHTML = `<button onclick="alert('Faça login no topo da página para jogar!')" class="btn-download" style="background: #ef4444; color: white;">🔒 FAÇA LOGIN PARA JOGAR</button>`;
+                return;
+            }
+
+            if (perfil === "pro" || perfil === "adm") {
+                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ JOGAR AGORA (Passe VIP)</a>`;
+                return;
+            }
+
+            // Checagem para Perfil Gratuito
+            if (perfil === "gratuito") {
+                try {
+                    const controleRef = ref(database, `usuarios/${logado}/controle_gratis`);
+                    const snap = await get(controleRef);
+                    let controle = snap.exists() ? snap.val() : {};
+
+                    // Reseta se virou o mês
+                    if (controle.mes_escolha !== mesAtual || controle.ano_escolha !== anoAtual) {
+                        controle.jogo_escolhido = null;
+                        controle.inicio_sessao = null;
+                    }
+
+                    if (!controle.jogo_escolhido) {
+                        // Pode reivindicar o jogo este mês
+                        accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(true)" class="btn-download" style="background: #eab308; color: black; font-weight: bold;">🎁 RESGATAR COMO JOGO GRÁTIS DO MÊS</button>`;
+                    } else if (controle.jogo_escolhido === idDesteJogo) {
+                        // É o jogo dele! Verifica o tempo...
+                        if (!controle.inicio_sessao) {
+                            accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ INICIAR SESSÃO DE 2 HORAS</button>`;
+                        } else {
+                            const tempoDecorrido = timestampAgora - controle.inicio_sessao;
+
+                            if (tempoDecorrido < duasHorasMs) {
+                                // Ainda dentro das 2 horas
+                                const minutosRestantes = Math.floor((duasHorasMs - tempoDecorrido) / 60000);
+                                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ CONTINUAR JOGANDO (${minutosRestantes} min restantes)</a>`;
+                            } else if (tempoDecorrido < vinteQuatroHorasMs) {
+                                // Passou de 2h, mas não deu 24h
+                                accessArea.innerHTML = `<button onclick="alert('Conheça nossos planos para jogar sem limites!')" class="btn-download" style="background: #ef4444; color: white; cursor: not-allowed; font-size: 0.9rem;">🔒 TEMPO DIÁRIO ESGOTADO. Assine um plano e tenha o jogo integral!</button>`;
+                            } else {
+                                // Já passou 24h, pode jogar de novo
+                                accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ INICIAR NOVA SESSÃO DE 2H HOJE</button>`;
+                            }
+                        }
+                    } else {
+                        // Escolheu outro jogo esse mês
+                        accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 VOCÊ JÁ ESCOLHEU OUTRO JOGO ESTE MÊS</button>`;
+                    }
+                } catch (e) {
+                    console.error("Erro no controle grátis:", e);
+                }
+                return;
+            }
+
+            // Checagem para PLUS e PLUS PREMIUM (Jogos extras marcados no painel)
+            const jogoRef = ref(database, `usuarios/${logado}/jogos/${idDesteJogo}`);
+            const snapshot = await get(jogoRef);
+            if (snapshot.exists() && snapshot.val() === true) {
+                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ JOGAR AGORA</a>`;
+            } else {
+                accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 JOGO NÃO LIBERADO NO SEU PLANO ATUAL</button>`;
+            }
+        }
+
+        checarAcesso();
+    </script>
+</body>
+</html>
