@@ -302,5 +302,34 @@
         // 2. Aciona o verificador a cada 2 minutos (120.000 ms) para garantir que ela não durma
         setInterval(despertarTorreDeControle, 120000);
     </script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const userLogado = localStorage.getItem("rdm_user");
+            const perfilLogado = localStorage.getItem("rdm_perfil"); // Descobre qual é o plano da pessoa
+
+            if (userLogado) {
+                const userInfoArea = document.getElementById("user-info");
+
+                // O botão padrão de perfil que todo mundo logado recebe
+                let botoesHTML = `
+                    <a href="perfil.html" style="background: #22c55e; color: black; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.4); margin-right: 10px;">
+                        👤 Meu Perfil (@${userLogado})
+                    </a>
+                `;
+
+                // SE FOR ADM: Adiciona o botão da Central de Comando do lado!
+                if (perfilLogado === "adm") {
+                    botoesHTML += `
+                        <a href="painel-adm.html" style="background: #facc15; color: black; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(250, 204, 21, 0.4);">
+                            👑 Painel ADM
+                        </a>
+                    `;
+                }
+
+                userInfoArea.innerHTML = botoesHTML;
+            }
+        });
+    </script>
 </body>
 </html>

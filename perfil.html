@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .profile-header { background: #1e293b; padding: 40px 20px; text-align: center; border-bottom: 3px solid #3b82f6; border-radius: 0 0 30px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .avatar-img { width: 150px; height: 150px; border-radius: 50%; border: 5px solid #3b82f6; object-fit: cover; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5); margin-bottom: 15px; }
+        .badge-plano { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 10px; }
+        .badge-gratuito { background: #334155; color: #cbd5e1; }
+        .badge-plus { background: #3b82f6; color: #fff; }
+        .badge-plus-premium { background: #06b6d4; color: #fff; }
+        .badge-pro { background: #a855f7; color: #fff; }
+        .badge-adm { background: #facc15; color: #000; }
+
+        .section-title { color: #facc15; font-size: 1.8rem; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-top: 40px; margin-bottom: 20px; text-align: left; }
+
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+        .game-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; text-decoration: none; color: white; display: block; }
+        .game-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); }
+        .game-card img { width: 100%; height: 120px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+
+        .free-game-box { background: linear-gradient(45deg, #1e293b, #0f172a); border: 2px dashed #facc15; border-radius: 15px; padding: 30px; text-align: center; margin-bottom: 30px; }
+
+        .btn-upgrade { background: linear-gradient(45deg, #3b82f6, #a855f7); color: white; border: none; padding: 15px 30px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; text-decoration: none; display: inline-block; margin-top: 20px; transition: 0.3s; }
+        .btn-upgrade:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+    </style>
+</head>
+<body class="theme-portifolio" style="--bg-color: #020617; background: var(--bg-color); color: #f8fafc; font-family: 'Segoe UI', sans-serif;">
+
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; position: absolute; width: 100%; box-sizing: border-box;">
+        <a href="index.html" class="btn-voltar" style="background: rgba(0,0,0,0.5); color: white; padding: 8px 15px; text-decoration: none; border-radius: 5px; font-weight: bold;">⬅ VOLTAR</a>
+        <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
+    </header>
+
+    <div class="profile-header">
+        <img id="user-avatar" src="https://ui-avatars.com/api/?name=User&background=334155&color=fff" alt="Avatar" class="avatar-img">
+        <h1 id="user-name" style="margin: 0; font-size: 2.5rem;">@carregando...</h1>
+        <div id="user-plan-badge" class="badge-plano badge-gratuito">Carregando Plano...</div>
+        <p id="user-expiration" style="color: #94a3b8; margin-top: 10px;"></p>
+    </div>
+
+    <main style="max-width: 1000px; margin: 0 auto; padding: 20px;">
+
+        <h2 class="section-title">🎁 Seu Jogo Gratuito do Mês</h2>
+        <div id="free-game-container">
+            <!-- Injetado via JS -->
+            <div class="free-game-box">Carregando dados...</div>
+        </div>
+
+        <h2 class="section-title">🎮 Sua Galeria de Jogos (Licença VIP)</h2>
+        <div id="gallery-container" class="game-grid">
+            <!-- Injetado via JS -->
+        </div>
+
+        <div id="upgrade-container" style="text-align: center; margin-top: 50px; display: none;">
+            <h3 style="color: #f8fafc;">Quer acesso a todos os jogos sem limites?</h3>
+            <p style="color: #94a3b8;">Faça um upgrade para os nossos planos VIP e domine o TikTok.</p>
+            <a href="index.html" class="btn-upgrade">🚀 CONFIRA NOSSOS PLANOS</a>
+        </div>
+
+    </main>
+
+    <footer style="text-align: center; margin-top: 50px; padding: 30px 20px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem;">
+        &copy; 2026 RDM Studio.
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
+            authDomain: "authrdm-a82a6.firebaseapp.com",
+            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
+            projectId: "authrdm-a82a6",
+            storageBucket: "authrdm-a82a6.firebasestorage.app",
+            messagingSenderId: "97459319845",
+            appId: "1:97459319845:web:8e1a16bbb6269af3b5fbcc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        const logado = localStorage.getItem("rdm_user");
+
+        if (!logado) {
+            window.location.href = "index.html?login=true";
+        }
+
+        // CATÁLOGO DE JOGOS PARA MAPEAR IDs
+        const catalogo = {
+            "bomba_bomba": { nome: "BomBa BomBa", img: "imagens/bomba.png", link: "bomba-bomba.html" },
+            "daaz": { nome: "DAAZ", img: "imagens/daaz.png", link: "daaz.html" },
+            "politicos": { nome: "POLITICOS", img: "imagens/politicos.png", link: "politicos.html" },
+            "roblox": { nome: "Roblox Dance", img: "imagens/roblox.png", link: "roblox.html" },
+            "x1": { nome: "Arena X1", img: "imagens/X1.jpeg", link: "x1.html" },
+            "estope": { nome: "ESTOPE", img: "imagens/estope.jpeg", link: "estope.html" },
+            "war": { nome: "War: Batalha", img: "imagens/war.png", link: "war.html" },
+            "fc": { nome: "RDM FC", img: "imagens/fc.png", link: "rdm-fc.html" },
+            "stickman": { nome: "Stickman Chaos", img: "imagens/stickman.png", link: "stickman.html" },
+            "kof": { nome: "KOF TikTok", img: "imagens/kof.png", link: "kof.html" },
+            "snake": { nome: "Snake Battle", img: "imagens/snake.png", link: "snake.html" },
+            "pro_arena": { nome: "PRO Arena", img: "imagens/pro-arena.png", link: "pro-arena.html" },
+            "brain": { nome: "BrainBom", img: "imagens/brain.png", link: "brainbom.html" },
+            "milhao": { nome: "Show do Milhão", img: "imagens/milhao.png", link: "show-milhao.html" },
+            "host": { nome: "Painel Host", img: "imagens/host.png", link: "painel-host.html" }
+        };
+
+        // 1. CARREGAR FOTO DO TIKTOK
+        async function fetchTikTokAvatar(username) {
+            try {
+                let res = await fetch(`https://www.tikwm.com/api/user/info?unique_id=${username}`);
+                let json = await res.json();
+                if (json && json.data && json.data.user && json.data.user.avatarLarger) {
+                    document.getElementById("user-avatar").src = json.data.user.avatarLarger;
+                    return;
+                }
+            } catch(e) {}
+            document.getElementById("user-avatar").src = `https://ui-avatars.com/api/?name=${username}&background=334155&color=fff&size=150`;
+        }
+
+        async function carregarPerfil() {
+            document.getElementById("user-name").innerText = `@${logado}`;
+            fetchTikTokAvatar(logado);
+
+            const userRef = ref(database, `usuarios/${logado}`);
+            const snap = await get(userRef);
+
+            if (!snap.exists()) return;
+            const data = snap.val();
+            const perfilClass = data.perfil.replace(' ', '-');
+
+            // Renderiza Plano e Validade
+            const badge = document.getElementById("user-plan-badge");
+            badge.className = `badge-plano badge-${perfilClass}`;
+            badge.innerText = `Plano ${data.perfil}`;
+
+            const expText = document.getElementById("user-expiration");
+            if (data.perfil === "gratuito" || data.perfil === "adm") {
+                expText.innerText = "Acesso Vitalício";
+            } else if (data.expiracao) {
+                const dataExp = new Date(data.expiracao);
+                if (dataExp.getTime() < Date.now()) {
+                    expText.innerHTML = `<span style="color: #ef4444;">Expirado em ${dataExp.toLocaleDateString('pt-BR')}</span>`;
+                } else {
+                    expText.innerHTML = `Válido até ${dataExp.toLocaleDateString('pt-BR')}`;
+                }
+            } else {
+                expText.innerText = "Acesso Vitalício";
+            }
+
+            // Exibe botão de upgrade para gratuitos
+            if (data.perfil === "gratuito" || data.perfil === "plus") {
+                document.getElementById("upgrade-container").style.display = "block";
+            }
+
+            // Renderiza Jogo Grátis do Mês
+            const freeContainer = document.getElementById("free-game-container");
+            const dataHoje = new Date();
+            let hasFreeGame = false;
+
+            if (data.controle_gratis && data.controle_gratis.mes_escolha === (dataHoje.getMonth() + 1) && data.controle_gratis.ano_escolha === dataHoje.getFullYear()) {
+                const jogoGratisId = data.controle_gratis.jogo_escolhido;
+                if (jogoGratisId && catalogo[jogoGratisId]) {
+                    const jg = catalogo[jogoGratisId];
+                    freeContainer.innerHTML = `
+                        <a href="${jg.link}" class="game-card" style="max-width: 300px; margin: 0 auto; border-color: #facc15;">
+                            <img src="${jg.img}" alt="${jg.nome}">
+                            <h3>${jg.nome}</h3>
+                            <span style="color: #facc15; font-size: 0.9rem;">Sessão Diária de 2H</span>
+                        </a>
+                    `;
+                    hasFreeGame = true;
+                }
+            }
+            if (!hasFreeGame) {
+                freeContainer.innerHTML = `
+                    <div class="free-game-box">
+                        <h3 style="margin-top:0; color: #fff;">Nenhum Jogo Resgatado Este Mês</h3>
+                        <p style="color: #94a3b8; margin-bottom: 20px;">Você tem direito a jogar 1 jogo gratuitamente por 2 horas diárias.</p>
+                        <a href="index.html" class="btn-upgrade" style="background: #eab308; color: black; box-shadow: none;">➕ ESCOLHER MEU JOGO GRÁTIS</a>
+                    </div>
+                `;
+            }
+
+            // Renderiza Galeria VIP (Jogos Liberados)
+            const galeriaContainer = document.getElementById("gallery-container");
+            galeriaContainer.innerHTML = "";
+            let hasVipGames = false;
+
+            if (data.perfil === "pro" || data.perfil === "adm") {
+                hasVipGames = true;
+                for (let id in catalogo) {
+                    const jg = catalogo[id];
+                    galeriaContainer.innerHTML += `
+                        <a href="${jg.link}" class="game-card">
+                            <img src="${jg.img}" alt="${jg.nome}">
+                            <h3>${jg.nome}</h3>
+                            <span style="color: #22c55e; font-size: 0.9rem;">Acesso Ilimitado</span>
+                        </a>
+                    `;
+                }
+            } else if (data.jogos) {
+                for (let id in data.jogos) {
+                    if (data.jogos[id] === true && catalogo[id]) {
+                        hasVipGames = true;
+                        const jg = catalogo[id];
+                        galeriaContainer.innerHTML += `
+                            <a href="${jg.link}" class="game-card">
+                                <img src="${jg.img}" alt="${jg.nome}">
+                                <h3>${jg.nome}</h3>
+                                <span style="color: #3b82f6; font-size: 0.9rem;">Acesso VIP Liberado</span>
+                            </a>
+                        `;
+                    }
+                }
+            }
+
+            if (!hasVipGames) {
+                galeriaContainer.innerHTML = `<p style="color: #64748b; font-style: italic; width: 100%; grid-column: 1 / -1; text-align: center;">Sua galeria de jogos VIP está vazia.</p>`;
+            }
+        }
+
+        carregarPerfil();
+    </script>
+</body>
+</html>
