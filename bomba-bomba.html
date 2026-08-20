@@ -17,9 +17,23 @@
         <img src="imagens/bomba.png" alt="Logo BomBa BomBa" style="max-width: 250px; border-radius: 25px; margin: 20px auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
         <h1 style="margin-bottom: 40px;">BOMBA BOMBA</h1>
 
-        <section style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: left; margin-bottom: 40px;">
-            <h2 style="margin-top: 0;">SOBRE O JOGO</h2>
-            <p>O mais hypado! Domine a arena explosiva, use sua estratégia para encurralar os inimigos e seja o último a sobreviver neste caos frenético.</p>
+        <section style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: left; margin-bottom: 40px; line-height: 1.6;">
+            <h2 style="margin-top: 0; color: var(--destaque);">SOBRE O JOGO</h2>
+            <p>O <strong>Bomba Bomba</strong> é o jogo interativo mais hypado do momento, desenvolvido exclusivamente para criadores de conteúdo e streamers que desejam alavancar o engajamento de suas transmissões ao vivo (Live NPC). Domine a arena explosiva, use sua estratégia para encurralar os inimigos e seja o último a sobreviver neste caos frenético que prende a atenção da audiência do início ao fim.</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">Como Funciona a Interação na Live?</h3>
+            <p>Diferente de um jogo tradicional, no Bomba Bomba o seu chat é quem dita as regras. Através da leitura em tempo real dos comentários e presentes virtuais (gifts), os espectadores invocam habilidades, lançam explosivos adicionais ou criam escudos para proteger seus personagens favoritos. Essa dinâmica transforma espectadores passivos em jogadores ativos, o que faz com que o algoritmo das plataformas de vídeo recomende a sua live para milhares de novas pessoas devido à altíssima taxa de comentários.</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">Principais Características</h3>
+            <ul style="padding-left: 20px; color: #cbd5e1;">
+                <li style="margin-bottom: 8px;"><strong>Física Realista:</strong> Explosões calculadas em tempo real com reações em cadeia impressionantes.</li>
+                <li style="margin-bottom: 8px;"><strong>Integração Nativa:</strong> Conexão sem atrasos (Zero Delay) com o chat e eventos de doação da sua transmissão.</li>
+                <li style="margin-bottom: 8px;"><strong>Leveza e Otimização:</strong> Roda perfeitamente em computadores e notebooks básicos sem prejudicar a qualidade do seu streaming no OBS Studio ou TikTok Live Studio.</li>
+                <li style="margin-bottom: 8px;"><strong>Sistema de Ranking:</strong> Placar automatizado na tela mostrando os espectadores que mais colaboraram na rodada.</li>
+            </ul>
+
+            <h3 style="color: #fff; margin-top: 25px;">Estratégia para Crescimento</h3>
+            <p>Streamers que utilizam softwares interativos como o nosso relatam um aumento de até 300% na retenção de público. A dica de ouro é atuar como um verdadeiro narrador (host) durante as partidas, incentivando a rivalidade amigável no chat e celebrando as jogadas épicas causadas pelos gifts enviados. Dessa forma, você maximiza a sua monetização orgânica enquanto entrega um entretenimento de alto nível, operando diretamente pelo nosso sistema SaaS de jogos em nuvem.</p>
         </section>
 
         <section style="text-align: left;">
@@ -29,10 +43,9 @@
             </div>
         </section>
 
-        <div id="game-access-area" style="margin-top: 30px;">
+        <div id="game-access-area" style="margin-top: 30px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
             <button class="btn-download" style="background: #64748b; cursor: not-allowed;">Verificando Licença...</button>
         </div>
-        <a href="https://drive.google.com/file/d/1D-6oArd9TgLhhPTHx2JDWSe7_UQYwhbP/view?usp=drive_link" target="_blank" class="btn-download">⬇ BAIXAR BOMBA BOMBA</a>
     </main>
     <footer>&copy; 2026 RDM Studio.</footer>
 
@@ -90,13 +103,17 @@
         };
 
         async function checarAcesso() {
+            // 1. SE NÃO ESTIVER LOGADO: Cria um botão que manda a pessoa pro index.html para fazer login
             if (!logado) {
-                accessArea.innerHTML = `<button onclick="alert('Faça login no topo da página para jogar!')" class="btn-download" style="background: #ef4444; color: white;">🔒 FAÇA LOGIN PARA JOGAR</button>`;
+                accessArea.innerHTML = `<button onclick="window.location.href='index.html'" class="btn-download" style="background: #ef4444; color: white; cursor: pointer; width: 100%;">🔒 FAÇA LOGIN PARA JOGAR OU BAIXAR</button>`;
                 return;
             }
 
+            // O Link do Google Drive protegido (Só vai aparecer nos if's abaixo se for aprovado)
+            const btnBaixarPrivado = `<a href="https://drive.google.com/file/d/1D-6oArd9TgLhhPTHx2JDWSe7_UQYwhbP/view?usp=drive_link" target="_blank" class="btn-download" style="background: #3b82f6; color: white; font-weight: bold; width: 100%;">⬇ BAIXAR O JOGO</a>`;
+
             if (perfil === "pro" || perfil === "adm") {
-                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ JOGAR AGORA (Passe VIP)</a>`;
+                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">▶ JOGAR AGORA (Passe VIP)</a>` + btnBaixarPrivado;
                 return;
             }
 
@@ -107,37 +124,30 @@
                     const snap = await get(controleRef);
                     let controle = snap.exists() ? snap.val() : {};
 
-                    // Reseta se virou o mês
                     if (controle.mes_escolha !== mesAtual || controle.ano_escolha !== anoAtual) {
                         controle.jogo_escolhido = null;
                         controle.inicio_sessao = null;
                     }
 
                     if (!controle.jogo_escolhido) {
-                        // Pode reivindicar o jogo este mês
-                        accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(true)" class="btn-download" style="background: #eab308; color: black; font-weight: bold;">🎁 RESGATAR COMO JOGO GRÁTIS DO MÊS</button>`;
+                        accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(true)" class="btn-download" style="background: #eab308; color: black; font-weight: bold; width: 100%;">🎁 RESGATAR COMO JOGO GRÁTIS DO MÊS</button>`;
                     } else if (controle.jogo_escolhido === idDesteJogo) {
-                        // É o jogo dele! Verifica o tempo...
                         if (!controle.inicio_sessao) {
-                            accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ INICIAR SESSÃO DE 2 HORAS</button>`;
+                            accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">▶ INICIAR SESSÃO DE 2 HORAS</button>`;
                         } else {
                             const tempoDecorrido = timestampAgora - controle.inicio_sessao;
 
                             if (tempoDecorrido < duasHorasMs) {
-                                // Ainda dentro das 2 horas
                                 const minutosRestantes = Math.floor((duasHorasMs - tempoDecorrido) / 60000);
-                                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ CONTINUAR JOGANDO (${minutosRestantes} min restantes)</a>`;
+                                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">▶ CONTINUAR JOGANDO (${minutosRestantes} min restantes)</a>` + btnBaixarPrivado;
                             } else if (tempoDecorrido < vinteQuatroHorasMs) {
-                                // Passou de 2h, mas não deu 24h
-                                accessArea.innerHTML = `<button onclick="alert('Conheça nossos planos para jogar sem limites!')" class="btn-download" style="background: #ef4444; color: white; cursor: not-allowed; font-size: 0.9rem;">🔒 TEMPO DIÁRIO ESGOTADO. Assine um plano e tenha o jogo integral!</button>`;
+                                accessArea.innerHTML = `<button onclick="window.location.href='index.html'" class="btn-download" style="background: #ef4444; color: white; cursor: not-allowed; font-size: 0.9rem; width: 100%;">🔒 TEMPO DIÁRIO ESGOTADO. Assine um plano!</button>`;
                             } else {
-                                // Já passou 24h, pode jogar de novo
-                                accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ INICIAR NOVA SESSÃO DE 2H HOJE</button>`;
+                                accessArea.innerHTML = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">▶ INICIAR NOVA SESSÃO DE 2H HOJE</button>`;
                             }
                         }
                     } else {
-                        // Escolheu outro jogo esse mês
-                        accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 VOCÊ JÁ ESCOLHEU OUTRO JOGO ESTE MÊS</button>`;
+                        accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed; width: 100%;">🔒 VOCÊ JÁ ESCOLHEU OUTRO JOGO ESTE MÊS</button>`;
                     }
                 } catch (e) {
                     console.error("Erro no controle grátis:", e);
@@ -145,13 +155,13 @@
                 return;
             }
 
-            // Checagem para PLUS e PLUS PREMIUM (Jogos extras marcados no painel)
+            // Checagem para PLUS e PLUS PREMIUM
             const jogoRef = ref(database, `usuarios/${logado}/jogos/${idDesteJogo}`);
             const snapshot = await get(jogoRef);
             if (snapshot.exists() && snapshot.val() === true) {
-                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ JOGAR AGORA</a>`;
+                accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">▶ JOGAR AGORA</a>` + btnBaixarPrivado;
             } else {
-                accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed;">🔒 JOGO NÃO LIBERADO NO SEU PLANO ATUAL</button>`;
+                accessArea.innerHTML = `<button class="btn-download" style="background: #64748b; color: white; cursor: not-allowed; width: 100%;">🔒 JOGO NÃO LIBERADO NO SEU PLANO ATUAL</button>`;
             }
         }
 
