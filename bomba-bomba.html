@@ -167,5 +167,17 @@
 
         checarAcesso();
     </script>
+
+    <script>
+        // CÓDIGO CAÇA-FANTASMA: Deleta o Service Worker velho do Bolão que ficou preso no domínio
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log("Fantasma do cache destruído!");
+                }
+            });
+        }
+    </script>
 </body>
 </html>
