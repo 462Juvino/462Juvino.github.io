@@ -136,15 +136,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     const userInfoArea = document.getElementById("user-info");
     const cards = document.querySelectorAll(".card-jogo");
 
-    // TRAVA DE SEGURANÇA: Se não estiver logado, qualquer clique nos jogos força o login
+    // Deixa a navegação livre para visitantes olharem as páginas dos jogos.
+    // O bloqueio de download acontece lá dentro da página do próprio jogo.
     if (!logado) {
-        cards.forEach(card => {
-            card.addEventListener("click", (e) => {
-                e.preventDefault(); // Impede o link de abrir
-                window.toggleLoginModal(true); // Abre a tela de login
-            });
-        });
-        return; // Para o código aqui se não tiver login
+        return;
     }
 
     // Se estiver logado, renderiza a barra superior com o cargo correspondente
