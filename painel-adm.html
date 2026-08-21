@@ -14,6 +14,24 @@
 
         .action-btn { border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
         .action-btn:hover { filter: brightness(1.2); transform: scale(1.05); }
+
+        /* Estilos do Raio-X (Perfil ADM) */
+        .modal-perfil-box { background: #020617; padding: 0; border-radius: 15px; width: 95%; max-width: 600px; border: 2px solid #3b82f6; text-align: left; overflow: hidden; max-height: 90vh; display: flex; flex-direction: column; }
+        .perfil-adm-header { background: #1e293b; padding: 30px 20px; text-align: center; border-bottom: 3px solid #3b82f6; position: relative; }
+        .avatar-adm-img { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #3b82f6; object-fit: cover; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); margin-bottom: 10px; }
+        .badge-plano { display: inline-block; padding: 4px 12px; border-radius: 15px; font-weight: bold; font-size: 0.85rem; text-transform: uppercase; margin-top: 5px; }
+        .badge-gratuito { background: #334155; color: #cbd5e1; }
+        .badge-plus { background: #3b82f6; color: #fff; }
+        .badge-plus-premium { background: #06b6d4; color: #fff; }
+        .badge-pro { background: #a855f7; color: #fff; }
+        .badge-adm { background: #facc15; color: #000; }
+
+        .perfil-adm-body { padding: 20px; overflow-y: auto; color: white; flex: 1; }
+        .section-title-adm { color: #facc15; font-size: 1.2rem; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-top: 20px; margin-bottom: 15px; }
+        .game-grid-adm { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+        .game-card-adm { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 10px; text-align: center; }
+        .game-card-adm img { width: 100%; height: 60px; object-fit: cover; border-radius: 5px; margin-bottom: 5px; }
+        .game-card-adm h4 { margin: 0; font-size: 0.8rem; color: white; }
     </style>
 </head>
 <body class="theme-painel" style="--bg-color: #0f172a; --card-bg: #1e293b; --destaque: #facc15; --hover-destaque: #eab308;">
@@ -27,7 +45,6 @@
         <div style="background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid #334155;">
             <h2 style="margin-top: 0; color: white; margin-bottom: 20px;">Gerenciamento de Assinaturas e Licenças</h2>
 
-            <!-- LUPA E FILTROS -->
             <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
                 <input type="text" id="search-user" placeholder="🔍 Pesquisar por @usuário..." style="flex: 2; padding: 12px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; font-size: 1rem; outline: none;" onkeyup="filtrarTabela()">
                 <select id="filter-plan" style="flex: 1; padding: 12px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; font-size: 1rem; outline: none;" onchange="filtrarTabela()">
@@ -44,7 +61,7 @@
                 <table style="width: 100%; border-collapse: collapse; text-align: left; color: white;">
                     <thead>
                         <tr style="background-color: #0f172a; border-bottom: 2px solid var(--destaque);">
-                            <th style="padding: 15px;">Usuário (@)</th>
+                            <th style="padding: 15px;">Usuário (@) - Clique para Raio-X</th>
                             <th style="padding: 15px;">Hierarquia e Tempo</th>
                             <th style="padding: 15px; text-align: center;">Ações do Painel</th>
                         </tr>
@@ -57,19 +74,48 @@
         </div>
     </main>
 
-    <!-- MODAL DE JOGOS DINÂMICO -->
+    <!-- MODAL DE JOGOS MANUAIS -->
     <div id="modal-gerenciar-jogos" class="modal-jogos">
         <div class="modal-jogos-box">
             <h2 style="color: var(--destaque); margin-top: 0; text-align: center;">Liberar Jogos Extras</h2>
             <p id="nome-user-modal" style="color: #94a3b8; margin-bottom: 15px; text-align: center; font-weight: bold; font-size: 1.1rem;"></p>
             <input type="hidden" id="modal-userid">
-
-            <!-- AQUI O JAVASCRIPT INJETA OS JOGOS AUTOMATICAMENTE -->
             <div id="lista-jogos-dinamica" style="max-height: 400px; overflow-y: auto; padding-right: 5px;"></div>
-
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button onclick="salvarJogos()" style="flex: 1; padding: 12px; background: #22c55e; color: black; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Salvar Acessos</button>
                 <button onclick="fecharModalJogos()" style="flex: 1; padding: 12px; background: #ef4444; color: white; font-weight: bold; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO MODAL: RAIO-X DO USUÁRIO (PERFIL CRM) -->
+    <div id="modal-perfil-adm" class="modal-jogos">
+        <div class="modal-perfil-box">
+            <button onclick="fecharPerfilAdm()" style="position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; border: none; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-weight: bold; z-index: 10;">X Fechar</button>
+
+            <div class="perfil-adm-header">
+                <img id="rx-avatar" src="https://ui-avatars.com/api/?name=User&background=334155&color=fff" alt="Avatar" class="avatar-adm-img">
+                <h2 id="rx-nome" style="margin: 0; color: white; font-size: 1.8rem;">@usuario</h2>
+                <div id="rx-status-online" style="font-weight: bold; margin-top: 5px;">Verificando...</div>
+                <div id="rx-badge" class="badge-plano">Plano</div>
+                <p id="rx-expiracao" style="color: #94a3b8; font-size: 0.9rem; margin-top: 5px;"></p>
+            </div>
+
+            <div class="perfil-adm-body">
+                <h3 class="section-title-adm">🎁 Jogo Grátis do Mês Atual</h3>
+                <div id="rx-jogo-gratis" style="background: #1e293b; padding: 15px; border-radius: 8px; border: 1px dashed #facc15; text-align: center; color: #cbd5e1;">
+                    Nenhum jogo resgatado neste mês.
+                </div>
+
+                <h3 class="section-title-adm">🎮 Galeria VIP (Liberados)</h3>
+                <div id="rx-galeria-vip" class="game-grid-adm">
+                    <!-- Cards injetados via JS -->
+                </div>
+
+                <h3 class="section-title-adm">📊 Histórico de Atividade Recente</h3>
+                <div id="rx-historico" style="background: #1e293b; padding: 15px; border-radius: 8px; border: 1px solid #334155; font-size: 0.9rem; color: #cbd5e1; max-height: 150px; overflow-y: auto;">
+                    Nenhuma atividade registrada.
+                </div>
             </div>
         </div>
     </div>
@@ -101,29 +147,25 @@
             carregarUsuarios();
         }
 
-        // ========================================================
-        // 🎮 CATÁLOGO INTELIGENTE DE JOGOS
-        // Para adicionar um jogo novo no site, é só colocar aqui!
-        // ========================================================
+        // CATÁLOGO ATUALIZADO COM IMAGENS PARA O RAIO-X
         const catalogoDeJogos = [
-            { id: "bomba_bomba", nome: "🔥 BomBa BomBa" },
-            { id: "daaz", nome: "🎲 DAAZ" },
-            { id: "politicos", nome: "👔 POLITICOS" },
-            { id: "roblox", nome: "💃 Roblox Dance" },
-            { id: "x1", nome: "⚔️ Arena X1" },
-            { id: "estope", nome: "🛑 ESTOPE" },
-            { id: "war", nome: "🗺️ War: Estados Brasileiros" },
-            { id: "fc", nome: "⚽ RDM FC" },
-            { id: "stickman", nome: "🧍 Stickman Chaos" },
-            { id: "kof", nome: "🕹️ KOF TikTok" },
-            { id: "snake", nome: "🐍 Snake Battle" },
-            { id: "pro_arena", nome: "🎮 PRO Arena" },
-            { id: "brain", nome: "🧠 BrainBom & Anagrama" },
-            { id: "milhao", nome: "💰 Show do Milhão Live" },
-            { id: "host", nome: "🎙️ Painel Host + Narrador" } // Ferramenta entra aqui tbm
+            { id: "bomba_bomba", nome: "🔥 BomBa BomBa", img: "imagens/bomba.png" },
+            { id: "daaz", nome: "🎲 DAAZ", img: "imagens/daaz.png" },
+            { id: "politicos", nome: "👔 POLITICOS", img: "imagens/politicos.png" },
+            { id: "roblox", nome: "💃 Roblox Dance", img: "imagens/roblox.png" },
+            { id: "x1", nome: "⚔️ Arena X1", img: "imagens/X1.jpeg" },
+            { id: "estope", nome: "🛑 ESTOPE", img: "imagens/estope.jpeg" },
+            { id: "war", nome: "🗺️ War: Estados", img: "imagens/war.png" },
+            { id: "fc", nome: "⚽ RDM FC", img: "imagens/fc.png" },
+            { id: "stickman", nome: "🧍 Stickman Chaos", img: "imagens/stickman.png" },
+            { id: "kof", nome: "🕹️ KOF TikTok", img: "imagens/kof.png" },
+            { id: "snake", nome: "🐍 Snake Battle", img: "imagens/snake.png" },
+            { id: "pro_arena", nome: "🎮 PRO Arena", img: "imagens/pro-arena.png" },
+            { id: "brain", nome: "🧠 BrainBom", img: "imagens/brain.png" },
+            { id: "milhao", nome: "💰 Show do Milhão", img: "imagens/milhao.png" },
+            { id: "host", nome: "🎙️ Painel Host", img: "imagens/host.png" }
         ];
 
-        // 1. CARREGAR E RENDERIZAR USUÁRIOS
         async function carregarUsuarios() {
             const tabela = document.getElementById("tabela-usuarios");
             const usersRef = ref(database, 'usuarios');
@@ -133,12 +175,27 @@
                 if (snapshot.exists()) {
                     tabela.innerHTML = "";
                     const usuarios = snapshot.val();
-
-                    // Puxa as chaves e ordena alfabeticamente para ficar organizado
                     const chavesOrdenadas = Object.keys(usuarios).sort((a, b) => a.localeCompare(b));
 
                     chavesOrdenadas.forEach(key => {
-                        const user = usuarios[key];
+                        let user = usuarios[key];
+
+                        // 🛡️ FAXINA AUTOMÁTICA NO PAINEL: Rebaixa contas expiradas no Firebase
+                        if (user.expiracao && Date.now() > user.expiracao && user.perfil !== 'gratuito' && user.perfil !== 'adm') {
+                            user.perfil = 'gratuito';
+                            user.expiracao = null;
+                            update(ref(database, 'usuarios/' + key), { perfil: 'gratuito', expiracao: null });
+                        }
+
+                        // LÓGICA DE ONLINE/OFFLINE
+
+                        // LÓGICA DE ONLINE/OFFLINE
+                        let isOnline = false;
+                        if (user.ultimo_ping && (Date.now() - user.ultimo_ping < (5 * 60 * 1000))) {
+                            isOnline = true;
+                        }
+                        const statusDot = isOnline ? '🟢' : '🔴';
+
                         let vencimento = "Vitalício/Gratuito";
                         if (user.expiracao) {
                             const dataExp = new Date(user.expiracao);
@@ -162,21 +219,25 @@
                         tabela.innerHTML += `
                             <tr class="user-row" data-user="${user.usuario}" data-plan="${user.perfil}" style="border-bottom: 1px solid #334155;">
                                 <td style="padding: 15px; font-weight: bold; color: #38bdf8; font-size: 1.1rem;">
-                                    @${user.usuario}<br>
+                                    <!-- AQUI PASSA O USER.USUARIO ORIGINAL PARA PEGAR A FOTO CERTA -->
+                                    <a href="#" onclick="abrirRaioX('${key}', '${user.usuario}')" style="text-decoration: none; color: #38bdf8; transition: 0.2s;" onmouseover="this.style.color='#facc15'" onmouseout="this.style.color='#38bdf8'">
+                                        ${statusDot} @${user.usuario}
+                                    </a><br>
                                     <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">Senha: ${user.chave}</span><br>
                                     <span style="font-size:0.85rem; font-weight:normal;">${vencimento}</span>
                                 </td>
                                 <td style="padding: 15px;">
                                     <div style="display: flex; gap: 10px; align-items: center;">
                                         ${selectPerfil}
-                                        <input type="number" id="meses-${key}" value="1" min="1" style="width: 70px; padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;" title="Soma meses na assinatura">
+                                        <input type="number" id="meses-${key}" value="1" min="1" style="width: 70px; padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;">
                                         <span style="color:#94a3b8; font-size: 0.9rem;">Mes(es)</span>
                                     </div>
                                 </td>
                                 <td style="padding: 15px;">
                                     <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
                                         <button class="action-btn" onclick="salvarAlteracao('${key}')" style="background: var(--destaque); color: black;">💾 Salvar Plano</button>
-                                        <button class="action-btn" onclick="abrirModalJogos('${key}')" style="background: #3b82f6; color: white;">🎮 Jogos Ext.</button>
+                                        <!-- AQUI PASSA O PLANO ATUAL PARA BLOQUEAR CAIXINHAS -->
+                                        <button class="action-btn" onclick="abrirModalJogos('${key}', '${user.perfil}')" style="background: #3b82f6; color: white;">🎮 Jogos Ext.</button>
                                         <button class="action-btn" onclick="trocarSenha('${key}')" style="background: #8b5cf6; color: white;">🔑 Senha</button>
                                         <button class="action-btn" onclick="excluirConta('${key}')" style="background: #ef4444; color: white;">🗑️ Excluir</button>
                                     </div>
@@ -190,7 +251,6 @@
             }
         }
 
-        // 2. FILTRAR TABELA (LUPAS)
         window.filtrarTabela = function() {
             const searchVal = document.getElementById("search-user").value.toLowerCase();
             const planVal = document.getElementById("filter-plan").value.toLowerCase();
@@ -203,15 +263,10 @@
                 const matchUser = userText.includes(searchVal);
                 const matchPlan = planVal === "todos" || planText === planVal;
 
-                if (matchUser && matchPlan) {
-                    row.style.display = "";
-                } else {
-                    row.style.display = "none";
-                }
+                row.style.display = (matchUser && matchPlan) ? "" : "none";
             });
         };
 
-        // 3. SALVAR PLANO COM IA PARA ABRIR JOGOS
         window.salvarAlteracao = async function(userId) {
             const novoPerfil = document.getElementById(`perfil-${userId}`).value;
             const meses = parseInt(document.getElementById(`meses-${userId}`).value) || 1;
@@ -223,111 +278,176 @@
                 const snapUser = await get(userRef);
                 let expiracaoAtual = snapUser.exists() ? snapUser.val().expiracao : null;
                 let dataBase = new Date();
-                // Se ainda for válido, soma a partir do vencimento. Se tiver vencido, soma a partir de hoje.
-                if (expiracaoAtual && expiracaoAtual > Date.now()) {
-                    dataBase = new Date(expiracaoAtual);
-                }
+                if (expiracaoAtual && expiracaoAtual > Date.now()) { dataBase = new Date(expiracaoAtual); }
                 dataBase.setMonth(dataBase.getMonth() + meses);
                 dadosAtualizados.expiracao = dataBase.getTime();
-            } else {
-                dadosAtualizados.expiracao = null;
-            }
+            } else { dadosAtualizados.expiracao = null; }
 
             try {
                 await update(userRef, dadosAtualizados);
-                alert(`Licença de @${userId} atualizada para [ ${novoPerfil.toUpperCase()} ]!`);
-
-                // Recarrega a tabela no fundo suavemente
+                alert(`Licença atualizada!`);
                 carregarUsuarios();
-
-                // 🧠 INTELIGÊNCIA: Se o plano precisa de jogos manuais, já abre o modal na cara do ADM!
-                if (novoPerfil === 'plus' || novoPerfil === 'plus premium') {
-                    abrirModalJogos(userId);
-                }
-            } catch (error) {
-                alert("Erro ao salvar no Firebase.");
-            }
+                if (novoPerfil === 'plus' || novoPerfil === 'plus premium') { abrirModalJogos(userId, novoPerfil); }
+            } catch (error) { alert("Erro ao salvar."); }
         };
 
-        // 4. TROCAR SENHA
         window.trocarSenha = async function(userId) {
             const novaSenha = prompt(`Digite a NOVA SENHA para @${userId}:`);
             if (novaSenha && novaSenha.trim() !== "") {
-                try {
-                    await update(ref(database, 'usuarios/' + userId), { chave: novaSenha.trim() });
-                    alert(`Senha de @${userId} alterada com sucesso!`);
-                    carregarUsuarios();
-                } catch (e) {
-                    alert("Erro ao trocar a senha.");
-                }
+                await update(ref(database, 'usuarios/' + userId), { chave: novaSenha.trim() });
+                alert(`Senha alterada!`);
+                carregarUsuarios();
             }
         };
 
-        // 5. EXCLUIR CONTA
         window.excluirConta = async function(userId) {
-            const confirmacao = confirm(`⚠️ PERIGO: Tem certeza que quer EXCLUIR a conta de @${userId} para sempre? Esta ação não pode ser desfeita.`);
-            if (confirmacao) {
-                try {
-                    await remove(ref(database, 'usuarios/' + userId));
-                    alert(`A conta @${userId} foi evaporada do servidor!`);
-                    carregarUsuarios();
-                } catch (e) {
-                    alert("Erro ao excluir conta.");
-                }
+            if (confirm(`⚠️ PERIGO: Excluir a conta @${userId} para sempre?`)) {
+                await remove(ref(database, 'usuarios/' + userId));
+                alert(`Conta evaporada!`);
+                carregarUsuarios();
             }
         };
 
-        // 6. GESTÃO DOS JOGOS LIBERADOS
-        window.abrirModalJogos = async function(userId) {
+        window.abrirModalJogos = async function(userId, perfilUsuario) {
             document.getElementById('modal-userid').value = userId;
             document.getElementById('nome-user-modal').innerText = "Jogos permitidos para: @" + userId;
-
-            // Injeta o catálogo atualizado no HTML
             const containerJogos = document.getElementById('lista-jogos-dinamica');
             containerJogos.innerHTML = "";
+
+            // Lógica de Trava: Pro tem tudo, Grátis não tem nada extra.
+            const isPro = (perfilUsuario === "pro" || perfilUsuario === "adm");
+            const isGratuito = (perfilUsuario === "gratuito");
+
             catalogoDeJogos.forEach(jogo => {
-                containerJogos.innerHTML += `
-                    <label class="game-checkbox">
-                        <input type="checkbox" id="check-${jogo.id}"> ${jogo.nome}
-                    </label>
-                `;
+                let disabledStr = (isPro || isGratuito) ? "disabled" : "";
+                let checkedStr = isPro ? "checked" : "";
+                let avisoPlanos = isPro ? " <span style='font-size:0.8rem; color:#22c55e;'>(Passe VIP)</span>" : (isGratuito ? " <span style='font-size:0.8rem; color:#ef4444;'>(Bloqueado)</span>" : "");
+
+                containerJogos.innerHTML += `<label class="game-checkbox"><input type="checkbox" id="check-${jogo.id}" ${disabledStr} ${checkedStr}> ${jogo.nome} ${avisoPlanos}</label>`;
             });
 
-            // Puxa as marcações salvas no banco e marca as caixinhas
-            const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
-            const snapshot = await get(jogosRef);
-
-            if (snapshot.exists()) {
-                const jogosAprovados = snapshot.val();
-                catalogoDeJogos.forEach(jogo => {
-                    if(jogosAprovados[jogo.id] === true) {
-                        document.getElementById(`check-${jogo.id}`).checked = true;
-                    }
-                });
+            // Puxa as marcações só se o cara for PLUS ou PLUS PREMIUM
+            if (!isPro && !isGratuito) {
+                const snap = await get(ref(database, 'usuarios/' + userId + '/jogos'));
+                if (snap.exists()) {
+                    const jogosAprovados = snap.val();
+                    catalogoDeJogos.forEach(jogo => {
+                        if(jogosAprovados[jogo.id]) document.getElementById(`check-${jogo.id}`).checked = true;
+                    });
+                }
             }
             document.getElementById('modal-gerenciar-jogos').style.display = 'flex';
         };
-
-        window.fecharModalJogos = function() {
-            document.getElementById('modal-gerenciar-jogos').style.display = 'none';
-        };
-
+        window.fecharModalJogos = function() { document.getElementById('modal-gerenciar-jogos').style.display = 'none'; };
         window.salvarJogos = async function() {
             const userId = document.getElementById('modal-userid').value;
-            const jogosRef = ref(database, 'usuarios/' + userId + '/jogos');
-
             let dadosJogos = {};
-            catalogoDeJogos.forEach(jogo => {
-                dadosJogos[jogo.id] = document.getElementById(`check-${jogo.id}`).checked;
-            });
+            catalogoDeJogos.forEach(jogo => { dadosJogos[jogo.id] = document.getElementById(`check-${jogo.id}`).checked; });
+            await update(ref(database, 'usuarios/' + userId + '/jogos'), dadosJogos);
+            alert("Salvo com sucesso!");
+            fecharModalJogos();
+        };
 
+        // ========================================================
+        // 🔍 SISTEMA RAIO-X: PERFIL DO USUÁRIO (CRM)
+        // ========================================================
+        async function fetchTikTokAvatar(username) {
             try {
-                await update(jogosRef, dadosJogos);
-                alert("Acessos do portfólio salvos com sucesso!");
-                fecharModalJogos();
-            } catch (err) {
-                alert("Erro ao salvar os jogos permitidos.");
+                let res = await fetch(`https://www.tikwm.com/api/user/info?unique_id=${username}`);
+                let json = await res.json();
+                if (json && json.data && json.data.user && json.data.user.avatarLarger) {
+                    return json.data.user.avatarLarger;
+                }
+            } catch(e) {}
+            return `https://ui-avatars.com/api/?name=${username}&background=334155&color=fff&size=100`;
+        }
+
+        window.abrirRaioX = async function(userId, usuarioOriginal) {
+            document.getElementById('modal-perfil-adm').style.display = 'flex';
+            document.getElementById('rx-nome').innerText = `@${usuarioOriginal}`;
+            document.getElementById('rx-avatar').src = `https://ui-avatars.com/api/?name=${usuarioOriginal}&background=334155&color=fff`;
+            document.getElementById('rx-status-online').innerHTML = "Verificando...";
+
+            // Usa o nome original (com pontos etc) na API do TikTok!
+            fetchTikTokAvatar(usuarioOriginal).then(url => { document.getElementById('rx-avatar').src = url; });
+
+            const snap = await get(ref(database, 'usuarios/' + userId));
+            if (!snap.exists()) return;
+            const data = snap.val();
+
+            // 1. Status Online
+            let isOnline = false;
+            let ultimoSinalStr = "Nunca acessou a nuvem.";
+            if (data.ultimo_ping) {
+                const diferenca = Date.now() - data.ultimo_ping;
+                if (diferenca < (5 * 60 * 1000)) isOnline = true;
+                ultimoSinalStr = "Visto em: " + new Date(data.ultimo_ping).toLocaleString('pt-BR');
             }
+            if(isOnline) {
+                document.getElementById('rx-status-online').innerHTML = `<span style="color: #22c55e;">🟢 JOGANDO AGORA</span><br><span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">${ultimoSinalStr}</span>`;
+            } else {
+                document.getElementById('rx-status-online').innerHTML = `<span style="color: #ef4444;">🔴 OFFLINE</span><br><span style="font-size:0.75rem; color:#94a3b8; font-weight:normal;">${ultimoSinalStr}</span>`;
+            }
+
+            // 2. Plano e Expiração
+            const badge = document.getElementById('rx-badge');
+            const classPlano = data.perfil.replace(' ', '-');
+            badge.className = `badge-plano badge-${classPlano}`;
+            badge.innerText = `Plano ${data.perfil}`;
+
+            const expText = document.getElementById('rx-expiracao');
+            if (data.expiracao) {
+                const dataExp = new Date(data.expiracao);
+                expText.innerHTML = dataExp.getTime() < Date.now() ? `<span style="color: #ef4444;">Expirado em ${dataExp.toLocaleDateString('pt-BR')}</span>` : `Válido até ${dataExp.toLocaleDateString('pt-BR')}`;
+            } else { expText.innerText = "Acesso Vitalício/Gratuito"; }
+
+            // 3. Jogo Grátis do Mês
+            const dataHoje = new Date();
+            const divGratis = document.getElementById('rx-jogo-gratis');
+            if (data.controle_gratis && data.controle_gratis.mes_escolha === (dataHoje.getMonth()+1) && data.controle_gratis.ano_escolha === dataHoje.getFullYear()) {
+                const jogoGratisId = data.controle_gratis.jogo_escolhido;
+                const jg = catalogoDeJogos.find(j => j.id === jogoGratisId);
+                divGratis.innerHTML = jg ? `<strong>${jg.nome}</strong> (Em uso nas 2h diárias)` : "Jogo não identificado";
+            } else {
+                divGratis.innerHTML = "Nenhum jogo resgatado neste mês.";
+            }
+
+            // 4. Galeria VIP
+            const galeriaBox = document.getElementById('rx-galeria-vip');
+            galeriaBox.innerHTML = "";
+            let temVip = false;
+
+            if (data.perfil === "pro" || data.perfil === "adm") {
+                temVip = true;
+                catalogoDeJogos.forEach(jg => {
+                    galeriaBox.innerHTML += `<div class="game-card-adm"><img src="${jg.img}"><h4>${jg.nome}</h4></div>`;
+                });
+            } else if (data.jogos) {
+                catalogoDeJogos.forEach(jg => {
+                    if (data.jogos[jg.id]) {
+                        temVip = true;
+                        galeriaBox.innerHTML += `<div class="game-card-adm"><img src="${jg.img}"><h4>${jg.nome}</h4></div>`;
+                    }
+                });
+            }
+            if (!temVip) galeriaBox.innerHTML = `<p style="grid-column: 1/-1; color: #64748b; margin:0;">Nenhum acesso VIP manual liberado.</p>`;
+
+            // 5. Histórico
+            const histBox = document.getElementById('rx-historico');
+            if (data.historico_jogos && Object.keys(data.historico_jogos).length > 0) {
+                let html = '<ul style="padding-left: 20px; margin: 0;">';
+                const registros = Object.values(data.historico_jogos).sort((a, b) => b.timestamp - a.timestamp);
+                registros.forEach(registro => {
+                    html += `<li style="margin-bottom: 8px;">Acessou <b>${registro.jogo}</b> em ${new Date(registro.timestamp).toLocaleString('pt-BR')}</li>`;
+                });
+                histBox.innerHTML = html + '</ul>';
+            } else {
+                histBox.innerHTML = "Nenhuma atividade de jogo registrada.";
+            }
+        };
+
+        window.fecharPerfilAdm = function() {
+            document.getElementById('modal-perfil-adm').style.display = 'none';
         };
     </script>
 </body>

@@ -67,7 +67,7 @@
         const database = getDatabase(app);
 
         const logado = localStorage.getItem("rdm_user");
-        const perfil = localStorage.getItem("rdm_perfil");
+        let perfil = localStorage.getItem("rdm_perfil");
         const accessArea = document.getElementById("game-access-area");
 
         // VARIÁVEIS EXCLUSIVAS DESTE JOGO (SNAKE BATTLE)
@@ -99,14 +99,23 @@
         };
 
         async function checarAcesso() {
-            // SE NÃO ESTIVER LOGADO: Mostra botões visuais reais, mas que redirecionam ao login
-            if (!logado) {
-                accessArea.innerHTML = `
-                    <a href="index.html?login=true" class="btn-download" style="background: #22c55e; color: black; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">▶ JOGAR AGORA</a>
-                    <a href="index.html?login=true" class="btn-download" style="background: #3b82f6; color: white; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">⬇ BAIXAR SNAKE BATTLE</a>
-                `;
-                return;
+            // 🛡️ FAXINA DE EXPIRAÇÃO: Rebaixa para gratuito se o tempo acabou!
+            if (logado) {
+                const snapUser = await get(ref(database, `usuarios/${logado}`));
+                if (snapUser.exists()) {
+                    let dbUser = snapUser.val();
+                    if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
+                        perfil = "gratuito";
+                        localStorage.setItem("rdm_perfil", "gratuito");
+                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                    } else {
+                        perfil = dbUser.perfil;
+                        localStorage.setItem("rdm_perfil", perfil);
+                    }
+                }
             }
+
+            // SE NÃO ESTIVER LOGADO:
 
             // SE ESTIVER LOGADO...
             let btnJogar = "";

@@ -68,7 +68,7 @@
         const database = getDatabase(app);
 
         const logado = localStorage.getItem("rdm_user");
-        const perfil = localStorage.getItem("rdm_perfil");
+        let perfil = localStorage.getItem("rdm_perfil");
         const accessArea = document.getElementById("game-access-area");
 
         // Link atualizado para o BomBa BomBa e o ID mapeado no banco
@@ -103,11 +103,23 @@
         };
 
         async function checarAcesso() {
-            // 1. SE NÃO ESTIVER LOGADO: Cria um botão que manda a pessoa pro index.html para fazer login
-            if (!logado) {
-                accessArea.innerHTML = `<button onclick="window.location.href='index.html'" class="btn-download" style="background: #ef4444; color: white; cursor: pointer; width: 100%;">🔒 FAÇA LOGIN PARA JOGAR OU BAIXAR</button>`;
-                return;
+            // 🛡️ FAXINA DE EXPIRAÇÃO: Rebaixa para gratuito se o tempo acabou!
+            if (logado) {
+                const snapUser = await get(ref(database, `usuarios/${logado}`));
+                if (snapUser.exists()) {
+                    let dbUser = snapUser.val();
+                    if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
+                        perfil = "gratuito";
+                        localStorage.setItem("rdm_perfil", "gratuito");
+                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                    } else {
+                        perfil = dbUser.perfil;
+                        localStorage.setItem("rdm_perfil", perfil);
+                    }
+                }
             }
+
+            // SE NÃO ESTIVER LOGADO:
 
             // O Link do Google Drive protegido (Só vai aparecer nos if's abaixo se for aprovado)
             const btnBaixarPrivado = `<a href="https://drive.google.com/file/d/1D-6oArd9TgLhhPTHx2JDWSe7_UQYwhbP/view?usp=drive_link" target="_blank" class="btn-download" style="background: #3b82f6; color: white; font-weight: bold; width: 100%;">⬇ BAIXAR O JOGO</a>`;

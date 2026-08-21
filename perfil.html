@@ -129,7 +129,16 @@
             const snap = await get(userRef);
 
             if (!snap.exists()) return;
-            const data = snap.val();
+            let data = snap.val();
+
+            // 🛡️ TRAVA DE EXPIRAÇÃO: Atualiza o banco caso esteja vencido
+            if (data.expiracao && Date.now() > data.expiracao && data.perfil !== 'gratuito' && data.perfil !== 'adm') {
+                data.perfil = 'gratuito';
+                data.expiracao = null;
+                localStorage.setItem("rdm_perfil", "gratuito");
+                await update(userRef, { perfil: 'gratuito', expiracao: null });
+            }
+
             const perfilClass = data.perfil.replace(' ', '-');
 
             // Renderiza Plano e Validade

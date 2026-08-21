@@ -55,7 +55,7 @@
         const database = getDatabase(app);
 
         const logado = localStorage.getItem("rdm_user");
-        const perfil = localStorage.getItem("rdm_perfil");
+        let perfil = localStorage.getItem("rdm_perfil");
         const accessArea = document.getElementById("game-access-area");
 
         // Link atualizado para o ESTOPE e o ID mapeado no banco
@@ -90,10 +90,23 @@
         };
 
         async function checarAcesso() {
-            if (!logado) {
-                accessArea.innerHTML = `<button onclick="alert('Faça login no topo da página para jogar!')" class="btn-download" style="background: #ef4444; color: white;">🔒 FAÇA LOGIN PARA JOGAR</button>`;
-                return;
+            // 🛡️ FAXINA DE EXPIRAÇÃO: Rebaixa para gratuito se o tempo acabou!
+            if (logado) {
+                const snapUser = await get(ref(database, `usuarios/${logado}`));
+                if (snapUser.exists()) {
+                    let dbUser = snapUser.val();
+                    if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
+                        perfil = "gratuito";
+                        localStorage.setItem("rdm_perfil", "gratuito");
+                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                    } else {
+                        perfil = dbUser.perfil;
+                        localStorage.setItem("rdm_perfil", perfil);
+                    }
+                }
             }
+
+            // SE NÃO ESTIVER LOGADO:
 
             if (perfil === "pro" || perfil === "adm") {
                 accessArea.innerHTML = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold;">▶ JOGAR AGORA (Passe VIP)</a>`;
