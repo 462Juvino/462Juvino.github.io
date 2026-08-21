@@ -62,15 +62,25 @@
         const app = initializeApp(firebaseConfig);
         const database = getDatabase(app);
 
-        // Puxa o @ validado no navegador
         const logado = localStorage.getItem("rdm_user");
+        let perfil = localStorage.getItem("rdm_perfil");
         const accessArea = document.getElementById("game-access-area");
         const linkPainelWeb = "https://462juvino.github.io/Painel-do-host/"; // O link que sofre o bloqueio VIP
 
         async function checarAcessoPainel() {
-            if (!logado) {
-                accessArea.innerHTML = `<button onclick="alert('Faça login na tela inicial para acessar o Painel Web!')" class="btn-download" style="background: #ef4444; color: white; width: 100%;">🔒 FAÇA LOGIN PARA ACESSAR A WEB</button>`;
-                return;
+            if (logado) {
+                const snapUser = await get(ref(database, `usuarios/${logado}`));
+                if (snapUser.exists()) {
+                    let dbUser = snapUser.val();
+                    if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
+                        perfil = "gratuito";
+                        localStorage.setItem("rdm_perfil", "gratuito");
+                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                    } else {
+                        perfil = dbUser.perfil;
+                        localStorage.setItem("rdm_perfil", perfil);
+                    }
+                }
             }
 
             try {

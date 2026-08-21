@@ -9,28 +9,157 @@
 </head>
 <body class="theme-pro" style="--bg-color: #083344; --card-bg: #164e63; --destaque: #06b6d4; --hover-destaque: #0891b2;">
     <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid var(--destaque);">
-        <a href="index.html" class="btn-voltar">⬅ VOLTAR</a>
+        <a href="index.html" class="btn-voltar" style="color: #fff; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 5px;">⬅ VOLTAR</a>
         <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
     </header>
 
-    <main style="text-align: center;">
-        <img src="imagens/X1.jpeg" alt="Logo PRO Arena" style="max-width: 250px; border-radius: 25px; margin: 20px auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
-        <h1 style="margin-bottom: 40px;">X1</h1>
+    <main style="text-align: center; color: #fff; padding: 20px;">
+        <img src="imagens/X1.jpeg" alt="Logo Arena X1" style="max-width: 250px; border-radius: 25px; margin: 20px auto; display: block; box-shadow: 0 10px 30px rgba(0,0,0,0.6);">
+        <h1 style="margin-bottom: 40px; color: var(--destaque);">ARENA X1</h1>
 
-        <section style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: left; margin-bottom: 40px;">
-            <h2 style="margin-top: 0;">COMBATE X1</h2>
-            <p>Batalha em equipes com colisões épicas em uma arena tecnológica. Reflexos rápidos e precisão são as chaves para a vitória.</p>
+        <section style="background: var(--card-bg); padding: 30px; border-radius: 15px; text-align: left; margin-bottom: 40px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+            <h2 style="margin-top: 0; color: var(--destaque);">COMBATE X1</h2>
+            <p>Batalha intensa em equipes com colisões épicas em uma arena tecnológica. Reflexos rápidos, comandos do chat e precisão são as chaves para a vitória da sua audiência.</p>
         </section>
 
-        <section style="text-align: left;">
-            <h2>📺 GAMEPLAY OFICIAL</h2>
-            <div style="background: #000; border-radius: 15px; overflow: hidden; margin-top: 20px; border: 2px solid var(--card-bg);">
+        <section style="text-align: left; max-width: 800px; margin-left: auto; margin-right: auto;">
+            <h2 style="color: var(--destaque);">📺 GAMEPLAY OFICIAL</h2>
+            <div style="background: #000; border-radius: 15px; overflow: hidden; margin-top: 20px; border: 2px solid var(--card-bg); display: flex; justify-content: center;">
                 <iframe width="100%" height="500" src="https://www.youtube.com/embed/uMVe-fLaNNw?si=5OsNzkfp-Iq1TOTW" frameborder="0" allowfullscreen></iframe>
             </div>
         </section>
 
-        <a href="https://drive.google.com/file/d/1aUGC0nf6trWzllxUdte17zqxwAKRKFxg/view?usp=sharing" class="btn-download">⬇ BAIXAR PRO ARENA</a>
+        <!-- ÁREA DOS BOTÕES CENTRALIZADA -->
+        <div id="game-access-area" style="margin-top: 40px; margin-bottom: 40px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+            <button class="btn-download" style="background: #64748b; color: white; padding: 15px; font-weight: bold; border: none; border-radius: 8px; cursor: not-allowed; width: 100%; max-width: 500px;">Verificando Licença...</button>
+        </div>
     </main>
-    <footer>&copy; 2026 RDM Studio.</footer>
+    <footer style="text-align: center; padding: 20px; color: #888; border-top: 1px solid #333;">&copy; 2026 RDM Studio.</footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
+            authDomain: "authrdm-a82a6.firebaseapp.com",
+            databaseURL: "https://authrdm-a82a6-default-rtdb.firebaseio.com",
+            projectId: "authrdm-a82a6",
+            storageBucket: "authrdm-a82a6.firebasestorage.app",
+            messagingSenderId: "97459319845",
+            appId: "1:97459319845:web:8e1a16bbb6269af3b5fbcc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        const logado = localStorage.getItem("rdm_user");
+        let perfil = localStorage.getItem("rdm_perfil"); // let para permitir a faxina
+        const accessArea = document.getElementById("game-access-area");
+
+        // ⚠️ ATENÇÃO: COLOQUE O LINK ONLINE DA ARENA X1 ABAIXO!
+        const linkDoJogo = "https://462juvino.github.io/link_da_arena_x1_aqui/";
+        const linkDownload = "https://drive.google.com/file/d/1aUGC0nf6trWzllxUdte17zqxwAKRKFxg/view?usp=sharing";
+        const idDesteJogo = "x1";
+
+        const duasHorasMs = 2 * 60 * 60 * 1000;
+        const vinteQuatroHorasMs = 24 * 60 * 60 * 1000;
+        const dataHoje = new Date();
+        const mesAtual = dataHoje.getMonth() + 1;
+        const anoAtual = dataHoje.getFullYear();
+        const timestampAgora = dataHoje.getTime();
+
+        window.iniciarSessaoGratuita = async function(reivindicar) {
+            const controleRef = ref(database, `usuarios/${logado}/controle_gratis`);
+            let dadosAtualizar = { inicio_sessao: timestampAgora };
+            if (reivindicar) {
+                dadosAtualizar.jogo_escolhido = idDesteJogo;
+                dadosAtualizar.mes_escolha = mesAtual;
+                dadosAtualizar.ano_escolha = anoAtual;
+                alert("Jogo reivindicado! Suas 2 horas diárias começam agora.");
+            } else {
+                alert("Nova sessão de 2 horas iniciada!");
+            }
+            await update(controleRef, dadosAtualizar);
+            window.open(linkDoJogo, "_blank");
+            window.location.reload();
+        };
+
+        async function checarAcesso() {
+            // SE NÃO ESTIVER LOGADO: Bota a isca visual!
+            if (!logado) {
+                accessArea.innerHTML = `
+                    <a href="index.html?login=true" class="btn-download" style="background: #22c55e; color: black; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">▶ JOGAR AGORA</a>
+                    <a href="index.html?login=true" class="btn-download" style="background: #3b82f6; color: white; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">⬇ BAIXAR ARENA X1</a>
+                `;
+                return;
+            }
+
+            // 🛡️ FAXINA DE EXPIRAÇÃO: Rebaixa para gratuito se o tempo acabou!
+            const snapUser = await get(ref(database, `usuarios/${logado}`));
+            if (snapUser.exists()) {
+                let dbUser = snapUser.val();
+                if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
+                    perfil = "gratuito";
+                    localStorage.setItem("rdm_perfil", "gratuito");
+                    await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                } else {
+                    perfil = dbUser.perfil;
+                    localStorage.setItem("rdm_perfil", perfil);
+                }
+            }
+
+            // SE ESTIVER LOGADO: Analisa a licença real
+            let btnJogar = "";
+            let btnBaixar = `<a href="${linkDownload}" target="_blank" class="btn-download" style="background: #3b82f6; color: white; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">⬇ BAIXAR ARENA X1</a>`;
+
+            if (perfil === "pro" || perfil === "adm") {
+                btnJogar = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">▶ JOGAR AGORA (Passe VIP)</a>`;
+            } else if (perfil === "gratuito") {
+                try {
+                    const controleRef = ref(database, `usuarios/${logado}/controle_gratis`);
+                    const snap = await get(controleRef);
+                    let controle = snap.exists() ? snap.val() : {};
+
+                    if (controle.mes_escolha !== mesAtual || controle.ano_escolha !== anoAtual) {
+                        controle.jogo_escolhido = null;
+                        controle.inicio_sessao = null;
+                    }
+
+                    if (!controle.jogo_escolhido) {
+                        btnJogar = `<button onclick="iniciarSessaoGratuita(true)" class="btn-download" style="background: #eab308; color: black; padding: 15px; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; max-width: 500px;">🎁 RESGATAR JOGO GRÁTIS DO MÊS</button>`;
+                    } else if (controle.jogo_escolhido === idDesteJogo) {
+                        if (!controle.inicio_sessao) {
+                            btnJogar = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; padding: 15px; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; max-width: 500px;">▶ INICIAR SESSÃO DE 2 HORAS</button>`;
+                        } else {
+                            const tempoDecorrido = timestampAgora - controle.inicio_sessao;
+                            if (tempoDecorrido < duasHorasMs) {
+                                const minutosRestantes = Math.floor((duasHorasMs - tempoDecorrido) / 60000);
+                                btnJogar = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">▶ CONTINUAR JOGANDO (${minutosRestantes} min)</a>`;
+                            } else if (tempoDecorrido < vinteQuatroHorasMs) {
+                                btnJogar = `<button onclick="alert('Conheça nossos planos para jogar sem limites!')" class="btn-download" style="background: #ef4444; color: white; padding: 15px; border: none; cursor: not-allowed; border-radius: 8px; width: 100%; max-width: 500px;">🔒 TEMPO DIÁRIO ESGOTADO.</button>`;
+                            } else {
+                                btnJogar = `<button onclick="iniciarSessaoGratuita(false)" class="btn-download" style="background: #22c55e; color: black; padding: 15px; border: none; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; max-width: 500px;">▶ INICIAR NOVA SESSÃO HOJE</button>`;
+                            }
+                        }
+                    } else {
+                        btnJogar = `<button class="btn-download" style="background: #64748b; color: white; padding: 15px; border: none; cursor: not-allowed; border-radius: 8px; width: 100%; max-width: 500px;">🔒 VOCÊ JÁ ESCOLHEU OUTRO JOGO</button>`;
+                    }
+                } catch (e) { console.error("Erro:", e); }
+            } else {
+                const jogoRef = ref(database, `usuarios/${logado}/jogos/${idDesteJogo}`);
+                const snapshot = await get(jogoRef);
+                if (snapshot.exists() && snapshot.val() === true) {
+                    btnJogar = `<a href="${linkDoJogo}" target="_blank" class="btn-download" style="background: #22c55e; color: black; padding: 15px; text-decoration: none; display: inline-block; box-sizing: border-box; font-weight: bold; border-radius: 8px; width: 100%; max-width: 500px;">▶ JOGAR AGORA</a>`;
+                } else {
+                    btnJogar = `<button class="btn-download" style="background: #64748b; color: white; padding: 15px; border: none; cursor: not-allowed; border-radius: 8px; width: 100%; max-width: 500px;">🔒 JOGO NÃO LIBERADO NO SEU PLANO</button>`;
+                }
+            }
+
+            accessArea.innerHTML = btnJogar + btnBaixar;
+        }
+
+        checarAcesso();
+    </script>
 </body>
 </html>
