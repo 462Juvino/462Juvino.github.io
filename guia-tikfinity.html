@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia Completo: Como configurar o TikFinity - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- O script do AdSense PODE e DEVE ficar aqui, pois esta é uma página de conteúdo textual rico! -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7445704187291505" crossorigin="anonymous"></script>
+    <style>
+        .article-content { max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #cbd5e1; line-height: 1.8; font-size: 1.1rem; text-align: left; }
+        .article-content h1 { color: #3b82f6; font-size: 2.5rem; margin-bottom: 20px; line-height: 1.2; text-align: center; }
+        .article-content h2 { color: #facc15; font-size: 1.8rem; margin-top: 40px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .article-content h3 { color: #fff; font-size: 1.4rem; margin-top: 30px; margin-bottom: 10px; }
+        .article-content p { margin-bottom: 20px; text-align: justify; }
+        .article-content ul, .article-content ol { margin-bottom: 20px; padding-left: 20px; }
+        .article-content li { margin-bottom: 10px; }
+        .article-content strong { color: #fff; }
+        .highlight-box { background: #1e293b; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px; }
+        .step-badge { background: #3b82f6; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 10px; }
+    </style>
+</head>
+<body class="theme-portifolio" style="--bg-color: #020617; background: var(--bg-color); color: #f8fafc; font-family: sans-serif;">
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3b82f6; background: #0f172a;">
+        <a href="dicas.html" class="btn-voltar" style="background: rgba(255,255,255,0.1); padding: 8px 15px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold;">⬅ VOLTAR AOS TUTORIAIS</a>
+        <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
+    </header>
+
+    <main class="article-content">
+        <h1>Guia Definitivo: Como integrar o TikFinity aos Jogos Interativos da RDM Studio</h1>
+
+        <div class="highlight-box">
+            <p style="margin: 0;"><strong>Resumo:</strong> O TikFinity é a ferramenta essencial para transformar sua transmissão comum em uma <em>Live NPC</em> interativa. Neste artigo, você aprenderá como conectar presentes, curtidas e comentários do TikTok aos comandos diretos dos nossos jogos.</p>
+        </div>
+
+        <p>Criar uma live de sucesso no TikTok hoje em dia exige muito mais do que apenas conversar com a câmera. O algoritmo recompensa transmissões com alta taxa de engajamento, retenção e, claro, recebimento de presentes (gifts). É exatamente aqui que entram os jogos interativos desenvolvidos pela <strong>RDM Studio</strong> em conjunto com a automação do <strong>TikFinity</strong>.</p>
+
+        <p>O TikFinity atua como uma "ponte" invisível. Ele lê tudo o que acontece no chat da sua transmissão em tempo real e traduz essas ações em comandos de teclado que controlam jogos como o <em>BomBa BomBa</em>, <em>War: Batalha dos Estados</em> e a <em>Arena X1</em>.</p>
+
+        <h2>Passo a Passo da Configuração</h2>
+
+        <h3><span class="step-badge">1</span> Criando sua conta e vinculando o TikTok</h3>
+        <p>O primeiro passo é acessar o site oficial do TikFinity e realizar o login. O processo é simples, mas requer atenção para que a conexão com sua conta de criador não sofra interrupções durante a live.</p>
+        <ul>
+            <li>Acesse o painel do TikFinity no seu navegador padrão (recomendamos o Google Chrome ou Microsoft Edge para maior compatibilidade de WebSockets).</li>
+            <li>Vá até a aba <strong>Setup</strong> ou <strong>Configurações</strong>.</li>
+            <li>Clique no botão para conectar sua conta do TikTok. Digite o seu @ (nome de usuário) exatamente como está no aplicativo.</li>
+            <li>Aguarde o sistema validar a conexão. O status "Connected" deve aparecer na cor verde.</li>
+        </ul>
+
+        <h3><span class="step-badge">2</span> Entendendo a Lógica de Eventos e Ações</h3>
+        <p>O segredo da automação está na aba <strong>Actions & Events</strong>. Um "Evento" é o gatilho (alguém curtiu, alguém enviou uma rosa, alguém digitou "jogar"). Uma "Ação" é o que o seu computador deve fazer quando esse gatilho for acionado (apertar a tecla de espaço, clicar com o mouse, tocar um som).</p>
+        <p>Para os jogos da RDM Studio, nós utilizamos majoritariamente a <strong>Simulação de Teclas (Keystroke Simulation)</strong>. Cada personagem ou habilidade no jogo é ativada por uma tecla específica do seu teclado.</p>
+
+        <h3><span class="step-badge">3</span> Criando sua Primeira Interação (Simulando Teclas)</h3>
+        <p>Vamos usar o clássico exemplo de fazer um personagem pular quando alguém enviar uma Rosa (Rose) no TikTok:</p>
+        <ol>
+            <li>Dentro do TikFinity, navegue até a aba <strong>Actions</strong> e clique em <em>Create New Action</em> (Criar Nova Ação).</li>
+            <li>No tipo de ação, escolha <strong>Simulate Keystroke</strong> (Simular pressionamento de tecla).</li>
+            <li>Na caixa que pede qual tecla deve ser pressionada, digite a tecla correspondente ao comando do jogo (por exemplo, a tecla <code>Espaço</code> ou o número <code>1</code>).</li>
+            <li>Salve esta ação dando um nome fácil de lembrar, como "Ação - Pulo Rosa".</li>
+            <li>Agora, vá para a aba <strong>Events</strong> e clique em <em>Create New Event</em>.</li>
+            <li>Escolha a condição <strong>Gift Received</strong> (Presente Recebido) e selecione a "Rosa".</li>
+            <li>Na seção de "O que deve acontecer", vincule a ação "Ação - Pulo Rosa" que você acabou de criar.</li>
+            <li>Salve tudo e certifique-se de que a automação está com a chavinha ativada (ON).</li>
+        </ol>
+
+        <h2>Boas Práticas para Evitar Travamentos (Zero Delay)</h2>
+
+        <div class="highlight-box" style="border-color: #facc15;">
+            <p style="margin: 0; color: #f8fafc;"><strong>Dica de Ouro:</strong> Nunca minimize a janela do jogo! Para que o TikFinity consiga "apertar" as teclas no jogo, a janela do jogo aberto (seja o BomBa BomBa ou o DAAZ) precisa estar em primeiro plano (ativa) na sua tela do computador. Se você clicar no navegador em outra tela, os comandos podem falhar.</p>
+        </div>
+
+        <p>Para garantir que sua live rode lisa no OBS Studio ou no TikTok Live Studio, recomendamos que você deixe o jogo rodando em modo janela ocupando metade da tela, enquanto o painel do TikFinity ou o chat fica na outra metade. Isso permite que você monitore o servidor da RDM Studio enquanto as doações caem sem nenhum delay (atraso).</p>
+
+        <h2>Pronto para Faturar?</h2>
+        <p>Agora que você dominou a conexão entre as ferramentas, basta acessar a nossa <a href="index.html" style="color: #3b82f6;">Home Profissional</a>, abrir a sua galeria de jogos e começar a transmitir. Lembre-se: o segredo de uma Live NPC lucrativa não é apenas a tecnologia, mas a forma como você, como narrador, instiga a rivalidade e celebra quem envia os presentes na tela!</p>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="dicas.html" style="background: #3b82f6; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; display: inline-block; transition: 0.3s;">⬅ Voltar para a Central de Dicas</a>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 30px 20px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem; background: #0f172a; margin-top: 40px;">
+        &copy; 2026 RDM Studio.
+    </footer>
+</body>
+</html>
