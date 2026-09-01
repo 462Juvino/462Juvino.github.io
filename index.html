@@ -24,6 +24,29 @@
             transform: translateY(-3px);
             box-shadow: 0 6px 20px rgba(250, 204, 21, 0.5);
         }
+
+        .btn-dicas-hero {
+            margin-top: 25px;
+            margin-left: 15px;
+            background: linear-gradient(45deg, #3b82f6, #2563eb);
+            color: #fff;
+            text-decoration: none;
+            display: inline-block;
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-dicas-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+        }
+        @media (max-width: 600px) {
+            .btn-planos-hero, .btn-dicas-hero { margin-left: 0; display: block; width: 90%; max-width: 300px; margin: 15px auto 0 auto; }
+        }
+
         /* Estilos extras para a janela de planos não quebrarem o layout */
         .plano-card {
             background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 15px;
@@ -72,6 +95,10 @@
             <button onclick="togglePlanosModal(true)" class="btn-planos-hero">
                 💎 Conhecer Nossos Planos
             </button>
+
+            <a href="dicas.html" class="btn-dicas-hero">
+                📚 Dicas e Tutoriais
+            </a>
         </div>
     </header>
     <main>
@@ -227,7 +254,15 @@
         </div>
     </div>
 
-    <footer>&copy; 2026 RDM Studio.</footer>
+    <footer style="text-align: center; margin-top: 50px; padding: 30px 20px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem;">
+        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <a href="dicas.html" style="color: #facc15; text-decoration: none; font-weight: bold; transition: 0.2s;">📚 Dicas e Tutoriais</a>
+            <a href="politica-de-privacidade.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Política de Privacidade</a>
+            <a href="termos-de-uso.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Termos de Uso</a>
+            <a href="contato.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Contato</a>
+        </div>
+        <p>&copy; 2026 RDM Studio. Desenvolvendo o futuro do entretenimento digital.</p>
+    </footer>
 
     <script type="module" src="auth.js"></script>
     <script>

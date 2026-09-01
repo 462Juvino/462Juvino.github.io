@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dicas e Tutoriais - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; }
+        .blog-card { background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 20px; text-align: left; transition: 0.3s; text-decoration: none; color: white; display: block; }
+        .blog-card:hover { transform: translateY(-5px); border-color: #3b82f6; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2); }
+        .tag { background: #3b82f6; color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; display: inline-block; }
+        .tag-game { background: #eab308; color: black; }
+    </style>
+</head>
+<body class="theme-portifolio" style="--bg-color: #020617; background: var(--bg-color); color: #f8fafc; font-family: sans-serif;">
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3b82f6;">
+        <a href="index.html" class="btn-voltar" style="background: rgba(255,255,255,0.1); padding: 8px 15px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold;">⬅ VOLTAR AO SITE</a>
+        <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
+    </header>
+
+    <main style="max-width: 1000px; margin: 0 auto; padding: 40px 20px; text-align: center;">
+        <h1 style="color: #3b82f6; margin-bottom: 10px;">📚 Central de Dicas e Tutoriais</h1>
+        <p style="color: #94a3b8; font-size: 1.1rem;">Aprenda a configurar seus jogos, dominar o TikFinity e viralizar suas lives.</p>
+
+        <div class="blog-grid">
+            <!-- Artigo 1 -->
+            <a href="guia-tikfinity.html" class="blog-card">
+                <span class="tag">Geral</span>
+                <h3 style="margin: 10px 0; color: #fff;">Como conectar o TikFinity aos jogos</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">O passo a passo definitivo para plugar os eventos da sua live nos botões dos nossos jogos usando WebSockets e simulação de teclas.</p>
+            </a>
+
+            <!-- Artigo 2 -->
+            <a href="dicas-bomba.html" class="blog-card">
+                <span class="tag tag-game">BomBa BomBa</span>
+                <h3 style="margin: 10px 0; color: #fff;">Estratégias para bombar o chat</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">Aprenda as regras do jogo e como transformar a sua transmissão em uma máquina de engajamento orgânico.</p>
+            </a>
+
+            <!-- Artigo 3 -->
+            <a href="dicas-obs.html" class="blog-card">
+                <span class="tag">Streaming</span>
+                <h3 style="margin: 10px 0; color: #fff;">Configurando telas no OBS Studio</h3>
+                <p style="color: #94a3b8; font-size: 0.9rem; line-height: 1.5;">Como capturar a janela do jogo sem travar seu PC e montar o layout perfeito para o formato vertical do TikTok.</p>
+            </a>
+        </div>
+    </main>
+</body>
+</html>
