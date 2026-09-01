@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Streaming: OBS e TikTok Live Studio - RDM Studio</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Script do AdSense liberado nesta página de artigo -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7445704187291505" crossorigin="anonymous"></script>
+    <style>
+        .article-content { max-width: 800px; margin: 0 auto; padding: 40px 20px; color: #cbd5e1; line-height: 1.8; font-size: 1.1rem; text-align: left; }
+        .article-content h1 { color: #3b82f6; font-size: 2.5rem; margin-bottom: 20px; line-height: 1.2; text-align: center; }
+        .article-content h2 { color: #facc15; font-size: 1.8rem; margin-top: 40px; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+        .article-content h3 { color: #fff; font-size: 1.4rem; margin-top: 30px; margin-bottom: 10px; }
+        .article-content p { margin-bottom: 20px; text-align: justify; }
+        .article-content ul, .article-content ol { margin-bottom: 20px; padding-left: 20px; }
+        .article-content li { margin-bottom: 10px; }
+        .article-content strong { color: #fff; }
+        .highlight-box { background: #1e293b; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 30px; }
+        .step-badge { background: #3b82f6; color: white; border-radius: 50%; width: 30px; height: 30px; display: inline-flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 10px; }
+        .btn-tt { color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #fe2c55; }
+        .btn-obs { color: #fff; font-weight: bold; padding: 2px 8px; border-radius: 4px; background: #334155; }
+    </style>
+</head>
+<body class="theme-portifolio" style="--bg-color: #020617; background: var(--bg-color); color: #f8fafc; font-family: sans-serif;">
+    <header style="padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #3b82f6; background: #0f172a;">
+        <a href="dicas.html" class="btn-voltar" style="background: rgba(255,255,255,0.1); padding: 8px 15px; text-decoration: none; color: white; border-radius: 5px; font-weight: bold;">⬅ VOLTAR AOS TUTORIAIS</a>
+        <img src="imagens/logo.png" alt="RDM Studio" style="height: 40px;">
+    </header>
+
+    <main class="article-content">
+        <h1>Configurando OBS e TikTok Live Studio para Jogos Interativos</h1>
+
+        <div class="highlight-box">
+            <p style="margin: 0;"><strong>Resumo:</strong> Para que a sua Live NPC atraia milhares de espectadores, a imagem do jogo precisa estar nítida e bem enquadrada no formato do celular. Neste guia, mostramos como capturar a tela dos jogos da RDM Studio usando os dois principais softwares do mercado.</p>
+        </div>
+
+        <p>A primeira impressão é a que fica. Quando um usuário rola o feed do TikTok e cai na sua live, ele decide em menos de 3 segundos se vai ficar ou pular. Jogos com bordas pretas gigantes ou telas cortadas afastam o público. Vamos aprender a configurar a captura perfeita, seja no software oficial do TikTok ou no robusto OBS Studio.</p>
+
+        <h2><span class="btn-tt">TikTok Live Studio</span> (O mais fácil)</h2>
+        <p>O TikTok Live Studio é a ferramenta oficial do TikTok para computadores. É mais leve que o OBS para transmissões básicas e já vem configurado no formato exato da tela do celular (9:16).</p>
+
+        <h3><span class="step-badge">1</span> Adicionando o Jogo na Tela</h3>
+        <ul>
+            <li>Abra o jogo desejado da RDM Studio no seu navegador (Ex: BomBa BomBa) ou abra a janela do jogo executável.</li>
+            <li>No TikTok Live Studio, clique em <strong>Adicionar Origem (Add Source)</strong>.</li>
+            <li>Escolha a opção <strong>Captura de Janela (Window Capture)</strong>. <em>Nunca use Captura de Tela inteira para evitar vazar informações pessoais!</em></li>
+            <li>Selecione a janela onde o jogo está rodando.</li>
+        </ul>
+
+        <h3><span class="step-badge">2</span> Enquadramento Perfeito</h3>
+        <p>Como o jogo geralmente é quadrado ou retangular e a tela do TikTok é "em pé" (vertical), você precisará esticar o jogo. Clique e arraste as bordas vermelhas no Live Studio até que a arena de batalha ocupe a maior parte da tela. Deixe um espaço no topo para o seu Ranking de Doadores e no rodapé para o chat.</p>
+
+        <h2><span class="btn-obs">OBS Studio</span> (Para usuários avançados)</h2>
+        <p>O OBS Studio permite colocar filtros avançados, remoção de fundo da webcam (Chroma Key) e alertas customizados. Se você já tem a Chave de Transmissão (Stream Key) do TikTok, esta é a melhor opção.</p>
+
+        <h3><span class="step-badge">1</span> Configurando a Tela Vertical</h3>
+        <p>Por padrão, o OBS vem deitado (formato YouTube). Precisamos virá-lo para o formato TikTok:</p>
+        <ol>
+            <li>No OBS, vá em <strong>Configurações > Vídeo</strong>.</li>
+            <li>Mude a <em>Resolução de Base</em> e a <em>Resolução de Saída</em> para <strong>1080x1920</strong> (inverta os números originais).</li>
+            <li>Clique em Aplicar. Sua tela do OBS agora estará em pé.</li>
+        </ol>
+
+        <h3><span class="step-badge">2</span> Capturando a RDM Studio</h3>
+        <p>No painel de Fontes (Sources) do OBS, clique no <strong>"+"</strong> e adicione uma <strong>Captura de Janela</strong>. Escolha a janela do navegador ou do executável do jogo. Use o atalho <code>Ctrl + F</code> (ou botão direito > Transformar > Ajustar à Tela) e depois estique as bordas para cobrir as margens pretas.</p>
+
+        <h2>Dicas de Otimização (Para evitar travamentos)</h2>
+
+        <div class="highlight-box" style="border-color: #facc15;">
+            <p style="margin: 0; color: #f8fafc;"><strong>Atenção ao Modo Janela:</strong> Conforme ensinamos no guia do TikFinity, <strong>nunca minimize o navegador com o jogo!</strong> O Windows "congela" janelas minimizadas para economizar energia. Se você minimizar, a física do jogo vai parar e os comandos do chat não vão funcionar.</p>
+        </div>
+
+        <ul style="color: #cbd5e1;">
+            <li style="margin-bottom: 8px;"><strong>FPS da Live:</strong> Nas configurações de vídeo, limite o FPS para <strong>30 FPS</strong> caso seu computador não seja muito potente. Jogos em 2D/Interativos não precisam de 60 FPS para serem divertidos, e isso salva metade do processamento da sua máquina.</li>
+            <li style="margin-bottom: 8px;"><strong>Execute como Administrador:</strong> Sempre abra o TikFinity, OBS ou TikTok Live Studio clicando com o botão direito e escolhendo <em>"Executar como Administrador"</em>. Isso dá prioridade de internet e processamento para sua live.</li>
+            <li style="margin-bottom: 8px;"><strong>Câmera Limpa:</strong> Coloque a sua webcam em um cantinho onde ela não tampe partes vitais do jogo, como o contador de tempo ou a pontuação dos jogadores.</li>
+        </ul>
+
+        <div style="text-align: center; margin-top: 50px;">
+            <a href="dicas.html" style="background: #3b82f6; color: white; padding: 12px 25px; border-radius: 8px; font-weight: bold; text-decoration: none; display: inline-block; transition: 0.3s;">⬅ Voltar para a Central de Dicas</a>
+        </div>
+    </main>
+
+    <footer style="text-align: center; padding: 30px 20px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem; background: #0f172a; margin-top: 40px;">
+        &copy; 2026 RDM Studio.
+    </footer>
+</body>
+</html>
