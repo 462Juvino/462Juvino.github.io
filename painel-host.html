@@ -46,7 +46,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         // SUAS CHAVES DO FIREBASE
         const firebaseConfig = {
@@ -75,7 +75,7 @@
                     if (dbUser.expiracao && Date.now() > dbUser.expiracao && dbUser.perfil !== 'gratuito' && dbUser.perfil !== 'adm') {
                         perfil = "gratuito";
                         localStorage.setItem("rdm_perfil", "gratuito");
-                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null });
+                        await update(ref(database, `usuarios/${logado}`), { perfil: "gratuito", expiracao: null, pacote_comercial: null });
                     } else {
                         perfil = dbUser.perfil;
                         localStorage.setItem("rdm_perfil", perfil);
@@ -95,7 +95,7 @@
                     if (perfilReal === "plus premium" || perfilReal === "pro" || perfilReal === "adm") {
                         accessArea.innerHTML = `<a href="${linkPainelWeb}" target="_blank" class="btn-download" style="background: #22c55e; color: black; font-weight: bold; width: 100%;">🌐 ACESSAR PAINEL WEB</a>`;
                     } else {
-                        accessArea.innerHTML = `<button onclick="alert('O Painel Web é exclusivo dos planos PLUS PREMIUM e PRO! Adquira um plano superior no nosso WhatsApp.')" class="btn-download" style="background: #64748b; color: white; cursor: not-allowed; font-size: 0.9rem; width: 100%;">🔒 WEB EXCLUSIVO PLUS PREMIUM/PRO</button>`;
+                        accessArea.innerHTML = `<a href="index.html#planos" class="btn-download" style="background: #64748b; color: white; font-size: 0.9rem; width: 100%;">Acesso completo necessário · ver planos</a>`;
                     }
                 } else {
                     accessArea.innerHTML = `<button onclick="alert('Usuário não encontrado no banco de dados!')" class="btn-download" style="background: #ef4444; color: white; width: 100%;">🔒 CONTA INVÁLIDA</button>`;

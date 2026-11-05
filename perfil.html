@@ -50,15 +50,15 @@
             <div class="free-game-box">Carregando dados...</div>
         </div>
 
-        <h2 class="section-title">🎮 Sua Galeria de Jogos (Licença VIP)</h2>
+        <h2 class="section-title">🎮 Jogos liberados na sua conta</h2>
         <div id="gallery-container" class="game-grid">
             <!-- Injetado via JS -->
         </div>
 
         <div id="upgrade-container" style="text-align: center; margin-top: 50px; display: none;">
             <h3 style="color: #f8fafc;">Quer acesso a todos os jogos sem limites?</h3>
-            <p style="color: #94a3b8;">Faça um upgrade para os nossos planos VIP e domine o TikTok.</p>
-            <a href="index.html" class="btn-upgrade">🚀 CONFIRA NOSSOS PLANOS</a>
+            <p style="color: #94a3b8;">Conheça os acessos completos de 15 e 30 dias.</p>
+            <a href="index.html#planos" class="btn-upgrade">Ver opções de acesso</a>
         </div>
 
     </main>
@@ -69,7 +69,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB2LNWktWEwYLuZxwr8oc9NpcjFz3GU5qc",
@@ -91,6 +91,7 @@
 
         // CATÁLOGO DE JOGOS PARA MAPEAR IDs
         const catalogo = {
+            "batalha": { nome: "Batalha", img: "imagens/batalha.jpg", link: "batalha.html" },
             "bomba_bomba": { nome: "BomBa BomBa", img: "imagens/bomba.png", link: "bomba-bomba.html" },
             "daaz": { nome: "DAAZ", img: "imagens/daaz.png", link: "daaz.html" },
             "politicos": { nome: "POLITICOS", img: "imagens/politicos.png", link: "politicos.html" },
@@ -136,7 +137,7 @@
                 data.perfil = 'gratuito';
                 data.expiracao = null;
                 localStorage.setItem("rdm_perfil", "gratuito");
-                await update(userRef, { perfil: 'gratuito', expiracao: null });
+                await update(userRef, { perfil: 'gratuito', expiracao: null, pacote_comercial: null });
             }
 
             const perfilClass = data.perfil.replace(' ', '-');
@@ -144,11 +145,14 @@
             // Renderiza Plano e Validade
             const badge = document.getElementById("user-plan-badge");
             badge.className = `badge-plano badge-${perfilClass}`;
-            badge.innerText = `Plano ${data.perfil}`;
+            const nomePlano = data.perfil === 'pro' && data.pacote_comercial === 'acesso_15_dias' ? 'Acesso total · 15 dias' : data.perfil === 'pro' && data.pacote_comercial === 'acesso_30_dias' ? 'Acesso total · 30 dias' : data.perfil;
+            badge.innerText = `Plano ${nomePlano}`;
 
             const expText = document.getElementById("user-expiration");
-            if (data.perfil === "gratuito" || data.perfil === "adm") {
-                expText.innerText = "Acesso Vitalício";
+            if (data.perfil === "gratuito") {
+                expText.innerText = "Plano gratuito ativo";
+            } else if (data.perfil === "adm") {
+                expText.innerText = "Acesso administrativo";
             } else if (data.expiracao) {
                 const dataExp = new Date(data.expiracao);
                 if (dataExp.getTime() < Date.now()) {
@@ -161,7 +165,7 @@
             }
 
             // Exibe botão de upgrade para gratuitos
-            if (data.perfil === "gratuito" || data.perfil === "plus") {
+            if (!['pro', 'adm'].includes(data.perfil)) {
                 document.getElementById("upgrade-container").style.display = "block";
             }
 
@@ -172,8 +176,10 @@
 
             if (data.controle_gratis && data.controle_gratis.mes_escolha === (dataHoje.getMonth() + 1) && data.controle_gratis.ano_escolha === dataHoje.getFullYear()) {
                 const jogoGratisId = data.controle_gratis.jogo_escolhido;
-                if (jogoGratisId && catalogo[jogoGratisId]) {
-                    const jg = catalogo[jogoGratisId];
+                const aliasesGratis = { rdm_fc: 'fc', stickman_chaos: 'stickman', brainbom: 'brain', show_milhao: 'milhao' };
+                const jogoGratis = catalogo[jogoGratisId] ? jogoGratisId : aliasesGratis[jogoGratisId];
+                if (jogoGratis && catalogo[jogoGratis]) {
+                    const jg = catalogo[jogoGratis];
                     freeContainer.innerHTML = `
                         <a href="${jg.link}" class="game-card" style="max-width: 300px; margin: 0 auto; border-color: #facc15;">
                             <img src="${jg.img}" alt="${jg.nome}">
@@ -220,7 +226,7 @@
                             <a href="${jg.link}" class="game-card">
                                 <img src="${jg.img}" alt="${jg.nome}">
                                 <h3>${jg.nome}</h3>
-                                <span style="color: #3b82f6; font-size: 0.9rem;">Acesso VIP Liberado</span>
+                                <span style="color: #3b82f6; font-size: 0.9rem;">Jogo liberado na sua conta</span>
                             </a>
                         `;
                     }
@@ -228,7 +234,7 @@
             }
 
             if (!hasVipGames) {
-                galeriaContainer.innerHTML = `<p style="color: #64748b; font-style: italic; width: 100%; grid-column: 1 / -1; text-align: center;">Sua galeria de jogos VIP está vazia.</p>`;
+                galeriaContainer.innerHTML = `<p style="color: #64748b; font-style: italic; width: 100%; grid-column: 1 / -1; text-align: center;">Sua galeria está vazia. Escolha um jogo gratuito mensal ou consulte os planos.</p>`;
             }
         }
 

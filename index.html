@@ -1,398 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RDM Studio - Home Profissional</title>
+    <meta name="theme-color" content="#080d18">
+    <meta name="description" content="Jogos e experiências interativas para lives no TikTok. Conheça o catálogo, escolha seu plano e transforme o chat em parte da partida.">
+    <meta property="og:title" content="RDM Studio | Jogos interativos para lives">
+    <meta property="og:description" content="Conheça os jogos da RDM Studio e escolha o acesso ideal para suas lives no TikTok.">
+    <meta property="og:type" content="website">
+    <title>RDM Studio | Jogos interativos para lives</title>
+    <link rel="icon" type="image/png" href="imagens/logo.png">
     <link rel="stylesheet" href="style.css">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7445704187291505" crossorigin="anonymous"></script>
-    <style>
-        .btn-planos-hero {
-            margin-top: 25px;
-            background: linear-gradient(45deg, #facc15, #eab308);
-            color: #000;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(250, 204, 21, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-planos-hero:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(250, 204, 21, 0.5);
-        }
-
-        .btn-dicas-hero {
-            margin-top: 25px;
-            margin-left: 15px;
-            background: linear-gradient(45deg, #3b82f6, #2563eb);
-            color: #fff;
-            text-decoration: none;
-            display: inline-block;
-            padding: 15px 35px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .btn-dicas-hero:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-        }
-        @media (max-width: 600px) {
-            .btn-planos-hero, .btn-dicas-hero { margin-left: 0; display: block; width: 90%; max-width: 300px; margin: 15px auto 0 auto; }
-        }
-
-        /* Estilos extras para a janela de planos não quebrarem o layout */
-        .plano-card {
-            background: #0f172a; border: 1px solid #334155; padding: 15px; border-radius: 10px; margin-bottom: 15px;
-        }
-        .plano-card h3 { margin-top: 0; color: #fff; display: flex; justify-content: space-between; align-items: center; }
-        .plano-card ul { margin: 10px 0 0 20px; color: #94a3b8; font-size: 0.95rem; padding-left: 0; }
-        .plano-card li { margin-bottom: 5px; }
-    </style>
 </head>
-<body class="theme-portifolio">
-
-    <div class="user-bar">
-        <div id="user-info" class="user-info-area">
-            <button id="btn-open-login" class="btn-login-header" onclick="toggleLoginModal(true)">🔓 Entrar / Login</button>
-        </div>
-    </div>
-
-    <header style="position: relative; overflow: hidden;">
-        <div class="mosaico-fundo">
-            <img src="imagens/host.png"> <img src="imagens/fc.png"> <img src="imagens/bomba.png"> <img src="imagens/roblox.png">
-            <img src="imagens/X1.jpeg"> <img src="imagens/estope.jpeg"> <img src="imagens/war.png"> <img src="imagens/stickman.png">
-            <img src="imagens/kof.png"> <img src="imagens/snake.png"> <img src="imagens/pro-arena.png"> <img src="imagens/brain.png">
-
-            <img src="imagens/host.png"> <img src="imagens/fc.png"> <img src="imagens/bomba.png"> <img src="imagens/roblox.png">
-            <img src="imagens/X1.jpeg"> <img src="imagens/estope.jpeg"> <img src="imagens/war.png"> <img src="imagens/stickman.png">
-            <img src="imagens/kof.png"> <img src="imagens/snake.png"> <img src="imagens/pro-arena.png"> <img src="imagens/brain.png">
-
-            <img src="imagens/host.png"> <img src="imagens/fc.png"> <img src="imagens/bomba.png"> <img src="imagens/roblox.png">
-            <img src="imagens/X1.jpeg"> <img src="imagens/estope.jpeg"> <img src="imagens/war.png"> <img src="imagens/stickman.png">
-            <img src="imagens/kof.png"> <img src="imagens/snake.png"> <img src="imagens/pro-arena.png"> <img src="imagens/brain.png">
-
-            <img src="imagens/host.png"> <img src="imagens/fc.png"> <img src="imagens/bomba.png"> <img src="imagens/roblox.png">
-            <img src="imagens/X1.jpeg"> <img src="imagens/estope.jpeg"> <img src="imagens/war.png"> <img src="imagens/stickman.png">
-            <img src="imagens/kof.png"> <img src="imagens/snake.png"> <img src="imagens/pro-arena.png"> <img src="imagens/brain.png">
-
-            <img src="imagens/host.png"> <img src="imagens/fc.png"> <img src="imagens/bomba.png"> <img src="imagens/roblox.png">
-            <img src="imagens/X1.jpeg"> <img src="imagens/estope.jpeg"> <img src="imagens/war.png"> <img src="imagens/stickman.png">
-            <img src="imagens/kof.png"> <img src="imagens/snake.png"> <img src="imagens/pro-arena.png"> <img src="imagens/brain.png">
-        </div>
-
-        <div style="position: relative; z-index: 2;">
-            <img src="imagens/logo.png" alt="Logo RDM Studio" class="logo-main">
-            <h1>RDM Studio</h1>
-            <p>Desenvolvendo o futuro do entretenimento digital.</p>
-
-            <button onclick="togglePlanosModal(true)" class="btn-planos-hero">
-                💎 Conhecer Nossos Planos
-            </button>
-
-            <a href="dicas.html" class="btn-dicas-hero">
-                📚 Dicas e Tutoriais
+<body class="theme-portifolio home-page">
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a class="brand" href="index.html" aria-label="RDM Studio — início">
+                <img src="imagens/logo.png" alt="" width="44" height="44">
+                <span><strong>RDM Studio</strong><small>Games para lives</small></span>
             </a>
+            <button class="menu-toggle" id="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+            <nav class="site-nav" id="site-nav" aria-label="Navegação principal">
+                <a href="#jogos">Jogos</a><a href="#planos">Planos</a><a href="dicas.html">Tutoriais</a><a href="#contato">Contato</a>
+            </nav>
+            <div id="user-info" class="user-info-area">
+                <button id="btn-open-login" class="button button-small button-outline" type="button" onclick="toggleLoginModal(true)">Entrar</button>
+            </div>
         </div>
     </header>
+
     <main>
-        <section>
-            <h2>🔥 Destaque</h2>
-            <a href="bomba-bomba.html" class="card-jogo" style="border-color: #ef4444; border-width: 3px;">
-                <img src="imagens/bomba.png" alt="BomBa BomBa" class="img-capa" style="height: 300px;">
-                <div style="padding: 10px;">
-                    <h3>BOMBA BOMBA</h3>
-                    <p>O jogo mais hypado! Caos, explosões e muita ação. Clique para jogar.</p>
-                </div>
+        <section class="hero-section" aria-labelledby="hero-title">
+            <div class="hero-copy">
+                <span class="eyebrow"><span class="eyebrow-dot"></span> RDM STUDIO · JOGOS PARA LIVE</span>
+                <h1 id="hero-title">O chat não assiste.<br><span>Ele joga.</span></h1>
+                <p class="hero-description">Experiências interativas para movimentar suas lives no TikTok. Escolha um jogo, conecte sua comunidade e deixe a partida acontecer.</p>
+                <div class="hero-actions"><a class="button button-primary" href="#jogos">Explorar jogos <span aria-hidden="true">→</span></a><a class="button button-quiet" href="#planos">Ver planos</a></div>
+                <div class="hero-note"><span class="live-indicator"></span> Jogos pensados para jogar junto com o público</div>
+            </div>
+            <a class="hero-feature" href="bomba-bomba.html" data-game-id="bomba_bomba" data-access-id="bomba_bomba" aria-label="Conheça BomBa BomBa">
+                <img src="imagens/bomba.png" alt="Arte do jogo BomBa BomBa" width="760" height="620"><span class="feature-shade"></span><span class="feature-tag">JOGO EM DESTAQUE</span>
+                <span class="feature-caption"><strong>BomBa BomBa</strong><span>Caos, explosões e muita ação.</span></span><span class="feature-arrow" aria-hidden="true">↗</span>
             </a>
         </section>
 
-        <section style="margin-top: 50px;">
-            <h2>🎮 Nosso Portfólio</h2>
-            <div class="grid-jogos">
-                <a href="batalha.html" rel="nofollow" class="card-jogo"><img src="imagens/batalha.jpg" alt="Batalha" class="img-capa"><h3>BATALHA</h3></a>
-                <a href="daaz.html" rel="nofollow" class="card-jogo"><img src="imagens/daaz.png" alt="DAAZ" class="img-capa"><h3>DAAZ</h3></a>
-                <a href="politicos.html" rel="nofollow" class="card-jogo"><img src="imagens/politicos.png" alt="POLITICOS" class="img-capa"><h3>POLITICOS</h3></a>
-                <a href="roblox.html" rel="nofollow" class="card-jogo"><img src="imagens/roblox.png" alt="Roblox" class="img-capa"><h3>Roblox Dance</h3></a>
-                <a href="x1.html" rel="nofollow" class="card-jogo"><img src="imagens/X1.jpeg" alt="Arena X1" class="img-capa"><h3>Arena X1</h3></a>
-                <a href="estope.html" rel="nofollow" class="card-jogo"><img src="imagens/estope.jpeg" alt="ESTOPE" class="img-capa"><h3>ESTOPE</h3></a>
-                <a href="war.html" rel="nofollow" class="card-jogo"><img src="imagens/war.png" alt="War" class="img-capa"><h3>War: Batalha dos Estados Brasileiros</h3></a>
-                <a href="rdm-fc.html" rel="nofollow" class="card-jogo"><img src="imagens/fc.png" alt="RDM FC" class="img-capa"><h3>RDM FC</h3></a>
-                <a href="stickman.html" rel="nofollow" class="card-jogo"><img src="imagens/stickman.png" alt="Stickman" class="img-capa"><h3>Stickman Chaos</h3></a>
-                <a href="kof.html" rel="nofollow" class="card-jogo"><img src="imagens/kof.png" alt="KOF" class="img-capa"><h3>KOF TikTok</h3></a>
-                <a href="painel-host.html" rel="nofollow" class="card-jogo"><img src="imagens/host.png" alt="Host" class="img-capa"><h3>Painel Host + Narrador</h3></a>
-                <a href="snake.html" rel="nofollow" class="card-jogo"><img src="imagens/snake.png" alt="Snake" class="img-capa"><h3>Snake Battle</h3></a>
-                <a href="pro-arena.html" rel="nofollow" class="card-jogo"><img src="imagens/pro-arena.png" alt="Pro Arena" class="img-capa"><h3>PRO Arena</h3></a>
-                <!-- Link do BrainBom sem nofollow, pois já arrumamos o texto dele! -->
-                <a href="brainbom.html" class="card-jogo"><img src="imagens/brain.png" alt="Brain" class="img-capa"><h3>BrainBom & Anagrama</h3></a>
-                <a href="show-milhao.html" rel="nofollow" class="card-jogo"><img src="imagens/milhao.png" alt="Show do Milhão" class="img-capa"><h3>Show do Milhão Live</h3></a>
-            </div>
+        <section class="trust-strip" aria-label="Sobre a RDM Studio">
+            <div><span class="strip-mark">01</span><span>Jogos interativos</span></div><div><span class="strip-mark">02</span><span>Para lives no TikTok</span></div><div><span class="strip-mark">03</span><span>Comece com o plano gratuito</span></div>
         </section>
 
-        <section id="contato" style="margin-top: 60px;">
-            <h2>📞 Fale com a RDM Studio</h2>
-            <div class="contato-grid">
-                <div class="contato-card">
-                    <h3>WhatsApp</h3>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://wa.me/5511997713110" alt="QR Code WhatsApp" class="qr-code">
-                    <p>+55 11 99771-3110</p>
-                    <a href="https://wa.me/5511997713110" target="_blank" class="btn-contato wa">Abrir Conversa</a>
-                </div>
-                <div class="contato-card">
-                    <h3>Telegram</h3>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://t.me/+LfuMOuQzQNI5MTMx" alt="QR Code Telegram" class="qr-code">
-                    <p>Canal Oficial</p>
-                    <a href="https://t.me/+LfuMOuQzQNI5MTMx" target="_blank" class="btn-contato tg">Entrar no Grupo</a>
-                </div>
+        <section class="content-section games-section" id="jogos" aria-labelledby="games-title">
+            <div class="section-heading"><div><span class="eyebrow">CATÁLOGO RDM</span><h2 id="games-title">Escolha sua próxima partida</h2><p>Explore os jogos e encontre o formato certo para a sua live.</p></div>
+                <label class="search-field" for="game-search"><span class="search-icon" aria-hidden="true">⌕</span><input id="game-search" type="search" placeholder="Buscar jogo" autocomplete="off"></label>
             </div>
+            <div class="filter-list" role="group" aria-label="Filtrar jogos por categoria">
+                <button class="filter-button is-active" type="button" data-filter="todos" aria-pressed="true">Todos</button><button class="filter-button" type="button" data-filter="acao" aria-pressed="false">Ação</button><button class="filter-button" type="button" data-filter="estrategia" aria-pressed="false">Estratégia</button><button class="filter-button" type="button" data-filter="desafios" aria-pressed="false">Desafios</button><button class="filter-button" type="button" data-filter="ferramentas" aria-pressed="false">Ferramentas</button>
+            </div>
+            <div class="grid-jogos game-catalog" id="game-catalog">
+                <a href="batalha.html" class="card-jogo" data-category="acao" data-search="batalha inscritos batalha de inscritos" data-game-id="batalha" data-access-id="batalha"><img src="imagens/batalha.jpg" alt="Batalha de inscritos" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>Batalha</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="bomba-bomba.html" class="card-jogo" data-category="acao" data-search="bomba bomba" data-game-id="bomba_bomba" data-access-id="bomba_bomba"><img src="imagens/bomba.png" alt="BomBa BomBa" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>BomBa BomBa</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="daaz.html" class="card-jogo" data-category="desafios" data-search="daaz desafio" data-game-id="daaz" data-access-id="daaz"><img src="imagens/daaz.png" alt="DAAZ" class="img-capa" loading="lazy"><span class="game-category">Desafios</span><h3>DAAZ</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="politicos.html" class="card-jogo" data-category="desafios" data-search="politicos políticos" data-game-id="politicos" data-access-id="politicos"><img src="imagens/politicos.png" alt="Políticos" class="img-capa" loading="lazy"><span class="game-category">Desafios</span><h3>Políticos</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="roblox.html" class="card-jogo" data-category="acao" data-search="roblox dance arena" data-game-id="roblox" data-access-id="roblox"><img src="imagens/roblox.png" alt="Roblox Dance" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>Roblox Dance</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="x1.html" class="card-jogo" data-category="acao" data-search="arena x1 luta" data-game-id="x1" data-access-id="x1"><img src="imagens/X1.jpeg" alt="Arena X1" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>Arena X1</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="estope.html" class="card-jogo" data-category="desafios" data-search="estope pare" data-game-id="estope" data-access-id="estope"><img src="imagens/estope.jpeg" alt="ESTOPE" class="img-capa" loading="lazy"><span class="game-category">Desafios</span><h3>ESTOPE</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="war.html" class="card-jogo" data-category="estrategia" data-search="war batalha estados brasileiros" data-game-id="war" data-access-id="war"><img src="imagens/war.png" alt="War: Batalha dos Estados Brasileiros" class="img-capa" loading="lazy"><span class="game-category">Estratégia</span><h3>War: Batalha dos Estados Brasileiros</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="rdm-fc.html" class="card-jogo" data-category="acao" data-search="rdm fc futebol" data-game-id="rdm_fc" data-access-id="fc"><img src="imagens/fc.png" alt="RDM FC" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>RDM FC</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="stickman.html" class="card-jogo" data-category="acao" data-search="stickman chaos" data-game-id="stickman_chaos" data-access-id="stickman"><img src="imagens/stickman.png" alt="Stickman Chaos" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>Stickman Chaos</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="kof.html" class="card-jogo" data-category="acao" data-search="kof tiktok luta" data-game-id="kof" data-access-id="kof"><img src="imagens/kof.png" alt="KOF TikTok" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>KOF TikTok</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="painel-host.html" class="card-jogo" data-category="ferramentas" data-search="painel host narrador" data-game-id="host" data-access-id="host"><img src="imagens/host.png" alt="Painel Host e Narrador" class="img-capa" loading="lazy"><span class="game-category">Ferramenta</span><h3>Painel Host + Narrador</h3><span class="card-link-label">Ver ferramenta <span aria-hidden="true">↗</span></span></a>
+                <a href="snake.html" class="card-jogo" data-category="acao" data-search="snake battle cobra" data-game-id="snake" data-access-id="snake"><img src="imagens/snake.png" alt="Snake Battle" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>Snake Battle</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="pro-arena.html" class="card-jogo" data-category="acao" data-search="pro arena" data-game-id="pro_arena" data-access-id="pro_arena"><img src="imagens/pro-arena.png" alt="PRO Arena" class="img-capa" loading="lazy"><span class="game-category">Ação</span><h3>PRO Arena</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="brainbom.html" class="card-jogo" data-category="desafios" data-search="brainbom brain bom anagrama" data-game-id="brainbom" data-access-id="brain"><img src="imagens/brain.png" alt="BrainBom e Anagrama" class="img-capa" loading="lazy"><span class="game-category">Desafios</span><h3>BrainBom &amp; Anagrama</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+                <a href="show-milhao.html" class="card-jogo" data-category="desafios" data-search="show do milhao milhão live" data-game-id="show_milhao" data-access-id="milhao"><img src="imagens/milhao.png" alt="Show do Milhão Live" class="img-capa" loading="lazy"><span class="game-category">Desafios</span><h3>Show do Milhão Live</h3><span class="card-link-label">Ver jogo <span aria-hidden="true">↗</span></span></a>
+            </div>
+            <p class="empty-state" id="empty-games" hidden>Nenhum jogo encontrado com esse filtro.</p>
         </section>
+
+        <section class="plans-section" id="planos" aria-labelledby="plans-title">
+            <div class="section-heading plans-heading"><div><span class="eyebrow">PLANOS RDM STUDIO</span><h2 id="plans-title">Acesso no seu ritmo</h2><p>Comece grátis ou libere todos os jogos pelo período que preferir.</p></div></div>
+            <div class="pricing-grid">
+                <article class="plan-card plan-free"><div class="plan-topline"><span class="plan-mark">01</span><span class="plan-label">Para começar</span></div><h3>Gratuito</h3><p class="plan-summary">Conheça o catálogo sem pagar.</p><div class="plan-price"><strong>R$ 0</strong><span>sempre</span></div><ul class="plan-features"><li>Escolha <strong>1 jogo do catálogo por mês</strong>.</li><li>Até <strong>2 horas de gameplay por dia</strong>, com renovação a cada 24 horas.</li><li>Sem acesso ao Painel Host/Narrador.</li></ul><button class="button button-outline plan-cta" type="button" onclick="toggleLoginModal(true)">Criar conta gratuita</button></article>
+                <article class="plan-card plan-paid"><div class="plan-topline"><span class="plan-mark">02</span><span class="plan-label">Acesso completo</span></div><h3>15 dias</h3><p class="plan-summary">Todos os jogos liberados por duas semanas.</p><div class="plan-price"><strong>R$ 40</strong><span>por 15 dias</span></div><ul class="plan-features"><li><strong>Todos os jogos do site</strong> liberados.</li><li>Painel Host + Narrador liberado durante a validade.</li><li>Acesso completo durante <strong>15 dias</strong>.</li><li>Sem limite diário de gameplay durante a validade.</li></ul><a class="button button-primary plan-cta" href="https://wa.me/5511997713110?text=Ol%C3%A1%2C%20quero%20contratar%20o%20acesso%20a%20todos%20os%20jogos%20por%2015%20dias%20(R%24%2040)." target="_blank" rel="noopener noreferrer">Falar sobre o plano</a></article>
+                <article class="plan-card plan-paid plan-featured"><div class="plan-topline"><span class="plan-mark">03</span><span class="plan-label">Acesso completo</span></div><h3>30 dias</h3><p class="plan-summary">Todo o catálogo liberado por um mês.</p><div class="plan-price"><strong>R$ 70</strong><span>por 30 dias</span></div><ul class="plan-features"><li><strong>Todos os jogos do site</strong> liberados.</li><li>Painel Host + Narrador liberado durante a validade.</li><li>Acesso completo durante <strong>30 dias</strong>.</li><li>Sem limite diário de gameplay durante a validade.</li></ul><a class="button button-primary plan-cta" href="https://wa.me/5511997713110?text=Ol%C3%A1%2C%20quero%20contratar%20o%20acesso%20a%20todos%20os%20jogos%20por%2030%20dias%20(R%24%2070)." target="_blank" rel="noopener noreferrer">Falar sobre o plano</a></article>
+            </div>
+            <p class="plans-note">Para contratar ou ativar um acesso pago, fale com a equipe pelo WhatsApp.</p>
+        </section>
+
+        <section class="contact-section" id="contato" aria-labelledby="contact-title"><div class="contact-copy"><span class="eyebrow">ESTAMOS POR AQUI</span><h2 id="contact-title">Vamos conversar?</h2><p>Fale com a equipe para tirar dúvidas sobre os jogos, os planos ou sua conta.</p></div><div class="contact-actions"><a class="button button-primary" href="https://wa.me/5511997713110" target="_blank" rel="noopener noreferrer">WhatsApp <span aria-hidden="true">↗</span></a><a class="button button-outline" href="https://t.me/+LfuMOuQzQNI5MTMx" target="_blank" rel="noopener noreferrer">Comunidade no Telegram <span aria-hidden="true">↗</span></a></div></section>
     </main>
 
-    <div id="login-modal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-modal" onclick="toggleLoginModal(false)">&times;</span>
-            <h2 style="border: none; text-align: center; padding: 0; margin-bottom: 20px;">Área do Jogador</h2>
-            <form id="login-form" onsubmit="handleLogin(event)">
-                <div class="input-group">
-                    <label for="login-email">Usuário do TikTok</label>
-                    <input type="text" id="login-email" required placeholder="@seu_usuario">
-                </div>
-                <div class="input-group">
-                    <label for="login-password">Chave de Acesso</label>
-                    <input type="text" id="login-password" placeholder="Digite sua chave para entrar">
-                </div>
-                <button type="submit" class="btn-submit-login">Entrar no Site</button>
+    <footer class="site-footer"><a class="footer-brand" href="index.html"><img src="imagens/logo.png" alt="" width="36" height="36"><strong>RDM Studio</strong></a><nav class="footer-links" aria-label="Links institucionais"><a href="dicas.html">Dicas e tutoriais</a><a href="politica-de-privacidade.html">Privacidade</a><a href="termos-de-uso.html">Termos de uso</a><a href="contato.html">Contato</a></nav><p>© 2026 RDM Studio. Desenvolvendo o futuro do entretenimento digital.</p></footer>
 
-                <button type="button" onclick="handleCadastro()" style="width: 100%; padding: 12px; background-color: #1e293b; color: #94a3b8; border: 1px solid #334155; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; transition: 0.3s;">
-                    ✨ Criar Nova Conta Gratuita
-                </button>
-                <p id="login-error" class="error-msg" style="line-height: 1.4;"></p>
-            </form>
-        </div>
-    </div>
-
-    <div id="planos-modal" class="modal-overlay" style="z-index: 1500;">
-        <div class="modal-content" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
-            <span class="close-modal" onclick="togglePlanosModal(false)">&times;</span>
-            <h2 style="border: none; text-align: center; padding: 0; margin-bottom: 10px; color: var(--destaque);">Assinaturas RDM Studio</h2>
-            <p style="text-align: center; color: #94a3b8; margin-bottom: 25px;">Escolha o plano ideal para alavancar suas lives no TikTok!</p>
-
-            <div class="plano-card">
-                <h3 style="color: #94a3b8;">🎮 Gratuito <span style="font-size: 0.9rem; background: #334155; padding: 3px 8px; border-radius: 5px;">Conta Padrão</span></h3>
-                <ul>
-                    <li>Escolha <strong>1 jogo</strong> do catálogo por mês.</li>
-                    <li>Limite de <strong>2 horas de gameplay</strong> por dia (reseta a cada 24h).</li>
-                    <li>Sem acesso ao Painel Host/Narrador.</li>
-                </ul>
-            </div>
-
-            <div class="plano-card" style="border-color: #3b82f6;">
-                <h3 style="color: #3b82f6;">⭐ PLUS</h3>
-                <ul>
-                    <li>Direito ao jogo gratuito mensal (com regras padrão).</li>
-                    <li><strong>+ 1 Jogo da sua escolha</strong> 100% liberado, sem limite de tempo, enquanto durar sua assinatura.</li>
-                </ul>
-                <details style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 10px;">
-                    <summary style="color: #3b82f6; cursor: pointer; font-weight: bold; outline: none; padding: 5px 0;">💰 Ver Valores e Combos</summary>
-                    <div style="margin-top: 10px; display: grid; gap: 8px; font-size: 0.95rem; color: #e2e8f0;">
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px;"><span>1 Mês</span> <strong>R$ 50,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #eab308;"><span>3 Meses (10% OFF)</span> <strong>R$ 135,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #22c55e;"><span>6 Meses (15% OFF)</span> <strong>R$ 255,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #a855f7;"><span>1 Ano (2 Meses Grátis)</span> <strong>R$ 480,00</strong></div>
-                    </div>
-                </details>
-            </div>
-
-            <div class="plano-card" style="border-color: #06b6d4;">
-                <h3 style="color: #06b6d4;">🌟 PLUS PREMIUM</h3>
-                <ul>
-                    <li>Direito ao jogo gratuito mensal.</li>
-                    <li><strong>+ 2 Jogos da sua escolha</strong> 100% liberados sem limite de tempo.</li>
-                    <li><strong>Painel Host/Narrador</strong> incluso com franquia de <strong>42 horas</strong> de uso.</li>
-                </ul>
-                <details style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 10px;">
-                    <summary style="color: #06b6d4; cursor: pointer; font-weight: bold; outline: none; padding: 5px 0;">💰 Ver Valores e Combos</summary>
-                    <div style="margin-top: 10px; display: grid; gap: 8px; font-size: 0.95rem; color: #e2e8f0;">
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px;"><span>1 Mês</span> <strong>R$ 100,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #eab308;"><span>3 Meses (10% OFF)</span> <strong>R$ 270,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #22c55e;"><span>6 Meses (15% OFF)</span> <strong>R$ 510,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #a855f7;"><span>1 Ano (2 Meses Grátis)</span> <strong>R$ 960,00</strong></div>
-                    </div>
-                </details>
-            </div>
-
-            <div class="plano-card" style="border-color: #a855f7;">
-                <h3 style="color: #a855f7;">👑 PRO</h3>
-                <ul>
-                    <li>O Pacote Absoluto e definitivo!</li>
-                    <li>Acesso liberado a <strong>TODOS os jogos</strong> do site sem nenhuma restrição.</li>
-                    <li>Uso ilimitado do Painel Host/Narrador.</li>
-                    <li>Integrações WebSocket de alta performance sem anúncios.</li>
-                </ul>
-                <details style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 10px;">
-                    <summary style="color: #a855f7; cursor: pointer; font-weight: bold; outline: none; padding: 5px 0;">💰 Ver Valores e Combos</summary>
-                    <div style="margin-top: 10px; display: grid; gap: 8px; font-size: 0.95rem; color: #e2e8f0;">
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px;"><span>1 Mês</span> <strong>R$ 200,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #eab308;"><span>3 Meses (10% OFF)</span> <strong>R$ 540,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #22c55e;"><span>6 Meses (15% OFF)</span> <strong>R$ 1.020,00</strong></div>
-                        <div style="display: flex; justify-content: space-between; background: #0b1120; padding: 10px; border-radius: 5px; border-left: 3px solid #a855f7;"><span>1 Ano (2 Meses Grátis)</span> <strong>R$ 1.920,00</strong></div>
-                    </div>
-                </details>
-            </div>
-
-            <div style="text-align: center; margin-top: 25px;">
-                <a href="https://wa.me/5511997713110" target="_blank" style="display: inline-block; background: #22c55e; color: #000; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);">
-                    📞 Chamar ADM no WhatsApp
-                </a>
-                <p style="font-size: 0.85rem; color: #64748b; margin-top: 10px;">Clique acima para escolher seu plano e ativar sua licença.</p>
-            </div>
-        </div>
-    </div>
-
-    <footer style="text-align: center; margin-top: 50px; padding: 30px 20px; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.9rem;">
-        <div style="margin-bottom: 15px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-            <a href="dicas.html" style="color: #facc15; text-decoration: none; font-weight: bold; transition: 0.2s;">📚 Dicas e Tutoriais</a>
-            <a href="politica-de-privacidade.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Política de Privacidade</a>
-            <a href="termos-de-uso.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Termos de Uso</a>
-            <a href="contato.html" style="color: #3b82f6; text-decoration: none; font-weight: bold; transition: 0.2s;">Contato</a>
-        </div>
-        <p>&copy; 2026 RDM Studio. Desenvolvendo o futuro do entretenimento digital.</p>
-    </footer>
+    <div id="login-modal" class="modal-overlay" aria-hidden="true"><section class="modal-content login-modal" role="dialog" aria-modal="true" aria-labelledby="login-title"><button class="close-modal" type="button" onclick="toggleLoginModal(false)" aria-label="Fechar">×</button><span class="eyebrow">ÁREA DO JOGADOR</span><h2 id="login-title">Entre na sua conta</h2><p class="modal-intro">Use seu usuário do TikTok e sua chave de acesso.</p><form id="login-form" onsubmit="handleLogin(event)"><div class="input-group"><label for="login-email">Usuário do TikTok</label><input type="text" id="login-email" required placeholder="@seu_usuario" autocomplete="username"></div><div class="input-group"><label for="login-password">Chave de acesso</label><input type="text" id="login-password" required placeholder="Digite sua chave" autocomplete="current-password"></div><button type="submit" class="button button-primary form-submit">Entrar</button><button type="button" class="button button-outline form-submit" onclick="handleCadastro()">Criar conta gratuita</button><p id="login-error" class="error-msg" role="status" aria-live="polite"></p></form></section></div>
 
     <script type="module" src="auth.js"></script>
-    <script>
-
-        // ☁️ Despertador da API: Acorda a Torre de Controle em segundo plano
-    function acordarNuvem() {
-        console.log("Tentando acordar a Torre de Controle...");
-        fetch('https://torre-de-controle-rdm.onrender.com', {
-            method: 'GET',
-            mode: 'no-cors' // Impede erros de CORS no navegador, queremos apenas bater na porta
-        }).then(() => {
-            console.log("Ping enviado para a Nuvem com sucesso!");
-        }).catch((err) => {
-            console.log("Ping enviado (ignorando erro de bloqueio visual).");
-        });
-    }
-
-    // Chama o despertador assim que a página de login/painel carregar
-    window.addEventListener('load', acordarNuvem);
-        function toggleLoginModal(show) {
-            document.getElementById('login-modal').style.display = show ? 'flex' : 'none';
-            if(!show) document.getElementById('login-error').innerText = '';
-        }
-
-        // Função para abrir e fechar a nova janela de Planos
-        function togglePlanosModal(show) {
-            document.getElementById('planos-modal').style.display = show ? 'flex' : 'none';
-        }
-    </script>
-
-<!-- 📡 SCRIPT KEEP-ALIVE: MANTÉM A TORRE DE CONTROLE ACORDADA -->
-    <script>
-        let torreAwakeSocket = null;
-
-        function despertarTorreDeControle() {
-            // Se já estiver conectado e funcionando perfeitamente, não faz nada (evita congestionamento)
-            if (torreAwakeSocket && torreAwakeSocket.readyState === WebSocket.OPEN) {
-                console.log("📡 [Keep-Alive] A Torre de Controle já está online e operante.");
-                return;
-            }
-
-            // Se estiver no meio de uma tentativa de conexão, aguarda e não manda outra requisição
-            if (torreAwakeSocket && torreAwakeSocket.readyState === WebSocket.CONNECTING) {
-                return;
-            }
-
-            console.log("🔄 [Keep-Alive] Enviando pulso para despertar a Torre de Controle...");
-
-            try {
-                torreAwakeSocket = new WebSocket("wss://torre-de-controle-rdm.onrender.com:443/");
-
-                torreAwakeSocket.onopen = () => {
-                    console.log("✅ [Keep-Alive] Torre de Controle despertada com sucesso!");
-                    // Envia um ping inofensivo apenas para registrar atividade no servidor
-                    torreAwakeSocket.send(JSON.stringify({ action: "ping", origin: "website_visitor" }));
-                };
-
-                torreAwakeSocket.onerror = (error) => {
-                    console.log("⚠️ [Keep-Alive] Torre de Controle dormindo ou indisponível no momento.");
-                };
-
-                torreAwakeSocket.onclose = () => {
-                    torreAwakeSocket = null;
-                };
-            } catch (e) {
-                console.error("Erro no Keep-Alive:", e);
-            }
-        }
-
-        // 1. Dispara o pulso imediatamente assim que qualquer pessoa entra no site
-        despertarTorreDeControle();
-
-        // 2. Aciona o verificador a cada 2 minutos (120.000 ms) para garantir que ela não durma
-        setInterval(despertarTorreDeControle, 120000);
-    </script>
-
-    <script>
-        // Função para deslogar da conta
-        window.fazerLogout = function() {
-            localStorage.removeItem("rdm_user");
-            localStorage.removeItem("rdm_perfil");
-            window.location.reload(); // Recarrega a página para voltar ao estado deslogado
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const userLogado = localStorage.getItem("rdm_user");
-            const perfilLogado = localStorage.getItem("rdm_perfil");
-
-            if (userLogado) {
-                const userInfoArea = document.getElementById("user-info");
-
-                // O botão padrão de perfil
-                let botoesHTML = `
-                    <a href="perfil.html" style="background: #22c55e; color: black; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(34, 197, 94, 0.4); margin-right: 10px;">
-                        👤 Meu Perfil (@${userLogado})
-                    </a>
-                `;
-
-                // SE FOR ADM: Adiciona o botão da Central
-                if (perfilLogado === "adm") {
-                    botoesHTML += `
-                        <a href="painel-adm.html" style="background: #facc15; color: black; font-weight: bold; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-block; box-shadow: 0 4px 10px rgba(250, 204, 21, 0.4); margin-right: 10px;">
-                            👑 Painel ADM
-                        </a>
-                    `;
-                }
-
-                // BOTÃO DE SAIR DA CONTA
-                botoesHTML += `
-                    <button onclick="fazerLogout()" style="background: #ef4444; color: white; font-weight: bold; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);">
-                        🚪 Sair
-                    </button>
-                `;
-
-                userInfoArea.innerHTML = botoesHTML;
-            }
-        });
-    </script>
-
-    <script>
-        // CÓDIGO CAÇA-FANTASMA: Deleta o Service Worker velho do Bolão que ficou preso no domínio
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                    console.log("Fantasma do cache destruído!");
-                }
-            });
-        }
-    </script>
+    <script src="site.js" defer></script>
 </body>
 </html>

@@ -50,9 +50,11 @@
                 <select id="filter-plan" style="flex: 1; padding: 12px; border-radius: 8px; background: #0f172a; color: white; border: 1px solid #334155; font-size: 1rem; outline: none;" onchange="filtrarTabela()">
                     <option value="todos">Todos os Planos</option>
                     <option value="gratuito">Gratuito</option>
+                    <option value="acesso_15_dias">Todos os jogos · 15 dias</option>
+                    <option value="acesso_30_dias">Todos os jogos · 30 dias</option>
                     <option value="plus">Plus</option>
                     <option value="plus premium">Plus Premium</option>
-                    <option value="pro">Pro</option>
+                    <option value="pro">Pro (legado)</option>
                     <option value="adm">ADM</option>
                 </select>
             </div>
@@ -149,6 +151,7 @@
 
         // CATÁLOGO ATUALIZADO COM IMAGENS PARA O RAIO-X
         const catalogoDeJogos = [
+            { id: "batalha", nome: "⚔️ Batalha", img: "imagens/batalha.jpg" },
             { id: "bomba_bomba", nome: "🔥 BomBa BomBa", img: "imagens/bomba.png" },
             { id: "daaz", nome: "🎲 DAAZ", img: "imagens/daaz.png" },
             { id: "politicos", nome: "👔 POLITICOS", img: "imagens/politicos.png" },
@@ -184,7 +187,8 @@
                         if (user.expiracao && Date.now() > user.expiracao && user.perfil !== 'gratuito' && user.perfil !== 'adm') {
                             user.perfil = 'gratuito';
                             user.expiracao = null;
-                            update(ref(database, 'usuarios/' + key), { perfil: 'gratuito', expiracao: null });
+                            user.pacote_comercial = null;
+                            update(ref(database, 'usuarios/' + key), { perfil: 'gratuito', expiracao: null, pacote_comercial: null });
                         }
 
                         // LÓGICA DE ONLINE/OFFLINE
@@ -206,31 +210,39 @@
                             }
                         }
 
+                        const pacoteComercial = user.perfil === 'pro' ? user.pacote_comercial : null;
+                        const planoAtual = pacoteComercial || user.perfil;
+                        const nomePlano = pacoteComercial === 'acesso_15_dias' ? 'Acesso total · 15 dias' : pacoteComercial === 'acesso_30_dias' ? 'Acesso total · 30 dias' : user.perfil === 'pro' ? 'Pro (legado)' : user.perfil;
                         const selectPerfil = `
-                            <select id="perfil-${key}" style="padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155; font-weight: bold;">
-                                <option value="gratuito" ${user.perfil === 'gratuito' ? 'selected' : ''}>Gratuito</option>
-                                <option value="plus" ${user.perfil === 'plus' ? 'selected' : ''}>Plus</option>
-                                <option value="plus premium" ${user.perfil === 'plus premium' ? 'selected' : ''}>Plus Premium</option>
-                                <option value="pro" ${user.perfil === 'pro' ? 'selected' : ''}>Pro</option>
+                            <select id="perfil-${key}" onchange="atualizarDuracao('${key}')" style="padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155; font-weight: bold;">
+                                <option value="gratuito" ${planoAtual === 'gratuito' ? 'selected' : ''}>Gratuito</option>
+                                <option value="acesso_15_dias" ${planoAtual === 'acesso_15_dias' ? 'selected' : ''}>Todos os jogos · 15 dias</option>
+                                <option value="acesso_30_dias" ${planoAtual === 'acesso_30_dias' ? 'selected' : ''}>Todos os jogos · 30 dias</option>
+                                <option value="plus" ${user.perfil === 'plus' ? 'selected' : ''}>Plus (legado)</option>
+                                <option value="plus premium" ${user.perfil === 'plus premium' ? 'selected' : ''}>Plus Premium (legado)</option>
+                                <option value="pro" ${user.perfil === 'pro' && !pacoteComercial ? 'selected' : ''}>Pro (legado)</option>
                                 <option value="adm" ${user.perfil === 'adm' ? 'selected' : ''}>ADM</option>
                             </select>
                         `;
 
                         tabela.innerHTML += `
-                            <tr class="user-row" data-user="${user.usuario}" data-plan="${user.perfil}" style="border-bottom: 1px solid #334155;">
+                            <tr class="user-row" data-user="${user.usuario}" data-plan="${planoAtual}" style="border-bottom: 1px solid #334155;">
                                 <td style="padding: 15px; font-weight: bold; color: #38bdf8; font-size: 1.1rem;">
                                     <!-- AQUI PASSA O USER.USUARIO ORIGINAL PARA PEGAR A FOTO CERTA -->
                                     <a href="#" onclick="abrirRaioX('${key}', '${user.usuario}')" style="text-decoration: none; color: #38bdf8; transition: 0.2s;" onmouseover="this.style.color='#facc15'" onmouseout="this.style.color='#38bdf8'">
                                         ${statusDot} @${user.usuario}
                                     </a><br>
                                     <span style="font-size:0.8rem; color:#94a3b8; font-weight:normal;">Senha: ${user.chave}</span><br>
+                                    <span style="font-size:0.78rem; color:#cbd5e1; font-weight:normal;">${nomePlano}</span><br>
                                     <span style="font-size:0.85rem; font-weight:normal;">${vencimento}</span>
                                 </td>
                                 <td style="padding: 15px;">
-                                    <div style="display: flex; gap: 10px; align-items: center;">
+                                    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
                                         ${selectPerfil}
-                                        <input type="number" id="meses-${key}" value="1" min="1" style="width: 70px; padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;">
-                                        <span style="color:#94a3b8; font-size: 0.9rem;">Mes(es)</span>
+                                        <div id="duracao-box-${key}" style="display: ${['plus', 'plus premium', 'pro'].includes(planoAtual) ? 'flex' : 'none'}; gap: 8px; align-items: center;">
+                                            <input type="number" id="meses-${key}" value="1" min="1" style="width: 70px; padding: 8px; border-radius: 5px; background: #0f172a; color: white; border: 1px solid #334155;">
+                                            <span style="color:#94a3b8; font-size: 0.9rem;">meses (legado)</span>
+                                        </div>
                                     </div>
                                 </td>
                                 <td style="padding: 15px;">
@@ -267,28 +279,44 @@
             });
         };
 
+        window.atualizarDuracao = function(userId) {
+            const perfilSelecionado = document.getElementById(`perfil-${userId}`).value;
+            const duracaoBox = document.getElementById(`duracao-box-${userId}`);
+            const ehPlanoLegadoPago = ['plus', 'plus premium', 'pro'].includes(perfilSelecionado);
+            duracaoBox.style.display = ehPlanoLegadoPago ? 'flex' : 'none';
+        };
+
         window.salvarAlteracao = async function(userId) {
-            const novoPerfil = document.getElementById(`perfil-${userId}`).value;
+            const selecao = document.getElementById(`perfil-${userId}`).value;
             const meses = parseInt(document.getElementById(`meses-${userId}`).value) || 1;
             const userRef = ref(database, 'usuarios/' + userId);
+            const snapUser = await get(userRef);
+            const userAtual = snapUser.exists() ? snapUser.val() : {};
+            const expiracaoAtual = Number(userAtual.expiracao) || 0;
+            const agora = Date.now();
+            let dadosAtualizados;
 
-            let dadosAtualizados = { perfil: novoPerfil };
-
-            if (novoPerfil === 'plus' || novoPerfil === 'plus premium' || novoPerfil === 'pro') {
-                const snapUser = await get(userRef);
-                let expiracaoAtual = snapUser.exists() ? snapUser.val().expiracao : null;
-                let dataBase = new Date();
-                if (expiracaoAtual && expiracaoAtual > Date.now()) { dataBase = new Date(expiracaoAtual); }
-                dataBase.setMonth(dataBase.getMonth() + meses);
-                dadosAtualizados.expiracao = dataBase.getTime();
-            } else { dadosAtualizados.expiracao = null; }
+            if (selecao === 'acesso_15_dias' || selecao === 'acesso_30_dias') {
+                const dias = selecao === 'acesso_15_dias' ? 15 : 30;
+                const inicio = expiracaoAtual > agora ? expiracaoAtual : agora;
+                dadosAtualizados = { perfil: 'pro', pacote_comercial: selecao, expiracao: inicio + dias * 24 * 60 * 60 * 1000 };
+            } else if (['plus', 'plus premium', 'pro'].includes(selecao)) {
+                const inicio = expiracaoAtual > agora ? new Date(expiracaoAtual) : new Date(agora);
+                inicio.setMonth(inicio.getMonth() + meses);
+                dadosAtualizados = { perfil: selecao, pacote_comercial: null, expiracao: inicio.getTime() };
+            } else {
+                dadosAtualizados = { perfil: selecao, pacote_comercial: null, expiracao: null };
+            }
 
             try {
                 await update(userRef, dadosAtualizados);
-                alert(`Licença atualizada!`);
+                alert('Licença atualizada com sucesso.');
                 carregarUsuarios();
-                if (novoPerfil === 'plus' || novoPerfil === 'plus premium') { abrirModalJogos(userId, novoPerfil); }
-            } catch (error) { alert("Erro ao salvar."); }
+                if (selecao === 'plus' || selecao === 'plus premium') abrirModalJogos(userId, selecao);
+            } catch (error) {
+                console.error(error);
+                alert('Não foi possível salvar a licença. Tente novamente.');
+            }
         };
 
         window.trocarSenha = async function(userId) {
@@ -393,7 +421,8 @@
             const badge = document.getElementById('rx-badge');
             const classPlano = data.perfil.replace(' ', '-');
             badge.className = `badge-plano badge-${classPlano}`;
-            badge.innerText = `Plano ${data.perfil}`;
+            const nomePlanoAtual = data.perfil === 'pro' && data.pacote_comercial === 'acesso_15_dias' ? 'Acesso total · 15 dias' : data.perfil === 'pro' && data.pacote_comercial === 'acesso_30_dias' ? 'Acesso total · 30 dias' : data.perfil;
+            badge.innerText = `Plano ${nomePlanoAtual}`;
 
             const expText = document.getElementById('rx-expiracao');
             if (data.expiracao) {
