@@ -1,0 +1,378 @@
+/* Camada de layout para páginas internas da RDM Studio.
+   Usa a identidade existente de style.css sem tocar nos motores dos jogos. */
+:root {
+  --rdm-bg: #080d18;
+  --rdm-surface: #111a2a;
+  --rdm-surface-raised: #162338;
+  --rdm-text: #f4f7fb;
+  --rdm-muted: #a1afc2;
+  --rdm-accent: #55d6ff;
+  --rdm-accent-soft: rgba(85, 214, 255, .12);
+  --rdm-line: rgba(174, 199, 225, .14);
+  --rdm-shadow: 0 24px 70px rgba(0, 0, 0, .3);
+}
+
+body:not(.home-page) {
+  min-height: 100vh;
+  color: var(--rdm-text);
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(27, 102, 145, .12), transparent 42%),
+    var(--rdm-bg);
+}
+
+body:not(.home-page) > header {
+  position: sticky !important;
+  top: 0;
+  z-index: 50;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px clamp(16px, 4vw, 48px) !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--rdm-line) !important;
+  background: rgba(8, 13, 24, .88) !important;
+  backdrop-filter: blur(16px);
+}
+
+body:not(.home-page) > header img {
+  width: 42px;
+  height: 42px;
+  max-width: 42px;
+  object-fit: contain;
+}
+
+body:not(.home-page) > main {
+  width: min(1120px, calc(100% - 40px)) !important;
+  max-width: 1120px !important;
+  margin: clamp(24px, 4vw, 54px) auto !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+
+body:not(.home-page) > main > img:first-child {
+  display: block;
+  width: min(190px, 48vw);
+  max-height: 180px;
+  margin: 10px 0 24px !important;
+  object-fit: contain;
+  border-radius: 18px;
+  box-shadow: 0 16px 46px rgba(0, 0, 0, .28);
+}
+
+body:not(.home-page) > main > h1 {
+  margin: 0 0 28px !important;
+  color: var(--rdm-text) !important;
+  font-size: clamp(2rem, 5vw, 3.6rem) !important;
+  line-height: 1.06;
+}
+
+body:not(.home-page) > main > section {
+  margin: 0 0 20px !important;
+  padding: clamp(18px, 3vw, 32px) !important;
+  border: 1px solid var(--rdm-line) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(150deg, rgba(20, 32, 50, .96), rgba(13, 22, 36, .94)) !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, .14);
+}
+
+body:not(.home-page) > main > section h2 {
+  margin: 0 0 16px !important;
+  padding: 0 0 0 13px !important;
+  border: 0 !important;
+  border-left: 3px solid var(--rdm-accent) !important;
+  color: var(--rdm-text) !important;
+  font-size: clamp(1.08rem, 2.4vw, 1.42rem) !important;
+}
+
+body:not(.home-page) > main > section h3 {
+  color: #dce8f3 !important;
+  font-size: clamp(1rem, 2vw, 1.16rem);
+}
+
+body:not(.home-page) > main > section p,
+body:not(.home-page) > main > section li {
+  color: var(--rdm-muted);
+  line-height: 1.75;
+}
+
+body:not(.home-page) > main > section strong { color: #eef5fb; }
+body:not(.home-page) iframe,
+body:not(.home-page) video {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto !important;
+  border: 0;
+}
+
+body:not(.home-page) > main > section:has(iframe) > div,
+body:not(.home-page) > main > section > div:has(iframe) {
+  height: auto !important;
+  overflow: hidden;
+  border: 1px solid var(--rdm-line) !important;
+  border-radius: 14px !important;
+  background: #05080e !important;
+}
+
+body:not(.home-page) #game-access-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px auto !important;
+  padding: 18px;
+  border: 1px solid var(--rdm-line);
+  border-radius: 16px;
+  background: rgba(17, 26, 42, .74);
+}
+
+body:not(.home-page) #game-access-area .btn-download,
+body:not(.home-page) #game-access-area a {
+  min-width: min(220px, 100%);
+  min-height: 46px;
+  border-radius: 11px;
+}
+
+body:not(.home-page) > footer {
+  margin-top: 46px !important;
+  padding: 22px 20px !important;
+  border-top: 1px solid var(--rdm-line);
+  color: var(--rdm-muted) !important;
+  text-align: center;
+}
+
+body:not(.home-page) .btn-voltar,
+body:not(.home-page) .btn-download,
+body:not(.home-page) .btn-contato,
+body:not(.home-page) .btn-upgrade {
+  min-height: 44px;
+  border-radius: 10px;
+  transition: transform .18s ease, filter .18s ease, border-color .18s ease;
+}
+body:not(.home-page) .btn-voltar:hover,
+body:not(.home-page) .btn-download:hover,
+body:not(.home-page) .btn-contato:hover,
+body:not(.home-page) .btn-upgrade:hover { transform: translateY(-2px); }
+
+/* Perfil do jogador */
+#profile-page > header {
+  position: sticky !important;
+  width: 100% !important;
+  padding: 12px max(20px, calc((100% - 1120px) / 2)) !important;
+}
+#profile-page .profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: clamp(28px, 5vw, 54px) 20px 34px !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--rdm-line) !important;
+  border-radius: 0 !important;
+  background: radial-gradient(ellipse at 50% 0%, rgba(85, 214, 255, .11), transparent 64%), rgba(17, 26, 42, .48) !important;
+  box-shadow: none !important;
+}
+#profile-page .avatar-img {
+  width: clamp(88px, 15vw, 132px);
+  height: clamp(88px, 15vw, 132px);
+  margin-bottom: 8px;
+  border: 3px solid var(--rdm-accent) !important;
+  box-shadow: 0 0 28px rgba(85, 214, 255, .18) !important;
+}
+#profile-page .profile-header h1 {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.6rem, 5vw, 2.6rem) !important;
+}
+#profile-page .badge-plano {
+  padding: 7px 13px;
+  border: 1px solid rgba(85, 214, 255, .3);
+  border-radius: 999px;
+  background: var(--rdm-accent-soft);
+  color: #b8efff !important;
+  font-size: .78rem;
+}
+#profile-page > main {
+  width: min(1040px, calc(100% - 36px)) !important;
+  margin: 34px auto !important;
+  padding: 0 !important;
+}
+#profile-page .section-title {
+  margin: 34px 0 18px !important;
+  padding: 0 0 10px 12px;
+  border: 0 !important;
+  border-bottom: 1px solid var(--rdm-line) !important;
+  border-left: 3px solid var(--rdm-accent) !important;
+  color: var(--rdm-text) !important;
+  font-size: clamp(1.18rem, 3vw, 1.65rem);
+}
+#profile-page .game-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 205px), 1fr));
+  gap: 14px;
+}
+#profile-page .game-card {
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--rdm-line) !important;
+  border-radius: 15px !important;
+  background: linear-gradient(145deg, rgba(20, 34, 54, .98), rgba(14, 24, 40, .98)) !important;
+  color: var(--rdm-text) !important;
+}
+#profile-page .game-card:hover { border-color: rgba(85, 214, 255, .5) !important; }
+#profile-page .game-card img { height: 138px; border-radius: 10px; object-fit: cover; }
+#profile-page .free-game-box {
+  border: 1px dashed rgba(85, 214, 255, .52) !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg, rgba(18, 44, 62, .58), rgba(14, 24, 40, .94)) !important;
+}
+#profile-page #upgrade-container {
+  margin: 40px 0 0 !important;
+  padding: clamp(20px, 4vw, 34px);
+  border: 1px solid var(--rdm-line);
+  border-radius: 18px;
+  background: var(--rdm-surface);
+}
+#profile-page > footer { margin-top: 48px !important; }
+
+/* Painel administrativo: mantém tabela e modais existentes, com leitura responsiva. */
+#adm-page {
+  --bg-color: #080d18 !important;
+  --card-bg: #111a2a !important;
+  --destaque: #55d6ff !important;
+  --hover-destaque: #22b9e8 !important;
+}
+#adm-page > header {
+  position: sticky !important;
+  padding: 12px max(18px, calc((100% - 1240px) / 2)) !important;
+  border-bottom: 1px solid var(--rdm-line) !important;
+}
+#adm-page > header h1 {
+  color: var(--rdm-text) !important;
+  font-size: clamp(1rem, 2.8vw, 1.55rem) !important;
+  letter-spacing: -.03em;
+}
+#adm-page #adm-logged-info { color: var(--rdm-muted) !important; font-size: .84rem; }
+#adm-page > main {
+  width: min(1240px, calc(100% - 36px)) !important;
+  max-width: 1240px !important;
+  margin: 30px auto !important;
+  padding: 0 !important;
+  text-align: left !important;
+}
+#adm-page > main > div {
+  padding: clamp(16px, 2.6vw, 30px) !important;
+  border: 1px solid var(--rdm-line) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(150deg, rgba(20, 32, 50, .96), rgba(13, 22, 36, .96)) !important;
+  box-shadow: var(--rdm-shadow);
+}
+#adm-page > main h2 {
+  margin: 0 0 18px !important;
+  color: var(--rdm-text) !important;
+  font-size: clamp(1.15rem, 2.6vw, 1.55rem) !important;
+}
+#adm-page #search-user,
+#adm-page #filter-plan {
+  min-width: 0;
+  min-height: 46px;
+  border: 1px solid var(--rdm-line) !important;
+  border-radius: 10px !important;
+  background: #0b1320 !important;
+  color: var(--rdm-text) !important;
+}
+#adm-page table { min-width: 740px; border-collapse: collapse; }
+#adm-page th {
+  position: sticky;
+  top: 0;
+  padding: 13px !important;
+  background: #101b2a !important;
+  color: #b8efff;
+  font-size: .78rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+#adm-page td { padding: 12px !important; border-bottom: 1px solid var(--rdm-line); color: var(--rdm-muted); }
+#adm-page .modal-jogos { padding: 14px !important; background: rgba(1, 5, 12, .78) !important; backdrop-filter: blur(9px); }
+#adm-page .modal-jogos-box,
+#adm-page .modal-perfil-box {
+  max-width: min(720px, 100%) !important;
+  max-height: min(90vh, 840px) !important;
+  border: 1px solid rgba(85, 214, 255, .28) !important;
+  border-radius: 18px !important;
+  background: #111a2a !important;
+  box-shadow: 0 28px 90px rgba(0, 0, 0, .55);
+}
+#adm-page .perfil-adm-header {
+  padding: 26px 18px !important;
+  border-bottom: 1px solid var(--rdm-line) !important;
+  background: linear-gradient(135deg, #142238, #0e1828) !important;
+}
+#adm-page .avatar-adm-img { border-color: var(--rdm-accent) !important; box-shadow: 0 0 18px rgba(85, 214, 255, .2) !important; }
+#adm-page .section-title-adm { color: #b8efff !important; border-color: var(--rdm-line) !important; }
+#adm-page .perfil-adm-body { background: #111a2a !important; color: var(--rdm-text) !important; }
+#adm-page .game-grid-adm { grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 12px; }
+#adm-page .game-card-adm { border-color: var(--rdm-line) !important; border-radius: 11px !important; background: #0d1726 !important; }
+#adm-page .game-card-adm img { height: 72px; object-fit: cover; }
+#adm-page .game-card-adm h4 { color: var(--rdm-text) !important; }
+#adm-page button,
+#adm-page .action-btn { min-height: 42px; border-radius: 9px; }
+
+/* Conteúdo institucional, FAQ e tutoriais */
+body:not(.home-page) .contato-grid { justify-content: flex-start; gap: 14px; }
+body:not(.home-page) .contato-card {
+  flex: 1 1 240px;
+  min-width: min(100%, 240px);
+  border-color: var(--rdm-line);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(20, 34, 54, .98), rgba(14, 24, 40, .98));
+}
+body:not(.home-page) details {
+  border: 1px solid var(--rdm-line);
+  border-radius: 13px;
+  background: rgba(17, 26, 42, .72);
+}
+body:not(.home-page) summary { color: #b8efff; }
+body:not(.home-page) pre,
+body:not(.home-page) blockquote { max-width: 100%; overflow-x: auto; }
+
+@media (max-width: 760px) {
+  body:not(.home-page) > header { gap: 10px; padding: 11px 15px !important; }
+  body:not(.home-page) > header h1 { flex-basis: 100%; order: 2; }
+  body:not(.home-page) > main { width: calc(100% - 28px) !important; margin: 24px auto !important; }
+  body:not(.home-page) > main > section { padding: 18px !important; border-radius: 15px !important; }
+  body:not(.home-page) > main > section:has(iframe) > div,
+  body:not(.home-page) > main > section > div:has(iframe) { width: 100% !important; }
+  body:not(.home-page) #game-access-area { padding: 14px; }
+  body:not(.home-page) #game-access-area > * { flex: 1 1 100%; width: 100%; }
+  #profile-page > header { padding: 10px 14px !important; }
+  #profile-page > main { width: calc(100% - 28px) !important; margin: 24px auto !important; }
+  #profile-page .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  #profile-page .game-card { padding: 9px; }
+  #profile-page .game-card img { height: 105px; }
+  #adm-page > header { align-items: flex-start; }
+  #adm-page > main { width: calc(100% - 24px) !important; margin: 18px auto !important; }
+  #adm-page > main > div > div:first-of-type { flex-direction: column; }
+  #adm-page #search-user,
+  #adm-page #filter-plan { width: 100% !important; flex: 1 1 100% !important; }
+  #adm-page > main > div > div[style*="overflow-x"] { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  #adm-page .modal-perfil-box { width: 100% !important; }
+  #adm-page .perfil-adm-body { padding: 16px !important; }
+}
+
+@media (max-width: 420px) {
+  #profile-page .game-grid { grid-template-columns: 1fr; }
+  #profile-page .game-card img { height: 155px; }
+  #adm-page > header { flex-direction: column; }
+  body:not(.home-page) .btn-voltar { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:not(.home-page) *, body:not(.home-page) *::before, body:not(.home-page) *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
+}
